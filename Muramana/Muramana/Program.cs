@@ -14,8 +14,8 @@ namespace Muramana
         private static Menu Menu;
         private static bool hasAttacked;
         private static float distance = 0f;
-        private static Obj_SpellMissile miss;
         private static Obj_AI_Hero target1;
+        private static Dictionary<Obj_SpellMissile,Obj_AI_Hero> objList;
         static void Main(string[] args)
         {
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
@@ -37,16 +37,15 @@ namespace Muramana
  	        if (sender is Obj_SpellMissile && sender.IsValid)
             {
                 var missile = (Obj_SpellMissile) sender;
-                if(missile == miss)
+                if(objList.ContainsKey(missile))
                 {
                     
                     int Mur = Items.HasItem(Muramana) ? 3042 : 3043;
-                    if (target1.IsValid && ObjectManager.Get<Obj_AI_Hero>().Contains(target1) && (Items.HasItem(Mur)) && (Items.CanUseItem(Mur)) && (Menu.Item("useM").GetValue<bool>()))
+                    if (target1.IsValid && ObjectManager.Get<Obj_AI_Hero>().Contains(objList[missile]) && (Items.HasItem(Mur)) && (Items.CanUseItem(Mur)) && (Menu.Item("useM").GetValue<bool>()))
                     {
                         Items.UseItem(Mur);
                     }
-                    miss = null;
-                    target1 = null;
+                    objList.Remove(missile);
                 }
             }
         }
@@ -59,7 +58,8 @@ namespace Muramana
                 if (missile.SpellCaster is Obj_AI_Hero && missile.SpellCaster.IsValid &&
                     Orbwalking.IsAutoAttack(missile.SData.Name))
                 {
-                    miss = missile;
+                    objList.Add(missile, target1);
+                    target1 = null;
                 }
             }
         }
