@@ -1,85 +1,94 @@
-﻿using System;
+﻿//using LX_Orbwalker;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Input;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
-//using LX_Orbwalker;
-
-using Color = System.Drawing.Color;
 
 namespace VayneHunter2._0
 {
-    class Program
+    internal class Program
     {
-        public static String champName = "Vayne";
+        public static String ChampName = "Vayne";
         public static Orbwalking.Orbwalker Orbwalker;
-        public static Obj_AI_Base player = ObjectManager.Player;
+        public static Obj_AI_Base Player = ObjectManager.Player;
         public static Spell Q, W, E, R;
-        public static Menu menu;
-        public static string[] interrupt;
-        public static string[] notarget;
-        public static string[] gapcloser;
-        public static Obj_AI_Hero tar;
-        public static Dictionary<string, SpellSlot> spellData;
-        public static Dictionary<Obj_AI_Hero, Vector3> dirDic, lastVecDic= new Dictionary<Obj_AI_Hero,Vector3>();
-        public static Dictionary<Obj_AI_Hero, float> angleDic = new Dictionary<Obj_AI_Hero,float>();
-        public static Vector3 currentVec, lastVec;
+        public static Menu Menu;
+        public static string[] Interrupt;
+        public static string[] Notarget;
+        public static string[] Gapcloser;
+        public static Obj_AI_Hero Tar;
+        public static Dictionary<string, SpellSlot> SpellData;
+        public static Dictionary<Obj_AI_Hero, Vector3> DirDic, LastVecDic = new Dictionary<Obj_AI_Hero, Vector3>();
+        public static Dictionary<Obj_AI_Hero, float> AngleDic = new Dictionary<Obj_AI_Hero, float>();
+        public static Vector3 CurrentVec;
+        public static Vector3 LastVec;
         //public static LXOrbwalker orb;
-        public static bool sol=false;
-        static void Main(string[] args)
+        public static bool Sol = false;
+
+        private static void Main(string[] args)
         {
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
         }
 
-        static void Game_OnGameLoad(EventArgs args)
+        private static void Game_OnGameLoad(EventArgs args)
         {
-            if (player.BaseSkinName != champName) return;
-            menu = new Menu("Vayne Hunter", "VHMenu",true);
+            if (Player.BaseSkinName != ChampName) return;
+            Menu = new Menu("Vayne Hunter", "VHMenu", true);
             var orb_Menu = new Menu("Orbwalker", "Orbwalker1");
             //LXOrbwalker.AddToMenu(orb_Menu);
-            menu.AddSubMenu(orb_Menu);
-            Orbwalker = new Orbwalking.Orbwalker(menu.SubMenu("Orbwalker1"));
+            Menu.AddSubMenu(orb_Menu);
+            Orbwalker = new Orbwalking.Orbwalker(Menu.SubMenu("Orbwalker1"));
             var ts = new Menu("Target Selector", "TargetSelector");
             SimpleTs.AddToMenu(ts);
-            menu.AddSubMenu(ts);
-            menu.AddSubMenu(new Menu("[Hunter]Combo", "Combo"));
-            menu.SubMenu("Combo").AddItem(new MenuItem("UseQ", "Use Q").SetValue(true));
-            menu.SubMenu("Combo").AddItem(new MenuItem("UseE", "Use E").SetValue(true));
-            menu.SubMenu("Combo").AddItem(new MenuItem("UseR", "Use R").SetValue(true));
-            menu.AddSubMenu(new Menu("[Hunter]Mixed Mode", "Harrass"));
-            menu.SubMenu("Harrass").AddItem(new MenuItem("UseQH", "Use Q").SetValue(true));
-            menu.AddSubMenu(new Menu("[Hunter]Misc", "Misc"));
-            menu.SubMenu("Misc").AddItem(new MenuItem("AntiGP", "Use AntiGapcloser").SetValue(true));
-            menu.SubMenu("Misc").AddItem(new MenuItem("Interrupt", "Interrupt Spells").SetValue(true));
-            menu.SubMenu("Misc").AddItem(new MenuItem("ENextAuto", "Use E after next AA").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Toggle)));
-            menu.SubMenu("Misc").AddItem(new MenuItem("AdvE", "Use AdvE logic").SetValue(true));
-            menu.SubMenu("Misc").AddItem(new MenuItem("SmartQ", "WIP Use Q for GapClose").SetValue(false));
-            menu.SubMenu("Misc").AddItem(new MenuItem("UsePK", "Use Packets").SetValue(true));
-            menu.SubMenu("Misc").AddItem(new MenuItem("AutoE", "Use Auto E (Lag)").SetValue(false));
-            menu.SubMenu("Misc").AddItem(new MenuItem("PushDistance", "E Push Dist").SetValue(new Slider(425, 400, 475)));
-            menu.AddSubMenu(new Menu("[Hunter]Items", "Items"));
-            menu.SubMenu("Items").AddItem(new MenuItem("Botrk", "Use BOTRK").SetValue(true));
-            menu.SubMenu("Items").AddItem(new MenuItem("Youmuu", "Use Youmuu").SetValue(true));
-            menu.SubMenu("Items").AddItem(new MenuItem("OwnHPercBotrk", "Min Own H % Botrk").SetValue(new Slider(50, 1, 100)));
-            menu.SubMenu("Items").AddItem(new MenuItem("EnHPercBotrk", "Min Enemy H % Botrk").SetValue(new Slider(20, 1, 100)));
-            menu.SubMenu("Items").AddItem(new MenuItem("ItInMix", "Use Items In Mixed Mode").SetValue(false));
-            menu.AddSubMenu(new Menu("[Hunter]Mana Mng", "ManaMan"));
-            menu.SubMenu("ManaMan").AddItem(new MenuItem("QManaC", "Min Q Mana in Combo").SetValue(new Slider(30, 1, 100)));
-            menu.SubMenu("ManaMan").AddItem(new MenuItem("QManaM", "Min Q Mana in Mixed").SetValue(new Slider(30, 1, 100)));
-            menu.SubMenu("ManaMan").AddItem(new MenuItem("EManaC", "Min E Mana in Combo").SetValue(new Slider(20, 1, 100)));
-            menu.SubMenu("ManaMan").AddItem(new MenuItem("EManaM", "Min E Mana in Mixed").SetValue(new Slider(20, 1, 100)));
+            Menu.AddSubMenu(ts);
+            Menu.AddSubMenu(new Menu("[Hunter]Combo", "Combo"));
+            Menu.SubMenu("Combo").AddItem(new MenuItem("UseQ", "Use Q").SetValue(true));
+            Menu.SubMenu("Combo").AddItem(new MenuItem("UseE", "Use E").SetValue(true));
+            Menu.SubMenu("Combo").AddItem(new MenuItem("UseR", "Use R").SetValue(true));
+            Menu.AddSubMenu(new Menu("[Hunter]Mixed Mode", "Harrass"));
+            Menu.SubMenu("Harrass").AddItem(new MenuItem("UseQH", "Use Q").SetValue(true));
+            Menu.AddSubMenu(new Menu("[Hunter]Misc", "Misc"));
+            Menu.SubMenu("Misc").AddItem(new MenuItem("AntiGP", "Use AntiGapcloser").SetValue(true));
+            Menu.SubMenu("Misc").AddItem(new MenuItem("Interrupt", "Interrupt Spells").SetValue(true));
+            Menu.SubMenu("Misc")
+                .AddItem(
+                    new MenuItem("ENextAuto", "Use E after next AA").SetValue(new KeyBind("T".ToCharArray()[0],
+                        KeyBindType.Toggle)));
+            Menu.SubMenu("Misc").AddItem(new MenuItem("AdvE", "Use AdvE logic").SetValue(true));
+            Menu.SubMenu("Misc").AddItem(new MenuItem("SmartQ", "WIP Use Q for GapClose").SetValue(false));
+            Menu.SubMenu("Misc").AddItem(new MenuItem("UsePK", "Use Packets").SetValue(true));
+            Menu.SubMenu("Misc").AddItem(new MenuItem("AutoE", "Use Auto E (Lag)").SetValue(false));
+            Menu.SubMenu("Misc")
+                .AddItem(new MenuItem("PushDistance", "E Push Dist").SetValue(new Slider(425, 400, 475)));
+            Menu.AddSubMenu(new Menu("[Hunter]Items", "Items"));
+            Menu.SubMenu("Items").AddItem(new MenuItem("Botrk", "Use BOTRK").SetValue(true));
+            Menu.SubMenu("Items").AddItem(new MenuItem("Youmuu", "Use Youmuu").SetValue(true));
+            Menu.SubMenu("Items")
+                .AddItem(new MenuItem("OwnHPercBotrk", "Min Own H % Botrk").SetValue(new Slider(50, 1, 100)));
+            Menu.SubMenu("Items")
+                .AddItem(new MenuItem("EnHPercBotrk", "Min Enemy H % Botrk").SetValue(new Slider(20, 1, 100)));
+            Menu.SubMenu("Items").AddItem(new MenuItem("ItInMix", "Use Items In Mixed Mode").SetValue(false));
+            Menu.AddSubMenu(new Menu("[Hunter]Mana Mng", "ManaMan"));
+            Menu.SubMenu("ManaMan")
+                .AddItem(new MenuItem("QManaC", "Min Q Mana in Combo").SetValue(new Slider(30, 1, 100)));
+            Menu.SubMenu("ManaMan")
+                .AddItem(new MenuItem("QManaM", "Min Q Mana in Mixed").SetValue(new Slider(30, 1, 100)));
+            Menu.SubMenu("ManaMan")
+                .AddItem(new MenuItem("EManaC", "Min E Mana in Combo").SetValue(new Slider(20, 1, 100)));
+            Menu.SubMenu("ManaMan")
+                .AddItem(new MenuItem("EManaM", "Min E Mana in Mixed").SetValue(new Slider(20, 1, 100)));
             //Thank you blm95 ;)
-            menu.AddSubMenu(new Menu("[Hunter]Condemn: ", "CondemnHero"));
-            menu.AddSubMenu(new Menu("[Hunter]Gapcloser", "gap"));
-            menu.AddSubMenu(new Menu("[Hunter]Gapcloser 2", "gap2"));
-            menu.AddSubMenu(new Menu("[Hunter]Interrupts", "int"));
-            GPIntmenuCreate();
+            Menu.AddSubMenu(new Menu("[Hunter]Condemn: ", "CondemnHero"));
+            Menu.AddSubMenu(new Menu("[Hunter]Gapcloser", "gap"));
+            Menu.AddSubMenu(new Menu("[Hunter]Gapcloser 2", "gap2"));
+            Menu.AddSubMenu(new Menu("[Hunter]Interrupts", "int"));
+            GpIntmenuCreate();
             NoCondemnMenuCreate();
-           // initHeroes();
-            
-            menu.AddToMainMenu();
+            // initHeroes();
+
+            Menu.AddToMainMenu();
             Q = new Spell(SpellSlot.Q, 0f);
             E = new Spell(SpellSlot.E, 550f);
             R = new Spell(SpellSlot.R, 0f);
@@ -87,107 +96,115 @@ namespace VayneHunter2._0
             Game.OnGameUpdate += OnTick;
             Orbwalking.AfterAttack += OW_AfterAttack;
             //LXOrbwalker.AfterAttack += LXOrbwalker_AfterAttack;
-           // LXOrbwalker.AfterAttack += OW_AfterAttack;
+            // LXOrbwalker.AfterAttack += OW_AfterAttack;
             Obj_AI_Base.OnProcessSpellCast += OnProcessSpell;
             Game.PrintChat("VayneHunter 2.0 By DZ191 Loaded");
         }
 
         public static void OW_AfterAttack(Obj_AI_Base unit, Obj_AI_Base target)
         {
-            
-            if (unit.IsMe)
+            if (!unit.IsMe) return;
+            var targ = (Obj_AI_Hero) target;
+            if (IsEnK("ENextAuto"))
             {
-               
-                Obj_AI_Hero targ = (Obj_AI_Hero)target;
-                if (isEnK("ENextAuto"))
+                CastE(targ);
+                Menu.Item("ENextAuto")
+                    .SetValue(new KeyBind(Menu.Item("ENextAuto").GetValue<KeyBind>().Key, KeyBindType.Toggle));
+            }
+            if (IsEn("UseQ") && IsMode("Combo"))
+            {
+                if (IsEn("UseR"))
                 {
-                    CastE(targ);
-                    menu.Item("ENextAuto").SetValue<KeyBind>(new KeyBind(menu.Item("ENextAuto").GetValue<KeyBind>().Key, KeyBindType.Toggle));
+                    R.Cast();
                 }
-                if (isEn("UseQ") && isMode("Combo"))
-                {
-                    if (isEn("UseR"))
-                    {
-                        R.Cast();
-                    }
-                    CastQ(targ);
-                }
-                if (isEn("UseQH") && isMode("Mixed"))
-                {
-                    CastQ(targ);
-                }
-                if (isMode("Combo"))
-                {
-                    useItems(targ);
-                }
-                if (isMode("Mixed") && isEn("ItInMix"))
-                {
-                    useItems(targ);
-                }
+                CastQ(targ);
+            }
+            if (IsEn("UseQH") && IsMode("Mixed"))
+            {
+                CastQ(targ);
+            }
+            if (IsMode("Combo"))
+            {
+                UseItems(targ);
+            }
+            if (IsMode("Mixed") && IsEn("ItInMix"))
+            {
+                UseItems(targ);
             }
         }
-            
+
         public static void OnProcessSpell(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
             String spellName = args.SData.Name;
             //Interrupts
-            if(isEn(spellName) && sender.IsValidTarget(550f) && isEn("Interrupt"))
+            if (IsEn(spellName) && sender.IsValidTarget(550f) && IsEn("Interrupt"))
             {
-                CastE((Obj_AI_Hero)sender,true);
+                CastE((Obj_AI_Hero) sender, true);
             }
             //Targeted GapClosers
-            if (isEn(spellName) && sender.IsValidTarget(550f) && isEn("AntiGP") && gapcloser.Any(str => str.Contains(args.SData.Name)) 
+            if (IsEn(spellName) && sender.IsValidTarget(550f) && IsEn("AntiGP") &&
+                Gapcloser.Any(str => str.Contains(args.SData.Name))
                 && args.Target.IsMe)
             {
-                CastE((Obj_AI_Hero)sender,true);
+                CastE((Obj_AI_Hero) sender, true);
             }
             //NonTargeted GP
-            if (isEn(spellName) && sender.IsValidTarget(550f) && isEn("AntiGP") && notarget.Any(str => str.Contains(args.SData.Name)) 
-                && player.Distance(args.End)<=320f)
+            if (IsEn(spellName) && sender.IsValidTarget(550f) && IsEn("AntiGP") &&
+                Notarget.Any(str => str.Contains(args.SData.Name))
+                && Player.Distance(args.End) <= 320f)
             {
-                CastE((Obj_AI_Hero)sender,true);
+                CastE((Obj_AI_Hero) sender, true);
             }
         }
+
         public static void OnTick(EventArgs args)
         {
-            
-            if (isEn("AutoE"))
+            if (IsEn("AutoE"))
             {
                 foreach (Obj_AI_Hero hero in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsEnemy))
                 {
-                    if (hero.IsValid && !hero.IsDead && hero.IsVisible && player.Distance(hero) < 715f && player.Distance(hero) > 0f && menu.Item(hero.BaseSkinName).GetValue<bool>())
+                    if (hero.IsValid && !hero.IsDead && hero.IsVisible && Player.Distance(hero) < 715f &&
+                        Player.Distance(hero) > 0f && Menu.Item(hero.BaseSkinName).GetValue<bool>())
                     {
-
-                        var pred = E.GetPrediction(hero);
-                        var pushDist = menu.Item("PushDistance").GetValue<Slider>().Value;
-                        for (int i = 0; i < pushDist;i+=(int)hero.BoundingRadius)
+                        PredictionOutput pred = E.GetPrediction(hero);
+                        int pushDist = Menu.Item("PushDistance").GetValue<Slider>().Value;
+                        for (int i = 0; i < pushDist; i += (int) hero.BoundingRadius)
                         {
-                            var location = V2E(player.Position, pred.UnitPosition, i);
-                            if(IsWall(location.To3D()))
+                            Vector2 location = V2E(Player.Position, pred.UnitPosition, i);
+                            if (IsWall(location.To3D()))
                             {
                                 E.Cast(hero);
                                 break;
                             }
                         }
                     }
-
                 }
             }
-                        
-            if (!isMode("Combo") || !isEn("UseE") || !E.IsReady()) { return; }
-            if (!isEn("AdvE"))
+
+            if (!IsMode("Combo") || !IsEn("UseE") || !E.IsReady())
             {
-                foreach (var hero in from hero in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsValidTarget(550f) && menu.Item(hero.BaseSkinName).GetValue<bool>())
-                                     let prediction = E.GetPrediction(hero)
-                                     where NavMesh.GetCollisionFlags(
-                                         prediction.UnitPosition.To2D().Extend(ObjectManager.Player.ServerPosition.To2D(),-menu.Item("PushDistance").GetValue<Slider>().Value).To3D())
-                                         .HasFlag(CollisionFlags.Wall) || NavMesh.GetCollisionFlags(
-                                             prediction.UnitPosition.To2D()
-                                                 .Extend(ObjectManager.Player.ServerPosition.To2D(),
-                                                     -(menu.Item("PushDistance").GetValue<Slider>().Value / 2))
-                                                 .To3D())
-                                             .HasFlag(CollisionFlags.Wall)
-                                     select hero)
+                return;
+            }
+            if (!IsEn("AdvE"))
+            {
+                foreach (
+                    Obj_AI_Hero hero in
+                        from hero in
+                            ObjectManager.Get<Obj_AI_Hero>()
+                                .Where(hero => hero.IsValidTarget(550f) && Menu.Item(hero.BaseSkinName).GetValue<bool>())
+                        let prediction = E.GetPrediction(hero)
+                        where NavMesh.GetCollisionFlags(
+                            prediction.UnitPosition.To2D()
+                                .Extend(ObjectManager.Player.ServerPosition.To2D(),
+                                    -Menu.Item("PushDistance").GetValue<Slider>().Value)
+                                .To3D())
+                            .HasFlag(CollisionFlags.Wall) || NavMesh.GetCollisionFlags(
+                                prediction.UnitPosition.To2D()
+                                    .Extend(ObjectManager.Player.ServerPosition.To2D(),
+                                        -(Menu.Item("PushDistance").GetValue<Slider>().Value/2))
+                                    .To3D())
+                                .HasFlag(CollisionFlags.Wall)
+                        select hero)
                 {
                     CastE(hero);
                 }
@@ -196,254 +213,190 @@ namespace VayneHunter2._0
             {
                 foreach (Obj_AI_Hero hero in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsEnemy))
                 {
-                    if (hero.IsValid && !hero.IsDead && hero.IsVisible && player.Distance(hero) < 715f && player.Distance(hero) > 0f && menu.Item(hero.BaseSkinName).GetValue<bool>())
+                    if (hero.IsValid && !hero.IsDead && hero.IsVisible && Player.Distance(hero) < 715f &&
+                        Player.Distance(hero) > 0f && Menu.Item(hero.BaseSkinName).GetValue<bool>())
                     {
-                        
-                        var pred = E.GetPrediction(hero);
-                        
-                        var pushDist = menu.Item("PushDistance").GetValue<Slider>().Value;
-                        for (int i = 0; i <= pushDist; i += (int)hero.BoundingRadius)
+                        PredictionOutput pred = E.GetPrediction(hero);
+
+                        int pushDist = Menu.Item("PushDistance").GetValue<Slider>().Value;
+                        for (int i = 0; i <= pushDist; i += (int) hero.BoundingRadius)
                         {
-                            var location = V2E(player.Position, pred.UnitPosition, i);
+                            Vector2 location = V2E(Player.Position, pred.UnitPosition, i);
                             if (IsWall(location.To3D()))
                             {
                                 E.Cast(hero);
                                 break;
                             }
-                        }     
+                        }
                     }
-
                 }
             }
-            
         }
-        
-         public static bool IsWall(Vector3 position)
-       {
-           var cFlags = NavMesh.GetCollisionFlags(position);
+
+        public static bool IsWall(Vector3 position)
+        {
+            CollisionFlags cFlags = NavMesh.GetCollisionFlags(position);
             return (cFlags == CollisionFlags.Wall || cFlags == CollisionFlags.Building || cFlags == CollisionFlags.Prop);
         }
-        static void UpdateHeroes()
-        {
-            foreach (var hero in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsValidTarget(550f)))
-            {
-                currentVec = hero.Position;
-                Vector3 direction = Vector3.Subtract(currentVec,lastVec);
-                
-                if(!(direction == new Vector3(0,0,0)))
-                {
-                    direction.Normalize();
-                }
-                float angle = Vector3.Dot(direction,direction);
-                lastVecDic[hero] = currentVec;
-                dirDic[hero] = direction;
-                angleDic[hero] = angle;
-                
-            }
-        }
-        static Vector3 condemnCollisionTime(Obj_AI_Hero target)
-        {
-            Vector3 dir = dirDic[target];
-            float angle = angleDic[target];
-            if(!(dir==new Vector3(0,0,0)))
-            {
-                Vector3 windup = target.Position + dir * (target.MoveSpeed * 250 / 1000);
-                float time = (float)GetCollisionTime(windup, dir, target.MoveSpeed, player.Position, 1600f);
-                if(time == 0)
-                {
-                    return new Vector3(0, 0, 0);
-                }
-                
-                Vector3 returner = target.Position + dir * (target.MoveSpeed * (time+0.25f))/2;
-                return returner;
-            }
-            return new Vector3(0,0,0);
-        }
-        //Thanks Yomie
-        static double GetCollisionTime(Vector3 position,Vector3 direction,float tSpeed,Vector3 sourcePos,float projSpeed)
-        {
-            var velocity = direction * tSpeed;
-            float velocityX = velocity.X;
-	        float velocityY = velocity.Z;
-	
-	        Vector3 relStart = position - sourcePos;
 
-            float relStartX = relStart.X;
-	        float relStartY = relStart.Z;
-            float a = velocityX * velocityX + velocityY * velocityY - projSpeed * projSpeed;
-	        float b = 2 * velocityX * relStartX + 2 * velocityY * relStartY;
-	        float c = relStartX * relStartX + relStartY * relStartY;
-         	float disc = b * b - 4 * a * c;
-	
-	        if(disc >= 0){
-		        double t1 = -( b + Math.Sqrt( disc )) / (2 * a );
-		        double t2 = -( b - Math.Sqrt( disc )) / (2 * a );
-		        if(t1!=null && t2 != null && t1 > 0 && t2 > 0){
-			        if (t1 > t2){
-				        return t2;
-			        }else{
-			    	    return t1;
-			        }
-                }
-		        else if(t1!=null && t1 > 0){
-			        return t1;
-		        }else if(t2!=null && t2 > 0){
-			        return t2;
-		        }
-            }
-            return 0;  
-        }
-        static void GPIntmenuCreate()
+        private static void GpIntmenuCreate()
         {
-            gapcloser = new[]
+            Gapcloser = new[]
             {
                 "AkaliShadowDance", "Headbutt", "DianaTeleport", "IreliaGatotsu", "JaxLeapStrike", "JayceToTheSkies",
                 "MaokaiUnstableGrowth", "MonkeyKingNimbus", "Pantheon_LeapBash", "PoppyHeroicCharge", "QuinnE",
                 "XenZhaoSweep", "blindmonkqtwo", "FizzPiercingStrike", "RengarLeap"
             };
-            notarget = new[]
+            Notarget = new[]
             {
                 "AatroxQ", "GragasE", "GravesMove", "HecarimUlt", "JarvanIVDragonStrike", "JarvanIVCataclysm", "KhazixE",
                 "khazixelong", "LeblancSlide", "LeblancSlideM", "LeonaZenithBlade", "UFSlash", "RenektonSliceAndDice",
                 "SejuaniArcticAssault", "ShenShadowDash", "RocketJump", "slashCast"
             };
-            interrupt = new[]
+            Interrupt = new[]
             {
                 "KatarinaR", "GalioIdolOfDurand", "Crowstorm", "Drain", "AbsoluteZero", "ShenStandUnited", "UrgotSwap2",
                 "AlZaharNetherGrasp", "FallenOne", "Pantheon_GrandSkyfall_Jump", "VarusQ", "CaitlynAceintheHole",
                 "MissFortuneBulletTime", "InfiniteDuress", "LucianR"
             };
-            for (int i = 0; i < gapcloser.Length; i++)
+            for (int i = 0; i < Gapcloser.Length; i++)
             {
-                menu.SubMenu("gap").AddItem(new MenuItem(gapcloser[i], gapcloser[i])).SetValue(true);
+                Menu.SubMenu("gap").AddItem(new MenuItem(Gapcloser[i], Gapcloser[i])).SetValue(true);
             }
-            for (int i = 0; i < notarget.Length; i++)
+            for (int i = 0; i < Notarget.Length; i++)
             {
-                menu.SubMenu("gap2").AddItem(new MenuItem(notarget[i], notarget[i])).SetValue(true);
+                Menu.SubMenu("gap2").AddItem(new MenuItem(Notarget[i], Notarget[i])).SetValue(true);
             }
-            for (int i = 0; i < interrupt.Length; i++)
+            for (int i = 0; i < Interrupt.Length; i++)
             {
-                menu.SubMenu("int").AddItem(new MenuItem(interrupt[i], interrupt[i])).SetValue(true);
+                Menu.SubMenu("int").AddItem(new MenuItem(Interrupt[i], Interrupt[i])).SetValue(true);
             }
         }
-        static void NoCondemnMenuCreate()
+
+        private static void NoCondemnMenuCreate()
         {
-            foreach(var hero in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsEnemy))
+            foreach (Obj_AI_Hero hero in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsEnemy))
             {
-                menu.SubMenu("CondemnHero").AddItem(new MenuItem(hero.BaseSkinName, hero.BaseSkinName)).SetValue(true);
+                Menu.SubMenu("CondemnHero").AddItem(new MenuItem(hero.BaseSkinName, hero.BaseSkinName)).SetValue(true);
             }
         }
-        
+
         public static void CastQ(Obj_AI_Hero targ)
         {
-                if(Q.IsReady())
+            if (Q.IsReady())
+                if (IsEn("SmartQ") && Player.Distance(targ) >= Orbwalking.GetRealAutoAttackRange(null))
                 {
-                    if(isEn("SmartQ") && player.Distance(targ)>=Orbwalking.GetRealAutoAttackRange(null))
+                    if (IsMode("Combo") && GetManaPer() >= Menu.Item("QManaC").GetValue<Slider>().Value)
                     {
-                        if (isMode("Combo") && getManaPer() >= menu.Item("QManaC").GetValue<Slider>().Value)
-                        {
-                            float tumbleRange = 300f;
-                            bool canGapclose = player.Distance(targ) <= Orbwalking.GetRealAutoAttackRange(null) + tumbleRange;
-                            if ((player.Distance(targ) >= Orbwalking.GetRealAutoAttackRange(null)))
-                            {
-                                if (canGapclose)
-                                {
-                                    Vector3 PositionForQ = new Vector3(targ.Position.X, targ.Position.Y, targ.Position.Z);
-                                    Q.Cast(PositionForQ, isEn("UsePK"));
-                                }
-                            }
-                        }
-                        else if (isMode("Mixed") && getManaPer() >= menu.Item("QManaM").GetValue<Slider>().Value)
-                        {
-                            float tumbleRange = 300f;
-                            bool canGapclose = player.Distance(targ) <= Orbwalking.GetRealAutoAttackRange(null) + tumbleRange;
-                            if ((player.Distance(targ) >= Orbwalking.GetRealAutoAttackRange(null)))
-                            {
-                                if (canGapclose)
-                                {
-                                    Vector3 PositionForQ = new Vector3(targ.Position.X, targ.Position.Y, targ.Position.Z);
-                                    Q.Cast(PositionForQ, isEn("UsePK"));
-                                }
-                            }
-                        }
-                    }else{ 
-                    if(isMode("Combo") && getManaPer()>= menu.Item("QManaC").GetValue<Slider>().Value)
-                    {
-                        Q.Cast(Game.CursorPos, isEn("UsePK"));
-                    }else if(isMode("Mixed") && getManaPer()>= menu.Item("QManaM").GetValue<Slider>().Value)
-                    {
-                        Q.Cast(Game.CursorPos, isEn("UsePK"));
-                    } 
+                        var tumbleRange = 300f;
+                        var canGapclose = Player.Distance(targ) <=
+                                           Orbwalking.GetRealAutoAttackRange(null) + tumbleRange;
+                        if ((!(Player.Distance(targ) >= Orbwalking.GetRealAutoAttackRange(null)))) return;
+                        if (!canGapclose) return;
+                        Vector3 PositionForQ = new Vector3(targ.Position.X, targ.Position.Y, targ.Position.Z);
+                        Q.Cast(PositionForQ, IsEn("UsePK"));
                     }
-                    
+                    else if (IsMode("Mixed") && GetManaPer() >= Menu.Item("QManaM").GetValue<Slider>().Value)
+                    {
+                        var tumbleRange = 300f;
+                        var canGapclose = Player.Distance(targ) <=
+                                           Orbwalking.GetRealAutoAttackRange(null) + tumbleRange;
+                        if ((!(Player.Distance(targ) >= Orbwalking.GetRealAutoAttackRange(null)))) return;
+                        if (!canGapclose) return;
+                        Vector3 PositionForQ = new Vector3(targ.Position.X, targ.Position.Y, targ.Position.Z);
+                        Q.Cast(PositionForQ, IsEn("UsePK"));
+                    }
+                }
+                else
+                {
+                    if (IsMode("Combo") && GetManaPer() >= Menu.Item("QManaC").GetValue<Slider>().Value)
+                    {
+                        Q.Cast(Game.CursorPos, IsEn("UsePK"));
+                    }
+                    else if (IsMode("Mixed") && GetManaPer() >= Menu.Item("QManaM").GetValue<Slider>().Value)
+                    {
+                        Q.Cast(Game.CursorPos, IsEn("UsePK"));
+                    }
                 }
         }
-        static void CastE(Obj_AI_Hero Target,bool forGp=false)
+
+        private static void CastE(Obj_AI_Hero Target, bool forGp = false)
         {
-            if (E.IsReady() && player.Distance(Target) < 550f)
+            if (E.IsReady() && Player.Distance(Target) < 550f)
             {
-                if(!forGp)
-                { 
-                    if (isMode("Combo") && getManaPer() >= menu.Item("EManaC").GetValue<Slider>().Value)
-                    {
-                        E.Cast(Target, isEn("UsePK"));
-                    }
-                    else if (isMode("Mixed") && getManaPer() >= menu.Item("EManaM").GetValue<Slider>().Value)
-                    {
-                        E.Cast(Target, isEn("UsePK"));
-                    }
-                }else
+                if (!forGp)
                 {
-                    E.Cast(Target, isEn("UsePK"));
+                    if (IsMode("Combo") && GetManaPer() >= Menu.Item("EManaC").GetValue<Slider>().Value)
+                    {
+                        E.Cast(Target, IsEn("UsePK"));
+                    }
+                    else if (IsMode("Mixed") && GetManaPer() >= Menu.Item("EManaM").GetValue<Slider>().Value)
+                    {
+                        E.Cast(Target, IsEn("UsePK"));
+                    }
+                }
+                else
+                {
+                    E.Cast(Target, IsEn("UsePK"));
                 }
             }
         }
-        static void useItems(Obj_AI_Hero tar)
+
+        private static void UseItems(Obj_AI_Hero tar)
         {
-            float OwnH = getPlHPer();
-            if (menu.Item("Botrk").GetValue<bool>() && (menu.Item("OwnHPercBotrk").GetValue<Slider>().Value <= OwnH) && ((menu.Item("EnHPercBotrk").GetValue<Slider>().Value <= getEnH(tar))))
+            var ownH = GetPlHPer();
+            if (Menu.Item("Botrk").GetValue<bool>() && (Menu.Item("OwnHPercBotrk").GetValue<Slider>().Value <= ownH) &&
+                ((Menu.Item("EnHPercBotrk").GetValue<Slider>().Value <= GetEnH(tar))))
             {
-                useItem(3153, tar);
+                UseItem(3153, tar);
             }
-            if (menu.Item("Youmuu").GetValue<bool>())
+            if (Menu.Item("Youmuu").GetValue<bool>())
             {
-                useItem(3142);
+                UseItem(3142);
             }
         }
-        static bool isEn(String opt)
+
+        private static bool IsEn(String opt)
         {
-            return menu.Item(opt).GetValue<bool>();
+            return Menu.Item(opt).GetValue<bool>();
         }
-        public static float getManaPer()
+
+        public static float GetManaPer()
         {
-            float mana = (player.Mana / player.MaxMana) * 100;
+            float mana = (Player.Mana/Player.MaxMana)*100;
             return mana;
         }
-        static bool isEnK(String opt)
+
+        private static bool IsEnK(String opt)
         {
-            return menu.Item(opt).GetValue<KeyBind>().Active;
+            return Menu.Item(opt).GetValue<KeyBind>().Active;
         }
-        static bool isMode(String mode)
+
+        private static bool IsMode(String mode)
         {
             return (Orbwalker.ActiveMode.ToString() == mode);
         }
-        public static void useItem(int id, Obj_AI_Hero target = null)
+
+        public static void UseItem(int id, Obj_AI_Hero target = null)
         {
             if (Items.HasItem(id) && Items.CanUseItem(id))
             {
                 Items.UseItem(id, target);
             }
         }
-        public static float getEnH(Obj_AI_Hero target)
+
+        public static float GetEnH(Obj_AI_Hero target)
         {
-            float h = (target.Health / target.MaxHealth) * 100;
+            float h = (target.Health/target.MaxHealth)*100;
             return h;
         }
-        public static float getPlHPer()
+
+        public static float GetPlHPer()
         {
-            float h = (player.Health / player.MaxHealth) * 100;
+            float h = (Player.Health/Player.MaxHealth)*100;
             return h;
         }
+
         /// <summary>
         ///     Extends a vector using the params from, direction, distance.Credits to princer007
         /// </summary>
@@ -453,8 +406,7 @@ namespace VayneHunter2._0
         /// <returns></returns>
         private static Vector2 V2E(Vector3 from, Vector3 direction, float distance)
         {
-            return from.To2D() + distance * Vector3.Normalize(direction - from).To2D();
+            return from.To2D() + distance*Vector3.Normalize(direction - from).To2D();
         }
-
     }
 }
