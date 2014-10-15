@@ -89,6 +89,7 @@ namespace VayneHunter2._0
             //LXOrbwalker.AfterAttack += LXOrbwalker_AfterAttack;
            // LXOrbwalker.AfterAttack += OW_AfterAttack;
             Obj_AI_Base.OnProcessSpellCast += OnProcessSpell;
+            Game.PrintChat("VayneHunter 2.0 By DZ191 Loaded");
         }
 
         static void LXOrbwalker_AfterAttack(Obj_AI_Base unit, Obj_AI_Base target)
