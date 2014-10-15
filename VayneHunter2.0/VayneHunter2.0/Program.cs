@@ -5,6 +5,7 @@ using System.Windows.Input;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
+//using LX_Orbwalker;
 
 using Color = System.Drawing.Color;
 
@@ -25,6 +26,7 @@ namespace VayneHunter2._0
         public static Dictionary<Obj_AI_Hero, Vector3> dirDic, lastVecDic= new Dictionary<Obj_AI_Hero,Vector3>();
         public static Dictionary<Obj_AI_Hero, float> angleDic = new Dictionary<Obj_AI_Hero,float>();
         public static Vector3 currentVec, lastVec;
+        //public static LXOrbwalker orb;
         public static bool sol=false;
         static void Main(string[] args)
         {
@@ -35,7 +37,9 @@ namespace VayneHunter2._0
         {
             if (player.BaseSkinName != champName) return;
             menu = new Menu("Vayne Hunter", "VHMenu",true);
-            menu.AddSubMenu(new Menu("Orbwalker", "Orbwalker1"));
+            var orb_Menu = new Menu("Orbwalker", "Orbwalker1");
+            //LXOrbwalker.AddToMenu(orb_Menu);
+            menu.AddSubMenu(orb_Menu);
             Orbwalker = new Orbwalking.Orbwalker(menu.SubMenu("Orbwalker1"));
             var ts = new Menu("Target Selector", "TargetSelector");
             SimpleTs.AddToMenu(ts);
@@ -46,8 +50,6 @@ namespace VayneHunter2._0
             menu.SubMenu("Combo").AddItem(new MenuItem("UseR", "Use R").SetValue(true));
             menu.AddSubMenu(new Menu("[Hunter]Mixed Mode", "Harrass"));
             menu.SubMenu("Harrass").AddItem(new MenuItem("UseQH", "Use Q").SetValue(true));
-            //menu.SubMenu("Harrass").AddItem(new MenuItem("UseEH", "Use E").SetValue(true));
-            //menu.SubMenu("Harrass").AddItem(new MenuItem("UseQPH", "Use Q&Auto While they auto minions").SetValue(true));
             menu.AddSubMenu(new Menu("[Hunter]Misc", "Misc"));
             menu.SubMenu("Misc").AddItem(new MenuItem("AntiGP", "Use AntiGapcloser").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("Interrupt", "Interrupt Spells").SetValue(true));
@@ -68,10 +70,6 @@ namespace VayneHunter2._0
             menu.SubMenu("ManaMan").AddItem(new MenuItem("QManaM", "Min Q Mana in Mixed").SetValue(new Slider(30, 1, 100)));
             menu.SubMenu("ManaMan").AddItem(new MenuItem("EManaC", "Min E Mana in Combo").SetValue(new Slider(20, 1, 100)));
             menu.SubMenu("ManaMan").AddItem(new MenuItem("EManaM", "Min E Mana in Mixed").SetValue(new Slider(20, 1, 100)));
-            //menu.AddSubMenu(new Menu("[Hunter]WIP", "ezCondemn"));
-           // menu.SubMenu("ezCondemn").AddItem(new MenuItem("CheckDistance", "Condemn check Distance").SetValue(new Slider(25, 1, 200)));
-            //menu.SubMenu("ezCondemn").AddItem(new MenuItem("Checks", "Num of Checks").SetValue(new Slider(3, 0, 5)));
-            //menu.SubMenu("ezCondemn").AddItem(new MenuItem("MaxDistance", "Max Condemn Distance").SetValue(new Slider(1000, 0, 1500)));
             //Thank you blm95 ;)
             menu.AddSubMenu(new Menu("[Hunter]Condemn: ", "CondemnHero"));
             menu.AddSubMenu(new Menu("[Hunter]Gapcloser", "gap"));
@@ -88,21 +86,27 @@ namespace VayneHunter2._0
             E.SetTargetted(0.25f, 2200f);
             Game.OnGameUpdate += OnTick;
             Orbwalking.AfterAttack += OW_AfterAttack;
+            //LXOrbwalker.AfterAttack += LXOrbwalker_AfterAttack;
+           // LXOrbwalker.AfterAttack += OW_AfterAttack;
             Obj_AI_Base.OnProcessSpellCast += OnProcessSpell;
         }
 
-       
-
+        static void LXOrbwalker_AfterAttack(Obj_AI_Base unit, Obj_AI_Base target)
+        {
+            Game.PrintChat("Rekt2");
+            throw new NotImplementedException();
+        }
         public static void OW_AfterAttack(Obj_AI_Base unit, Obj_AI_Base target)
         {
+            
             if (unit.IsMe)
             {
-                
+               
                 Obj_AI_Hero targ = (Obj_AI_Hero)target;
                 if (isEnK("ENextAuto"))
                 {
                     CastE(targ);
-                    menu.Item("ENextAuto").SetValue<KeyBind>(new KeyBind("E".ToCharArray()[0], KeyBindType.Toggle));
+                    menu.Item("ENextAuto").SetValue<KeyBind>(new KeyBind(menu.Item("ENextAuto").GetValue<KeyBind>().Key, KeyBindType.Toggle));
                 }
                 if (isEn("UseQ") && isMode("Combo"))
                 {
@@ -150,6 +154,7 @@ namespace VayneHunter2._0
         }
         public static void OnTick(EventArgs args)
         {
+            
             if (isEn("AutoE"))
             {
                 foreach (Obj_AI_Hero hero in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsEnemy))
@@ -159,11 +164,12 @@ namespace VayneHunter2._0
 
                         var pred = E.GetPrediction(hero);
                         var pushDist = menu.Item("PushDistance").GetValue<Slider>().Value;
-                        for (var i = 0; i < pushDist; i += (int)hero.BoundingRadius)
+                        for (int i = 0; i < pushDist;i+=(int)hero.BoundingRadius)
                         {
-                            if (IsWall(pred.UnitPosition.To2D().Extend(ObjectManager.Player.ServerPosition.To2D(), -i).To3D()))
+                            var location = V2E(player.Position, pred.UnitPosition, i);
+                            if(IsWall(location.To3D()))
                             {
-                                CastE(hero);
+                                E.Cast(hero);
                                 break;
                             }
                         }
@@ -171,7 +177,7 @@ namespace VayneHunter2._0
 
                 }
             }
-            
+                        
             if (!isMode("Combo") || !isEn("UseE") || !E.IsReady()) { return; }
             if (!isEn("AdvE"))
             {
@@ -200,14 +206,15 @@ namespace VayneHunter2._0
                         var pred = E.GetPrediction(hero);
                         
                         var pushDist = menu.Item("PushDistance").GetValue<Slider>().Value;
-                        for (var i = 0; i < pushDist; i+=(int)hero.BoundingRadius)
-                       {
-                           if (IsWall(pred.UnitPosition.To2D().Extend(ObjectManager.Player.ServerPosition.To2D(), -i).To3D()))
-                           {
-                               CastE(hero);
-                               break;
-                           }
-                       }       
+                        for (int i = 0; i <= pushDist; i += (int)hero.BoundingRadius)
+                        {
+                            var location = V2E(player.Position, pred.UnitPosition, i);
+                            if (IsWall(location.To3D()))
+                            {
+                                E.Cast(hero);
+                                break;
+                            }
+                        }     
                     }
 
                 }
@@ -441,5 +448,17 @@ namespace VayneHunter2._0
             float h = (player.Health / player.MaxHealth) * 100;
             return h;
         }
+        /// <summary>
+        ///     Extends a vector using the params from, direction, distance.Credits to princer007
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="direction"></param>
+        /// <param name="distance"></param>
+        /// <returns></returns>
+        private static Vector2 V2E(Vector3 from, Vector3 direction, float distance)
+        {
+            return from.To2D() + distance * Vector3.Normalize(direction - from).To2D();
+        }
+
     }
 }
