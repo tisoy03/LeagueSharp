@@ -47,8 +47,8 @@ namespace MinionHPBar
             {
                 var attackToKill  = Math.Ceiling(minion.MaxHealth/Player.GetAutoAttackDamage(minion, true));
                 var hpBarPosition = minion.HPBarPosition;
-                var barWidth = minion.IsMelee() ? 75 : 80;
-                if (minion.HasBuff("turretshield", true))
+                var barWidth = minion.IsMelee() ? 75 : 80; //Width for melee and ranged
+                if (minion.HasBuff("turretshield", true)) //Cannon minion
                 {
                     barWidth = 70;
                 }
