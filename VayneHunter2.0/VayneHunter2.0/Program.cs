@@ -92,11 +92,6 @@ namespace VayneHunter2._0
             Game.PrintChat("VayneHunter 2.0 By DZ191 Loaded");
         }
 
-        static void LXOrbwalker_AfterAttack(Obj_AI_Base unit, Obj_AI_Base target)
-        {
-            Game.PrintChat("Rekt2");
-            throw new NotImplementedException();
-        }
         public static void OW_AfterAttack(Obj_AI_Base unit, Obj_AI_Base target)
         {
             
