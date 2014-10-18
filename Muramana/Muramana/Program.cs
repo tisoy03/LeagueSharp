@@ -26,10 +26,19 @@ namespace Muramana
             Menu = new Menu("Muramana Activator", "MMAct", true);
             Menu.AddItem(new MenuItem("useM", "Use Muramana Activator").SetValue(true));
             Game.PrintChat("Muramana Activator By DZ191 Loaded.");
-            Orbwalking.AfterAttack += Orbwalking_AfterAttack;
-            Orbwalking.BeforeAttack += Orbwalking_BeforeAttack;
+            Orbwalking.OnAttack += OrbwalkingOnAtk;
             GameObject.OnCreate += Obj_SpellMissile_OnCreate;
             GameObject.OnDelete += GameObject_OnDelete;
+        }
+
+        private static void OrbwalkingOnAtk(Obj_AI_Base unit, Obj_AI_Base target)
+        {
+            int Mur = Items.HasItem(Muramana) ? 3042 : 3043;
+            if (ObjectManager.Get<Obj_AI_Hero>().Contains(target) && (Items.HasItem(Mur)) && (Menu.Item("useM").GetValue<bool>()) && (Items.CanUseItem(Mur)))
+            {
+                Items.UseItem(Mur);
+                target1 = (Obj_AI_Hero)target;
+            }
         }
 
         static void GameObject_OnDelete(GameObject sender, EventArgs args)
@@ -55,29 +64,13 @@ namespace Muramana
  	         if (sender is Obj_SpellMissile && sender.IsValid)
             {
                 var missile = (Obj_SpellMissile) sender;
-                if (missile.SpellCaster is Obj_AI_Hero && missile.SpellCaster.IsValid &&
+                if (missile.SpellCaster is Obj_AI_Hero && missile.SpellCaster.IsMe && missile.SpellCaster.IsValid &&
                     Orbwalking.IsAutoAttack(missile.SData.Name))
                 {
                     objList.Add(missile, target1);
                     target1 = null;
                 }
             }
-        }
-
-        static void Orbwalking_AfterAttack(Obj_AI_Base unit, Obj_AI_Base target)
-        {
-            if(unit.IsMe && (target is Obj_AI_Hero))
-            {
-                target1 = (Obj_AI_Hero)target;
-            }
-        }
-        static void Orbwalking_BeforeAttack(Orbwalking.BeforeAttackEventArgs args)
-        {
-            int Mur = Items.HasItem(Muramana) ? 3042 : 3043;
-            if (ObjectManager.Get<Obj_AI_Hero>().Contains(args.Target) && (Items.HasItem(Mur)) && (Menu.Item("useM").GetValue<bool>()) && (Items.CanUseItem(Mur)))
-            {
-                Items.UseItem(Mur);
-            }
-        }   
+        } 
     }
 }
