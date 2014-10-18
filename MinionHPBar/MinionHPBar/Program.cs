@@ -26,6 +26,8 @@ namespace MinionHPBar
             Menu.SubMenu("Drawing").AddItem(new MenuItem("DrawLines", "Draw Bars").SetValue(new Circle(true,Color.Black)));
             Menu.SubMenu("Drawing").AddItem(new MenuItem("LastHitH", "LastHit Helper").SetValue(new Circle(true,Color.Lime)));
             Menu.SubMenu("Drawing").AddItem(new MenuItem("Thick", "Thickness").SetValue(new Slider(2,1,3)));
+            Menu.SubMenu("Drawing").AddItem(new MenuItem("NearDead", "Nearly dead Circle").SetValue(new Circle(true, Color.Green)));
+            Menu.SubMenu("Drawing").AddItem(new MenuItem("1Hit", "LastHit Circle").SetValue(new Circle(true, Color.Coral)));
             //Range Menu
             Menu.AddSubMenu(new Menu("Ranges", "Range"));
             Menu.SubMenu("Range").AddItem(new MenuItem("DrRange", "Draw Range").SetValue(new Slider(850,450,1200)));
@@ -63,7 +65,17 @@ namespace MinionHPBar
                             ((minion.Health <= Player.GetAutoAttackDamage(minion, true) && Menu.Item("LastHitH").GetValue<Circle>().Active) ? Menu.Item("LastHitH").GetValue<Circle>().Color : Menu.Item("DrawLines").GetValue<Circle>().Color));
                     }
                 }
+                //Based on LXOrbwalker. Thanks Lexxes
+                if (Menu.Item("1Hit").GetValue<Circle>().Active &&
+                        minion.Health <= Player.GetAutoAttackDamage(minion, true))
+                    Utility.DrawCircle(minion.Position, minion.BoundingRadius, Menu.Item("1Hit").GetValue<Circle>().Color);
+                else if (Menu.Item("NearDead").GetValue<Circle>().Active &&
+                         minion.Health <= Player.GetAutoAttackDamage(minion, true) * 2)
+                    Utility.DrawCircle(minion.Position, minion.BoundingRadius, Menu.Item("NearDead").GetValue<Circle>().Color);
+             
             }
+
+            
         }
         
     }
