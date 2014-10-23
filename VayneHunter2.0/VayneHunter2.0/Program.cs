@@ -98,7 +98,31 @@ namespace VayneHunter2._0
             //LXOrbwalker.AfterAttack += LXOrbwalker_AfterAttack;
             // LXOrbwalker.AfterAttack += OW_AfterAttack;
             Obj_AI_Base.OnProcessSpellCast += OnProcessSpell;
-            Game.PrintChat("VayneHunter 2.0 By DZ191 Loaded");
+           // Drawing.OnDraw += Drawing_OnDraw;
+            Game.PrintChat("VayneHunter 2.03 By DZ191 Loaded");
+        }
+
+        static void Drawing_OnDraw(EventArgs args)
+        {
+            foreach (Obj_AI_Hero hero in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsEnemy))
+            {
+                if (hero.IsValid && !hero.IsDead && hero.IsVisible && Player.Distance(hero) < 715f &&
+                    Player.Distance(hero) > 0f && Menu.Item(hero.BaseSkinName).GetValue<bool>())
+                {
+                    PredictionOutput pred = E.GetPrediction(hero);
+
+                    int pushDist = Menu.Item("PushDistance").GetValue<Slider>().Value;
+                    for (int i = 0; i < pushDist; i += (int)hero.BoundingRadius)
+                    {
+                        Vector2 location = V2E(Player.Position, pred.CastPosition, i);
+                        Vector3 loc2 = new Vector3(location.X,Player.Position.Y,location.Y);
+                        Vector3 loc3 = pred.UnitPosition.To2D()
+                                    .Extend(ObjectManager.Player.ServerPosition.To2D(), -i)
+                                    .To3D();
+                        Utility.DrawCircle(loc3,100f,System.Drawing.Color.Aqua,4,30,false);
+                    }
+                }
+            }
         }
 
         public static void OW_AfterAttack(Obj_AI_Base unit, Obj_AI_Base target)
@@ -219,10 +243,15 @@ namespace VayneHunter2._0
                         PredictionOutput pred = E.GetPrediction(hero);
 
                         int pushDist = Menu.Item("PushDistance").GetValue<Slider>().Value;
-                        for (int i = 0; i <= pushDist; i += (int) hero.BoundingRadius)
+                        for (int i = 0; i < pushDist; i += (int) hero.BoundingRadius)
                         {
-                            Vector2 location = V2E(Player.Position, pred.UnitPosition, i);
-                            if (IsWall(location.To3D()))
+                            Vector2 location = V2E(Player.Position, pred.CastPosition, i);
+                            Vector3 loc2 = new Vector3(location.X, Player.Position.Y, location.Y);
+                            Vector3 loc3 =
+                               pred.UnitPosition.To2D()
+                                    .Extend(ObjectManager.Player.ServerPosition.To2D(), -i)
+                                    .To3D();
+                            if (IsWall(loc3))
                             {
                                 E.Cast(hero);
                                 break;
