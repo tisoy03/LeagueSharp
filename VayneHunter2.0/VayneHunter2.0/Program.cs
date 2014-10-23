@@ -195,7 +195,11 @@ namespace VayneHunter2._0
                         for (int i = 0; i < pushDist; i += (int) hero.BoundingRadius)
                         {
                             Vector2 location = V2E(Player.Position, pred.UnitPosition, i);
-                            if (IsWall(location.To3D()))
+                            Vector3 loc3 =
+                               pred.UnitPosition.To2D()
+                                    .Extend(ObjectManager.Player.ServerPosition.To2D(), -i)
+                                    .To3D();
+                            if (IsWall(loc3))
                             {
                                 E.Cast(hero);
                                 break;
