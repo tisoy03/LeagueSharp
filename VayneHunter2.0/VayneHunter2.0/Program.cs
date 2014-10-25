@@ -101,7 +101,7 @@ namespace VayneHunter2._0
            // Drawing.OnDraw += Drawing_OnDraw;
             Game.PrintChat("VayneHunter 2.03 By DZ191 Loaded");
         }
-
+        //FizzJump
         static void Drawing_OnDraw(EventArgs args)
         {
             foreach (Obj_AI_Hero hero in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsEnemy))
@@ -209,10 +209,7 @@ namespace VayneHunter2._0
                 }
             }
 
-            if (!IsMode("Combo") || !IsEn("UseE") || !E.IsReady())
-            {
-                return;
-            }
+            if (!IsMode("Combo") || !IsEn("UseE") || !E.IsReady() || !Orbwalking.CanMove(100))return;
             if (!IsEn("AdvE"))
             {
                 foreach (
@@ -236,8 +233,7 @@ namespace VayneHunter2._0
                 {
                     CastE(hero);
                 }
-            }
-            else
+            }else
             {
                 foreach (Obj_AI_Hero hero in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsEnemy))
                 {
