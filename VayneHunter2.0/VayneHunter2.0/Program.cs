@@ -205,7 +205,7 @@ namespace VayneHunter2._0
                                pred.UnitPosition.To2D()
                                     .Extend(ObjectManager.Player.ServerPosition.To2D(), -i)
                                     .To3D();
-                            if (Utility.IsWall(loc3))
+                            if (IsWall(loc3))
                             {
                                 E.Cast(hero);
                                 break;
@@ -257,7 +257,7 @@ namespace VayneHunter2._0
                                pred.UnitPosition.To2D()
                                     .Extend(ObjectManager.Player.ServerPosition.To2D(), -i)
                                     .To3D();
-                            if (Utility.IsWall(loc3))
+                            if (IsWall(loc3))
                             {
                                 E.Cast(hero);
                                 break;
