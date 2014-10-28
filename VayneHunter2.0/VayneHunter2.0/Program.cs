@@ -87,7 +87,6 @@ namespace VayneHunter2._0
             GpIntmenuCreate();
             NoCondemnMenuCreate();
             // initHeroes();
-
             Menu.AddToMainMenu();
             Q = new Spell(SpellSlot.Q, 0f);
             E = new Spell(SpellSlot.E, 550f);
@@ -101,7 +100,6 @@ namespace VayneHunter2._0
            // Drawing.OnDraw += Drawing_OnDraw;
             Game.PrintChat("VayneHunter 2.03 By DZ191 Loaded");
         }
-        //FizzJump
         static void Drawing_OnDraw(EventArgs args)
         {
             foreach (Obj_AI_Hero hero in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsEnemy))
@@ -119,7 +117,15 @@ namespace VayneHunter2._0
                         Vector3 loc3 = pred.UnitPosition.To2D()
                                     .Extend(ObjectManager.Player.ServerPosition.To2D(), -i)
                                     .To3D();
-                        Utility.DrawCircle(loc3,100f,System.Drawing.Color.Aqua,4,30,false);
+                        if (IsWall(loc3))
+                        {
+                            Utility.DrawCircle(loc3, 100f, System.Drawing.Color.Red, 4, 30, false);
+                        }
+                        else
+                        {
+                            Utility.DrawCircle(loc3, 100f, System.Drawing.Color.Aqua, 4, 30, false);
+                        }
+                        
                     }
                 }
             }
@@ -199,7 +205,7 @@ namespace VayneHunter2._0
                                pred.UnitPosition.To2D()
                                     .Extend(ObjectManager.Player.ServerPosition.To2D(), -i)
                                     .To3D();
-                            if (IsWall(loc3))
+                            if (Utility.IsWall(loc3))
                             {
                                 E.Cast(hero);
                                 break;
@@ -251,7 +257,7 @@ namespace VayneHunter2._0
                                pred.UnitPosition.To2D()
                                     .Extend(ObjectManager.Player.ServerPosition.To2D(), -i)
                                     .To3D();
-                            if (IsWall(loc3))
+                            if (Utility.IsWall(loc3))
                             {
                                 E.Cast(hero);
                                 break;
@@ -266,7 +272,8 @@ namespace VayneHunter2._0
         public static bool IsWall(Vector3 position)
         {
             CollisionFlags cFlags = NavMesh.GetCollisionFlags(position);
-            return (cFlags == CollisionFlags.Wall || cFlags == CollisionFlags.Building || cFlags == CollisionFlags.Prop);
+            //|| CollisionFlags.Prop
+            return (cFlags == CollisionFlags.Wall || cFlags == CollisionFlags.Building);
         }
 
         private static void GpIntmenuCreate()
