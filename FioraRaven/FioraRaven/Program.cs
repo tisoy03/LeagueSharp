@@ -107,7 +107,7 @@ namespace FioraRaven
                     if(player.Distance(hero.Position)<=600f)
                     {
                         Obj_AI_Hero tar1 = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Physical);
-                        CastR(tar1);
+                        R.Cast(tar1);
                     }
                 }
                 if(name == "InfernalGuardian" || name == "UFSlash")
@@ -115,7 +115,7 @@ namespace FioraRaven
                     if (player.Distance(spell.End)<=270f)
                     {
                         Obj_AI_Hero tar1 = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Physical);
-                        CastR(tar1);
+                        R.Cast(tar1);
                     }
                 }
                 if (name == "BlindMonkRKick" || name == "syndrar" || name == "VeigarPrimordialBurst" || name == "AlZaharNetherGrasp")
@@ -123,7 +123,7 @@ namespace FioraRaven
                     if (spell.Target.IsMe)
                     {
                         Obj_AI_Hero tar1 = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Physical);
-                        CastR(tar1);
+                        R.Cast(tar1);
                     }
                 }
                 if (name == "BusterShot" || name == "ViR")
@@ -131,7 +131,7 @@ namespace FioraRaven
                     if (spell.Target.IsMe || player.Distance(spell.Target.Position)<=50f)
                     {
                         Obj_AI_Hero tar1 = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Physical);
-                        CastR(tar1);
+                        R.Cast(tar1);
                     }
                 }
                 
@@ -140,11 +140,11 @@ namespace FioraRaven
                     if (player.Distance(hero.Position) <= 600f)
                     {
                         Obj_AI_Hero tar1 = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Physical);
-                        CastR(tar1);
+                        R.Cast(tar1);
                     }
                 }
             }
-            if(spell.SData.Name.Contains("Attack") && isEn("WBlock") && spell.Target.IsMe)
+            if(spell.SData.Name.Contains("attack") && isEn("WBlock") && spell.Target.IsMe)
             {
                     W.Cast();      
             }
