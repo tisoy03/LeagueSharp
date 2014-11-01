@@ -144,7 +144,7 @@ namespace FioraRaven
                     }
                 }
             }
-            if(spell.SData.Name.Contains("attack") && isEn("WBlock") && spell.Target.IsMe)
+            if(spell.SData.Name.Contains("Attack") && isEn("WBlock") && spell.Target.IsMe)
             {
                     W.Cast();      
             }
