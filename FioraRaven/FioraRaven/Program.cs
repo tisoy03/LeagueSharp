@@ -88,11 +88,11 @@ namespace FioraRaven
         {
             if (isEn("DrQ"))
             {
-                Drawing.DrawCircle(player.Position, Q.Range, Color.MediumPurple);
+                Utility.DrawCircle(player.Position, Q.Range, Color.MediumPurple);
             }
             if (isEn("DrR"))
             {
-                Drawing.DrawCircle(player.Position, R.Range, Color.MediumPurple);
+                Utility.DrawCircle(player.Position, R.Range, Color.MediumPurple);
             }
         }
        
