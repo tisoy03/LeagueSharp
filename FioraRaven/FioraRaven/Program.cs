@@ -21,6 +21,7 @@ namespace FioraRaven
         public static Dictionary<string, SpellSlot> spellData;
         public static DZApi api = new DZApi();
         public static bool firstQ;
+        public static float QCastTime;
         static void Main(string[] args)
         {
             try
@@ -51,6 +52,7 @@ namespace FioraRaven
             menu.AddSubMenu(new Menu("Fiora Misc", "Misc"));
             menu.SubMenu("Misc").AddItem(new MenuItem("WBlock", "Use W to block Autos").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("RDodge", "Use R to dodge dangerous").SetValue(true));
+            menu.SubMenu("Item").AddItem(new MenuItem("SecondQDelay", "Second Q Delay (ms)").SetValue(new Slider(650, 0, 3000)));
             menu.AddSubMenu(new Menu("Fiora Items", "Item"));
             menu.SubMenu("Item").AddItem(new MenuItem("Botrk", "Use Botrk").SetValue(true));
             menu.SubMenu("Item").AddItem(new MenuItem("Youmuu", "Use Youmuu").SetValue(true));
@@ -192,6 +194,7 @@ namespace FioraRaven
         }
         public static void Game_OnGameUpdate(EventArgs args)
         {
+            if (!Q.IsReady())firstQ = false;
             if (isCombo()) { 
                 var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
                 CastQ(target);
@@ -203,20 +206,17 @@ namespace FioraRaven
         }
         public static void CastQ(Obj_AI_Hero target)
         {        
-            if (target == null) return;
-            if(target.IsValidTarget(Q.Range) && Q.IsReady()&&Q.InRange(target.ServerPosition) && !firstQ && isEn("UseQ"))
+            if (!target.IsValidTarget()) return;
+            if(target.IsValidTarget(Q.Range) && Q.IsReady()&&Q.InRange(target.ServerPosition) && !firstQ && isEn("UseQ") && (Game.Time-QCastTime)>=(menu.Item("SecondQDelay").GetValue<Slider>().Value/1000))
             {
                 Q.Cast(target, true, false);
                 firstQ = true;
-            }
-            if(!Q.IsReady())
-            {
-                firstQ = false;
-            }
+                QCastTime = Game.Time;
+            }  
         }
         public static void CastR(Obj_AI_Hero target)
         {
-            if (isCombo() && target.IsValidTarget() && R.InRange(target.ServerPosition) && (R.GetDamage(target) >= target.Health) && isEn("UseR"))
+            if (isCombo() && target.IsValidTarget() && R.InRange(target.ServerPosition) && isEn("UseR"))
             {
                 R.Cast(target,true);
             }
