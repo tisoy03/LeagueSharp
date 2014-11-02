@@ -52,7 +52,7 @@ namespace FioraRaven
             menu.AddSubMenu(new Menu("Fiora Misc", "Misc"));
             menu.SubMenu("Misc").AddItem(new MenuItem("WBlock", "Use W to block Autos").SetValue(true));
             menu.SubMenu("Misc").AddItem(new MenuItem("RDodge", "Use R to dodge dangerous").SetValue(true));
-            menu.SubMenu("Misc").AddItem(new MenuItem("SecondQDelay", "Second Q Delay (ms)").SetValue(new Slider(650, 0, 3000)));
+            menu.SubMenu("Misc").AddItem(new MenuItem("SecondQDelay", "Second Q Delay (ms)").SetValue(new Slider(650, 0, 4000)));
             menu.AddSubMenu(new Menu("Fiora Items", "Item"));
             menu.SubMenu("Item").AddItem(new MenuItem("Botrk", "Use Botrk").SetValue(true));
             menu.SubMenu("Item").AddItem(new MenuItem("Youmuu", "Use Youmuu").SetValue(true));
