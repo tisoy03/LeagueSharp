@@ -287,7 +287,7 @@ namespace VayneHunterRework
                     break;
                 case Orbwalking.OrbwalkingMode.Mixed:
                     var ManaH = Menu.Item("QManaH").GetValue<Slider>().Value;
-                    if (getPerValue(true) >= ManaH){ if (!customPos){ CastTumble(target);} else{ CastTumble(Pos, target);}}
+                    if (getPerValue(true) >= ManaH && isMenuEnabled("UseQH")){ if (!customPos){ CastTumble(target);} else{ CastTumble(Pos, target);}}
                     break;
                 case Orbwalking.OrbwalkingMode.LastHit:
                     var ManaLH = Menu.Item("QManaLH").GetValue<Slider>().Value;
