@@ -97,8 +97,9 @@ namespace VayneHunter2._0
             //LXOrbwalker.AfterAttack += LXOrbwalker_AfterAttack;
             // LXOrbwalker.AfterAttack += OW_AfterAttack;
             Obj_AI_Base.OnProcessSpellCast += OnProcessSpell;
-           // Drawing.OnDraw += Drawing_OnDraw;
+            //Drawing.OnDraw += Drawing_OnDraw;
             Game.PrintChat("VayneHunter 2.03 By DZ191 Loaded");
+
         }
         static void Drawing_OnDraw(EventArgs args)
         {
