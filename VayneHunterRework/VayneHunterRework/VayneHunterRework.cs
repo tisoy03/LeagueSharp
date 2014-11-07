@@ -21,7 +21,9 @@ namespace VayneHunterRework
         public static Spell Q, W, E, R;
         public static Menu Menu;
         public static Vector3 AfterCond = Vector3.Zero;
-        
+        public static Obj_AI_Base current; // for tower farming
+        public static Obj_AI_Base last; // for tower farming
+
         public VayneHunterRework()
         {
             CustomEvents.Game.OnGameLoad +=Game_OnGameLoad;
@@ -52,8 +54,9 @@ namespace VayneHunterRework
             Menu.SubMenu("Harrass").AddItem(new MenuItem("QManaH", "Min Q Mana %").SetValue(new Slider(35, 1, 100)));
             Menu.SubMenu("Harrass").AddItem(new MenuItem("EManaH", "Min E Mana %").SetValue(new Slider(20, 1, 100)));
             Menu.AddSubMenu(new Menu("[VH] Farm", "Farm"));
-            Menu.SubMenu("Farm").AddItem(new MenuItem("UseQLC", "Use Q LastHit")).SetValue(true);
-            Menu.SubMenu("Farm").AddItem(new MenuItem("UseQLH", "Use Q Laneclear")).SetValue(true);
+            Menu.SubMenu("Farm").AddItem(new MenuItem("UseQLH", "Use Q LastHit")).SetValue(true);
+            Menu.SubMenu("Farm").AddItem(new MenuItem("UseQLC", "Use Q Laneclear")).SetValue(true);
+          //  Menu.SubMenu("Farm").AddItem(new MenuItem("UnderTurretFarm", "Q Logic Under Turret")).SetValue(true);
             Menu.SubMenu("Farm").AddItem(new MenuItem("QManaLH", "Min Q Mana % LH").SetValue(new Slider(35, 1, 100)));
             Menu.SubMenu("Farm").AddItem(new MenuItem("QManaLC", "Min Q Mana % LC").SetValue(new Slider(35, 1, 100)));
             Menu.AddSubMenu(new Menu("[VH] Misc", "Misc"));
@@ -88,15 +91,18 @@ namespace VayneHunterRework
             Menu.AddSubMenu(new Menu("[VH] Drawings", "Draw"));
             Menu.SubMenu("Draw").AddItem(new MenuItem("DrawE", "Draw E").SetValue(new Circle(true,Color.MediumPurple)));
             Menu.SubMenu("Draw").AddItem(new MenuItem("DrawCond", "Draw Pos. Aft. E if Stun").SetValue(new Circle(true, Color.Red)));
+            Menu.SubMenu("Draw").AddItem(new MenuItem("DrawDrake", "Draw Drake Spot").SetValue(new Circle(true, Color.WhiteSmoke)));
+            Menu.SubMenu("Draw").AddItem(new MenuItem("DrawMid", "Draw Mid Spot").SetValue(new Circle(true, Color.WhiteSmoke)));
             Menu.AddToMainMenu();
             Game.PrintChat("<font color='#FF0000'>VayneHunter</font> <font color='#FFFFFF'>Rework loaded!</font>");
+            Game.PrintChat("By <font color='#FF0000'>DZ</font><font color='#FFFFFF'>191</font>. Special Thanks to: Chogart");
             Q = new Spell(SpellSlot.Q);
             E = new Spell(SpellSlot.E,550f);
             R = new Spell(SpellSlot.R);
             E.SetTargetted(0.25f,1600f);
             Orbwalking.AfterAttack += Orbwalker_AfterAttack;
             Game.OnGameUpdate += Game_OnGameUpdate;
-          //  Game.OnGameProcessPacket += GameOnOnGameProcessPacket;
+           // Game.OnGameProcessPacket += GameOnOnGameProcessPacket;
            Interrupter.OnPossibleToInterrupt += Interrupter_OnPossibleToInterrupt;
            AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
            Drawing.OnDraw += Drawing_OnDraw;
@@ -110,7 +116,7 @@ namespace VayneHunterRework
                  AfterAA(target);
             }
         }
-
+        
         void AfterAA(Obj_AI_Base target)
         {
             if (!(target is Obj_AI_Hero)) return;
@@ -126,6 +132,8 @@ namespace VayneHunterRework
                 case Orbwalking.OrbwalkingMode.Mixed:
                     if (isMenuEnabled("UseQH")) SmartQCheck(tar);
                     break;
+                case Orbwalking.OrbwalkingMode.LastHit:
+
                 default:
                     break;
             }
@@ -137,7 +145,7 @@ namespace VayneHunterRework
         {
             if (!E.IsReady() || !tar.IsValid || !Menu.Item("ENext").GetValue<KeyBind>().Active) return;
                 CastE(tar,true);
-            Menu.Item("ENext").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Toggle));
+            Menu.Item("ENext").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Toggle,false));
         }
 
         void Game_OnGameUpdate(EventArgs args)
@@ -169,11 +177,18 @@ namespace VayneHunterRework
         {
             var DrawE = Menu.Item("DrawE").GetValue<Circle>();
             var DrawCond = Menu.Item("DrawCond").GetValue<Circle>();
+            var DrawDrake = Menu.Item("DrawDrake").GetValue<Circle>();
+            var DrawMid = Menu.Item("DrawMid").GetValue<Circle>();
+            Vector2 MidWallQPos = new Vector2(6010.5869140625f, 8508.8740234375f);
+            Vector2 DrakeWallQPos = new Vector2(11334.74f, 4517.47f);
+            if (DrawDrake.Active && Player.Distance(DrakeWallQPos) < 1500f) Utility.DrawCircle(new Vector3(11590.95f, 4656.26f, 0f), 75f, DrawDrake.Color);
+            if (DrawMid.Active && Player.Distance(MidWallQPos) < 1500f) Utility.DrawCircle(new Vector3(6623, 8649, 0f), 75f, DrawMid.Color);
             if (DrawE.Active)Utility.DrawCircle(Player.Position,E.Range,DrawE.Color);
+
             if (DrawCond.Active && E.IsReady() && AfterCond != Vector3.Zero)
             {
                 Utility.DrawCircle(AfterCond, 100f, DrawCond.Color);
-                AfterCond = Vector3.Zero;
+              //  AfterCond = Vector3.Zero;
             }
         }
 
@@ -229,15 +244,6 @@ namespace VayneHunterRework
                 MinionManager.GetMinions(Player.Position, 550f).Where(min =>
                     HealthPrediction.GetHealthPrediction(min,(int)(Q.Delay + min.Distance(Player) / Orbwalking.GetMyProjectileSpeed()) * 1000) <= (Q.GetDamage(min)+Player.GetAutoAttackDamage(min))
                     && HealthPrediction.GetHealthPrediction(min, (int)(Q.Delay + min.Distance(Player) / Orbwalking.GetMyProjectileSpeed()) * 1000) > 0);
-            var minListLH =
-                MinionManager.GetMinions(Player.Position, 550f).Where(min =>
-                    HealthPrediction.GetHealthPrediction(min, (int)(Q.Delay + min.Distance(Player) / Orbwalking.GetMyProjectileSpeed()) * 1000) <= (Q.GetDamage(min) + Player.GetAutoAttackDamage(min))
-                    && HealthPrediction.GetHealthPrediction(min, (int)(Q.Delay + min.Distance(Player) / Orbwalking.GetMyProjectileSpeed()) * 1000) > 0 &&
-                    min.HasBuff("turretshield",true));
-           // if (COrbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LastHit && minListLH.First().IsValidTarget()){
-          //      CastQ(Vector3.Zero,minListLH.First());
-           //     return;
-          //  }
             if (!minList.First().IsValidTarget()) return;
             CastQ(Vector3.Zero,minList.First());
         }
@@ -245,7 +251,7 @@ namespace VayneHunterRework
         void SmartQCheck(Obj_AI_Hero target)
         {
             if (!Q.IsReady() || !target.IsValidTarget()) return;
-            if (!isMenuEnabled("SmartQ"))
+            if (!isMenuEnabled("SmartQ") || !E.IsReady())
             {
                 CastQ(Game.CursorPos,target);
             }
@@ -277,21 +283,21 @@ namespace VayneHunterRework
                     var ManaC = Menu.Item("QManaC").GetValue<Slider>().Value;
                     if (getPerValue(true) >= ManaC)
                     {
+                        if(isMenuEnabled("UseRC") && R.IsReady())R.CastOnUnit(Player);
                         if(!customPos){CastTumble(target);}else{CastTumble(Pos,target);}
-                        
                     }
                     break;
                 case Orbwalking.OrbwalkingMode.Mixed:
                     var ManaH = Menu.Item("QManaH").GetValue<Slider>().Value;
-                    if (getPerValue(true) >= ManaH && isMenuEnabled("UseQH")){ if (!customPos){ CastTumble(target);} else{ CastTumble(Pos, target);}}
+                    if (getPerValue(true) >= ManaH){ if (!customPos){ CastTumble(target);} else{ CastTumble(Pos, target);}}
                     break;
                 case Orbwalking.OrbwalkingMode.LastHit:
                     var ManaLH = Menu.Item("QManaLH").GetValue<Slider>().Value;
-                    if (getPerValue(true) >= ManaLH && isMenuEnabled("UseQLH")){ if (!customPos){ CastTumble(target);} else{ CastTumble(Pos, target);}}
+                    if (getPerValue(true) >= ManaLH && isMenuEnabled("UseQLH")) { if (!customPos) { CastTumble(target); } else { CastTumble(Pos, target); } }
                     break;
                 case Orbwalking.OrbwalkingMode.LaneClear:
                     var ManaLC = Menu.Item("QManaLC").GetValue<Slider>().Value;
-                    if (getPerValue(true) >= ManaLC && isMenuEnabled("UseQLC")){ if (!customPos){ CastTumble(target); }else{ CastTumble(Pos, target);}}
+                    if (getPerValue(true) >= ManaLC && isMenuEnabled("UseQLC")){ if (!customPos){CastTumble(target); }else{ CastTumble(Pos, target);}}
                     break;
                 default:
                     break;
@@ -301,9 +307,9 @@ namespace VayneHunterRework
         void CastTumble(Obj_AI_Base target)
         {
             
-        //    Q.Cast(Game.CursorPos, isMenuEnabled("Packets"));
-         //   return;
-
+            //Q.Cast(Game.CursorPos, isMenuEnabled("Packets"));
+         //  return;
+          
             var posAfterTumble =
                 ObjectManager.Player.ServerPosition.To2D().Extend(Game.CursorPos.To2D(), 300).To3D();
             var distanceAfterTumble = Vector3.DistanceSquared(posAfterTumble, target.ServerPosition);
