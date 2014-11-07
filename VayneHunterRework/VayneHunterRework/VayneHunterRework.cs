@@ -94,36 +94,21 @@ namespace VayneHunterRework
             E = new Spell(SpellSlot.E,550f);
             R = new Spell(SpellSlot.R);
             E.SetTargetted(0.25f,1600f);
-            //Orbwalking.AfterAttack += Orbwalker_AfterAttack;
+            Orbwalking.AfterAttack += Orbwalker_AfterAttack;
             Game.OnGameUpdate += Game_OnGameUpdate;
-            Game.OnGameProcessPacket += GameOnOnGameProcessPacket;
+          //  Game.OnGameProcessPacket += GameOnOnGameProcessPacket;
            Interrupter.OnPossibleToInterrupt += Interrupter_OnPossibleToInterrupt;
            AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
            Drawing.OnDraw += Drawing_OnDraw;
          
         }
 
-        private void GameOnOnGameProcessPacket(GamePacketEventArgs args)
+        private void Orbwalker_AfterAttack(Obj_AI_Base unit, Obj_AI_Base target)
         {
-                   
-                GamePacket packet = new GamePacket(args.PacketData);
-                if (packet.Header == 0xFE)
-                {
-                    if (Packet.MultiPacket.OnAttack.Decoded(args.PacketData).Type == Packet.AttackTypePacket.TargetedAA)
-                    {
-                        var unit = ObjectManager.GetUnitByNetworkId<Obj_AI_Base>(packet.ReadInteger());
-                        var target =
-                            ObjectManager.GetUnitByNetworkId<Obj_AI_Base>(
-                                Packet.MultiPacket.OnAttack.Decoded(args.PacketData).TargetNetworkId);
-                        if (unit.IsMe && target.IsValidTarget())
-                        {
-                            Utility.DelayAction.Add(
-                             (int)(unit.AttackCastDelay * 1000 + 40), () => AfterAA(target));
-                            //Game.PrintChat("Here");
-                            
-                        }
-                    }
-                }
+            if (unit.IsMe && target.IsValidTarget())
+            {
+                 AfterAA(target);
+            }
         }
 
         void AfterAA(Obj_AI_Base target)
@@ -131,12 +116,11 @@ namespace VayneHunterRework
             if (!(target is Obj_AI_Hero)) return;
             var tar = (Obj_AI_Hero)target;
 
-            ENextAuto(tar);
-            UseItems(tar);
 
             switch (COrbwalker.ActiveMode)
             {
                 case Orbwalking.OrbwalkingMode.Combo:
+
                     if (isMenuEnabled("UseQC")) SmartQCheck(tar);
                     break;
                 case Orbwalking.OrbwalkingMode.Mixed:
@@ -145,6 +129,9 @@ namespace VayneHunterRework
                 default:
                     break;
             }
+
+            ENextAuto(tar);
+            UseItems(tar);
         }
         private void ENextAuto(Obj_AI_Hero tar)
         {
@@ -166,11 +153,11 @@ namespace VayneHunterRework
             {
                 case Orbwalking.OrbwalkingMode.Combo:
                     Obj_AI_Hero tar2;
-                    if (isMenuEnabled("UseEC") && CondemnCheck(Player.Position, out tar2)) { CastE(tar2);}
+                    if (isMenuEnabled("UseEC") && CondemnCheck(Player.ServerPosition, out tar2)) { CastE(tar2);}
                     break;
                 case Orbwalking.OrbwalkingMode.Mixed:
                     Obj_AI_Hero tar3;
-                    if (isMenuEnabled("UseEH") && CondemnCheck(Player.Position, out tar3)) { CastE(tar3); }
+                    if (isMenuEnabled("UseEH") && CondemnCheck(Player.ServerPosition, out tar3)) { CastE(tar3); }
                     break;
                 default:
                     break;
@@ -237,11 +224,20 @@ namespace VayneHunterRework
         void QFarmCheck()
         {
             if (!Q.IsReady()) return;
+            
             var minList =
                 MinionManager.GetMinions(Player.Position, 550f).Where(min =>
                     HealthPrediction.GetHealthPrediction(min,(int)(Q.Delay + min.Distance(Player) / Orbwalking.GetMyProjectileSpeed()) * 1000) <= (Q.GetDamage(min)+Player.GetAutoAttackDamage(min))
                     && HealthPrediction.GetHealthPrediction(min, (int)(Q.Delay + min.Distance(Player) / Orbwalking.GetMyProjectileSpeed()) * 1000) > 0);
-            //Game.PrintChat(Q.GetDamage(minList.FirstOrDefault()).ToString());
+            var minListLH =
+                MinionManager.GetMinions(Player.Position, 550f).Where(min =>
+                    HealthPrediction.GetHealthPrediction(min, (int)(Q.Delay + min.Distance(Player) / Orbwalking.GetMyProjectileSpeed()) * 1000) <= (Q.GetDamage(min) + Player.GetAutoAttackDamage(min))
+                    && HealthPrediction.GetHealthPrediction(min, (int)(Q.Delay + min.Distance(Player) / Orbwalking.GetMyProjectileSpeed()) * 1000) > 0 &&
+                    min.HasBuff("turretshield",true));
+           // if (COrbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LastHit && minListLH.First().IsValidTarget()){
+          //      CastQ(Vector3.Zero,minListLH.First());
+           //     return;
+          //  }
             if (!minList.First().IsValidTarget()) return;
             CastQ(Vector3.Zero,minList.First());
         }
@@ -273,16 +269,16 @@ namespace VayneHunterRework
 
         void CastQ(Vector3 Pos,Obj_AI_Base target,bool customPos=false)
         {
-            if (!Q.IsReady() || !target.IsValidTarget()) return;
+           if (!Q.IsReady() || !target.IsValidTarget()) return;
+           
             switch (COrbwalker.ActiveMode)
             {
                 case Orbwalking.OrbwalkingMode.Combo:
                     var ManaC = Menu.Item("QManaC").GetValue<Slider>().Value;
                     if (getPerValue(true) >= ManaC)
                     {
+                        if(!customPos){CastTumble(target);}else{CastTumble(Pos,target);}
                         
-                        if (isMenuEnabled("UseRC")) R.Cast();
-                        if(!customPos){CastTumble(target);}else{ CastTumble(Pos,target);}
                     }
                     break;
                 case Orbwalking.OrbwalkingMode.Mixed:
@@ -304,8 +300,10 @@ namespace VayneHunterRework
 
         void CastTumble(Obj_AI_Base target)
         {
-           // Q.Cast(Game.CursorPos, isMenuEnabled("Packets"));
-            //return;
+            
+        //    Q.Cast(Game.CursorPos, isMenuEnabled("Packets"));
+         //   return;
+
             var posAfterTumble =
                 ObjectManager.Player.ServerPosition.To2D().Extend(Game.CursorPos.To2D(), 300).To3D();
             var distanceAfterTumble = Vector3.DistanceSquared(posAfterTumble, target.ServerPosition);
@@ -313,8 +311,8 @@ namespace VayneHunterRework
         }
         void CastTumble(Vector3 Pos,Obj_AI_Base target)
         {
-           // Q.Cast(Pos, isMenuEnabled("Packets"));
-           // return;
+           //Q.Cast(Pos, isMenuEnabled("Packets"));
+          //  return;
             var posAfterTumble =
                 ObjectManager.Player.ServerPosition.To2D().Extend(Pos.To2D(), 300).To3D();
             var distanceAfterTumble = Vector3.DistanceSquared(posAfterTumble, target.ServerPosition);
@@ -362,7 +360,7 @@ namespace VayneHunterRework
         bool isWall(Vector3 Pos)
         {
             CollisionFlags cFlags = NavMesh.GetCollisionFlags(Pos);
-            return (cFlags == CollisionFlags.Wall || cFlags == CollisionFlags.Building);
+            return (cFlags == CollisionFlags.Wall);
         }
         bool isUnderTurret(Vector3 Position)
         {
