@@ -96,6 +96,7 @@ namespace VayneHunterRework
             Menu.AddToMainMenu();
             Game.PrintChat("<font color='#FF0000'>VayneHunter</font> <font color='#FFFFFF'>Rework loaded!</font>");
             Game.PrintChat("By <font color='#FF0000'>DZ</font><font color='#FFFFFF'>191</font>. Special Thanks to: Chogart");
+            Game.PrintChat("If you like my assemblies feel free to donate me (link on the forum :) )");
             Q = new Spell(SpellSlot.Q);
             E = new Spell(SpellSlot.E,550f);
             R = new Spell(SpellSlot.R);
