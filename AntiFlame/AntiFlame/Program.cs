@@ -816,7 +816,11 @@ namespace AntiFlame
             "script",
             "bol",
             "leaguesharp",
-            "L#"
+            "L#",
+            "gg ez",
+            "ggez",
+            "ezpz",
+            "ez pz"
         };
 
         private static void Main(string[] args)
@@ -826,7 +830,7 @@ namespace AntiFlame
 
         private static void onGameLoad(EventArgs args)
         {
-            Game.PrintChat("AntiFlame by iJarva Loaded - Credits to Pain for word list :^)");
+            Game.PrintChat("AntiFlame by iJabba Loaded - Credits to Pain for word list :^)");
             Game.OnGameInput += onInput;
         }
 
