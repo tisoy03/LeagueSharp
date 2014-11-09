@@ -34,6 +34,9 @@ namespace VayneHunter2._0
 
         private static void Game_OnGameLoad(EventArgs args)
         {
+            Game.PrintChat("VayneHUnter 2.0 is outdated! Please download VayneHunter Rework. Thank you :)");
+            Game.PrintChat("Repo: https://github.com/DZ191/LeagueSharp");
+            return;
             if (Player.BaseSkinName != ChampName) return;
             Menu = new Menu("Vayne Hunter", "VHMenu", true);
             var orb_Menu = new Menu("Orbwalker", "Orbwalker1");
