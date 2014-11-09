@@ -18,14 +18,14 @@ namespace VayneHunterRework
             {
                 foreach (var spell in qssSpells.Where(spell => spell.ChampName == hero.ChampionName))
                 {
-                   // VayneHunterRework.Menu.SubMenu("QSSSpell").AddSubMenu(new Menu(spell.SpellName, spell.SpellBuff));
                     VayneHunterRework.Menu.SubMenu("QSSSpell")
                         .AddItem(new MenuItem("en" + spell.SpellBuff, spell.SpellName+" always ?").SetValue(spell.isEnabled));
                     VayneHunterRework.Menu.SubMenu("QSSSpell")
                         .AddItem(new MenuItem("onlyK" + spell.SpellBuff, spell.SpellName + " if killed by it?").SetValue(spell.onlyKill));
-                    Game.PrintChat(spell.SpellName +" " +spell.ChampName);
+                    VayneHunterRework.Menu.SubMenu("QSSSpell").AddItem(new MenuItem("Spacer" + spell.SpellBuff, " "));
                 }
             }
+            
         }
 
         public static void CreateTypeQSSMenu()
@@ -236,7 +236,14 @@ namespace VayneHunterRework
         }
 
     }
-
+    internal class QSSSpell
+    {
+        public String ChampName { get; set; }
+        public String SpellName { get; set; }
+        public String SpellBuff { get; set; }
+        public bool isEnabled { get; set; }
+        public bool onlyKill { get; set; }
+    }
     internal class CC
     {
         public String buffName { get; set; }

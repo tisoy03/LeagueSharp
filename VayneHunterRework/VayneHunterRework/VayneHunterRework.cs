@@ -102,7 +102,7 @@ namespace VayneHunterRework
             Menu.SubMenu("Draw").AddItem(new MenuItem("DrawMid", "Draw Mid Spot").SetValue(new Circle(true, Color.WhiteSmoke)));
             Menu.AddToMainMenu();
             Game.PrintChat("<font color='#FF0000'>VayneHunter</font> <font color='#FFFFFF'>Rework loaded!</font>");
-            Game.PrintChat("By <font color='#FF0000'>DZ</font><font color='#FFFFFF'>191</font>. Special Thanks to: Chogart & Kurisuu");
+            Game.PrintChat("By <font color='#FF0000'>DZ</font><font color='#FFFFFF'>191</font>. Special Thanks to: Kurisuu");
             Game.PrintChat("If you like my assemblies feel free to donate me (link on the forum :) )");
            //Cleanser.cleanUselessSpells();
             Q = new Spell(SpellSlot.Q);
@@ -165,7 +165,7 @@ namespace VayneHunterRework
             if (Player.IsDead) return;
             Obj_AI_Hero tar;
 
-            if (isMenuEnabled("AutoE") && CondemnCheck(Player.Position, out tar)) { CastE(tar);}
+            if (isMenuEnabled("AutoE") && CondemnCheck(Player.Position, out tar)) { CastE(tar,true);}
             if (Menu.Item("WallTumble").GetValue<KeyBind>().Active) WallTumble();
             if (Menu.Item("ThreshLantern").GetValue<KeyBind>().Active) takeLantern();
             QFarmCheck();
@@ -201,12 +201,8 @@ namespace VayneHunterRework
             if (DrawDrake.Active && Player.Distance(DrakeWallQPos) < 1500f) Utility.DrawCircle(new Vector3(11590.95f, 4656.26f, 0f), 75f, DrawDrake.Color);
             if (DrawMid.Active && Player.Distance(MidWallQPos) < 1500f) Utility.DrawCircle(new Vector3(6623, 8649, 0f), 75f, DrawMid.Color);
             if (DrawE.Active)Utility.DrawCircle(Player.Position,E.Range,DrawE.Color);
-
-            if (DrawCond.Active && E.IsReady() && AfterCond != Vector3.Zero)
-            {
-                Utility.DrawCircle(AfterCond, 100f, DrawCond.Color);
-              //  AfterCond = Vector3.Zero;
-            }
+            if (DrawCond.Active) DrawPostCondemn();
+            
         }
 
         void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
@@ -525,14 +521,23 @@ namespace VayneHunterRework
                 }
             }
         }
+
+        void DrawPostCondemn()
+        {
+            var DrawCond = Menu.Item("DrawCond").GetValue<Circle>();
+            foreach (var En in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsEnemy && hero.IsValidTarget() && !isMenuEnabled("nC" + hero.ChampionName) && hero.Distance(Player.Position) <= E.Range))
+            {
+                var EPred = E.GetPrediction(En);
+                int pushDist = Menu.Item("PushDistance").GetValue<Slider>().Value;
+                for (int i = 0; i < pushDist; i += (int)En.BoundingRadius)
+                {
+                    Vector3 loc3 = EPred.UnitPosition.To2D().Extend(Player.Position.To2D(), -i).To3D();
+                    if (isWall(loc3)) Utility.DrawCircle(loc3, 100f, DrawCond.Color);
+
+                }
+            }
+        }
         
     }
-    internal class QSSSpell
-        {
-            public String ChampName { get; set; }
-            public String SpellName { get; set;}
-            public String SpellBuff { get; set; }
-            public bool isEnabled { get; set; }
-            public bool onlyKill { get; set; }
-        }
+    
 }
