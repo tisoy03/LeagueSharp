@@ -102,7 +102,7 @@ namespace VayneHunterRework
             Menu.SubMenu("Draw").AddItem(new MenuItem("DrawMid", "Draw Mid Spot").SetValue(new Circle(true, Color.WhiteSmoke)));
             Menu.AddToMainMenu();
             Game.PrintChat("<font color='#FF0000'>VayneHunter</font> <font color='#FFFFFF'>Rework loaded!</font>");
-            Game.PrintChat("By <font color='#FF0000'>DZ</font><font color='#FFFFFF'>191</font>. Special Thanks to: Chogart");
+            Game.PrintChat("By <font color='#FF0000'>DZ</font><font color='#FFFFFF'>191</font>. Special Thanks to: Chogart & Kurisuu");
             Game.PrintChat("If you like my assemblies feel free to donate me (link on the forum :) )");
            //Cleanser.cleanUselessSpells();
             Q = new Spell(SpellSlot.Q);
@@ -298,7 +298,7 @@ namespace VayneHunterRework
             {
                 case Orbwalking.OrbwalkingMode.Combo:
                     var ManaC = Menu.Item("QManaC").GetValue<Slider>().Value;
-                    if (getPerValue(true) >= ManaC)
+                    if (getPerValue(true) >= ManaC && isMenuEnabled("UseQC"))
                     {
                         if(isMenuEnabled("UseRC") && R.IsReady())R.CastOnUnit(Player);
                         if(!customPos){CastTumble(target);}else{CastTumble(Pos,target);}
@@ -306,7 +306,7 @@ namespace VayneHunterRework
                     break;
                 case Orbwalking.OrbwalkingMode.Mixed:
                     var ManaH = Menu.Item("QManaH").GetValue<Slider>().Value;
-                    if (getPerValue(true) >= ManaH){ if (!customPos){ CastTumble(target);} else{ CastTumble(Pos, target);}}
+                    if (getPerValue(true) >= ManaH && isMenuEnabled("UseQH")){ if (!customPos){ CastTumble(target);} else{ CastTumble(Pos, target);}}
                     break;
                 case Orbwalking.OrbwalkingMode.LastHit:
                     var ManaLH = Menu.Item("QManaLH").GetValue<Slider>().Value;

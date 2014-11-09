@@ -76,7 +76,8 @@ namespace VayneHunterRework
         }
         internal static void cleanserBySpell()
         {
-            if (!VayneHunterRework.isMenuEnabled("UseQSS")) return;
+            var hasIT = Items.HasItem(3139) || Items.HasItem(3140) || Items.HasItem(3137);
+            if (!VayneHunterRework.isMenuEnabled("UseQSS") || !hasIT) return;
            List<CC> ccList = new List<CC>();
             foreach (var spell in qssSpells)
             {
@@ -113,7 +114,8 @@ namespace VayneHunterRework
         }
         internal static void cleanserByBuffType()
         {
-            if (!VayneHunterRework.isMenuEnabled("UseQSS")) return;
+            var hasIT = Items.HasItem(3139) || Items.HasItem(3140) || Items.HasItem(3137);
+            if (!VayneHunterRework.isMenuEnabled("UseQSS") || !hasIT) return;
             int numBuffs = UnitBuffs(Player);
            //Console.WriteLine("Should Cleanse. "+numBuffs +" cause of the bufftype check");
             if(numBuffs >= 1)Cleanse();
@@ -145,7 +147,7 @@ namespace VayneHunterRework
         }
         internal static void SaveMyAss()
         {
-            if (DeathMarkCreated && getSpellByName("Zed R").isEnabled &&
+            if (DeathMarkCreated &&
                 Player.HasBuff(getSpellByName("Zed R").SpellBuff, true) && getSpellByName("Zed R").onlyKill)
             {
                 Cleanse();
@@ -154,7 +156,7 @@ namespace VayneHunterRework
 
         static int UnitBuffs(Obj_AI_Hero unit)
         {
-            //Taken from Oracle. Thanks Kurisuu ^.^
+            //Taken from 'Oracle Activator'. Thanks Kurisuu ^.^
             int cc = 0;
             if (VayneHunterRework.Menu.Item("slow").GetValue<bool>())
                 if (unit.HasBuffOfType(BuffType.Slow))
@@ -204,7 +206,9 @@ namespace VayneHunterRework
         }
         internal static void Cleanse()
         {
-            VayneHunterRework.UseItem(3140, Player);
+            if(Items.HasItem(3140))VayneHunterRework.UseItem(3140, Player); //QSS
+            if (Items.HasItem(3139)) VayneHunterRework.UseItem(3139, Player); //Mercurial
+            if (Items.HasItem(3137)) VayneHunterRework.UseItem(3137, Player); //Dervish Blade
         }
         public static void OnCreateObj(GameObject sender, EventArgs args)
         {
