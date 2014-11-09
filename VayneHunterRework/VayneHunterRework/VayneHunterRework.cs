@@ -32,6 +32,7 @@ namespace VayneHunterRework
         private void Game_OnGameLoad(EventArgs args)
         {
             if (Player.ChampionName != charName) return;
+            Cleanser.CreateQSSSpellList();
             Menu = new Menu("VayneHunter Rework", "VHRework", true);
             var lxMenu = new Menu("Orbwalker", "LXOrb");
             //LXOrbwalker.AddToMenu(lxMenu);
@@ -56,7 +57,6 @@ namespace VayneHunterRework
             Menu.AddSubMenu(new Menu("[VH] Farm", "Farm"));
             Menu.SubMenu("Farm").AddItem(new MenuItem("UseQLH", "Use Q LastHit")).SetValue(true);
             Menu.SubMenu("Farm").AddItem(new MenuItem("UseQLC", "Use Q Laneclear")).SetValue(true);
-          //  Menu.SubMenu("Farm").AddItem(new MenuItem("UnderTurretFarm", "Q Logic Under Turret")).SetValue(true);
             Menu.SubMenu("Farm").AddItem(new MenuItem("QManaLH", "Min Q Mana % LH").SetValue(new Slider(35, 1, 100)));
             Menu.SubMenu("Farm").AddItem(new MenuItem("QManaLC", "Min Q Mana % LC").SetValue(new Slider(35, 1, 100)));
             Menu.AddSubMenu(new Menu("[VH] Misc", "Misc"));
@@ -81,6 +81,13 @@ namespace VayneHunterRework
             Menu.SubMenu("Items").AddItem(new MenuItem("YoumuuH", "Youmuu Harrass").SetValue(false));
             Menu.SubMenu("Items").AddItem(new MenuItem("OwnHPercBotrk", "Min Own H. % Botrk").SetValue(new Slider(50, 1, 100)));
             Menu.SubMenu("Items").AddItem(new MenuItem("EnHPercBotrk", "Min Enemy H. % Botrk").SetValue(new Slider(20, 1, 100)));
+
+            Menu.AddSubMenu(new Menu("[VH] QSS", "QSSMenu"));
+           Menu.SubMenu("QSSMenu").AddItem(new MenuItem("UseQSS", "Use QSS").SetValue(true));
+            Menu.AddSubMenu(new Menu("[VH] QSS Buff Types", "QSST"));
+            Cleanser.CreateTypeQSSMenu();
+            Menu.AddSubMenu(new Menu("[VH] QSS Spells", "QSSSpell"));
+            Cleanser.CreateQSSSpellMenu();
             Menu.AddSubMenu(new Menu("[VH] Don't Condemn", "NoCondemn"));
             CreateNoCondemnMenu();
             /**
@@ -96,7 +103,8 @@ namespace VayneHunterRework
             Menu.AddToMainMenu();
             Game.PrintChat("<font color='#FF0000'>VayneHunter</font> <font color='#FFFFFF'>Rework loaded!</font>");
             Game.PrintChat("By <font color='#FF0000'>DZ</font><font color='#FFFFFF'>191</font>. Special Thanks to: Chogart");
-            Game.PrintChat("If you like my assemblies feel free to donate me (link on my forum sig :) )");
+            Game.PrintChat("If you like my assemblies feel free to donate me (link on the forum :) )");
+           //Cleanser.cleanUselessSpells();
             Q = new Spell(SpellSlot.Q);
             E = new Spell(SpellSlot.E,550f);
             R = new Spell(SpellSlot.R);
@@ -107,9 +115,11 @@ namespace VayneHunterRework
            Interrupter.OnPossibleToInterrupt += Interrupter_OnPossibleToInterrupt;
            AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
            Drawing.OnDraw += Drawing_OnDraw;
-         
+            GameObject.OnCreate += Cleanser.OnCreateObj;
+            GameObject.OnDelete += Cleanser.OnDeleteObj;
         }
 
+       
         private void Orbwalker_AfterAttack(Obj_AI_Base unit, Obj_AI_Base target)
         {
             if (unit.IsMe && target.IsValidTarget())
@@ -151,6 +161,7 @@ namespace VayneHunterRework
 
         void Game_OnGameUpdate(EventArgs args)
         {
+            //Cleanser.enableCheck();
             if (Player.IsDead) return;
             Obj_AI_Hero tar;
 
@@ -158,6 +169,10 @@ namespace VayneHunterRework
             if (Menu.Item("WallTumble").GetValue<KeyBind>().Active) WallTumble();
             if (Menu.Item("ThreshLantern").GetValue<KeyBind>().Active) takeLantern();
             QFarmCheck();
+            //Cleanser
+            Cleanser.cleanserBySpell();
+            Cleanser.cleanserByBuffType();
+
             switch (COrbwalker.ActiveMode)
             {
                 case Orbwalking.OrbwalkingMode.Combo:
@@ -176,6 +191,7 @@ namespace VayneHunterRework
 
         void Drawing_OnDraw(EventArgs args)
         {
+            if (Player.IsDead) return;
             var DrawE = Menu.Item("DrawE").GetValue<Circle>();
             var DrawCond = Menu.Item("DrawCond").GetValue<Circle>();
             var DrawDrake = Menu.Item("DrawDrake").GetValue<Circle>();
@@ -240,11 +256,11 @@ namespace VayneHunterRework
         void QFarmCheck()
         {
             if (!Q.IsReady()) return;
-            
+            var PosAfterQ = Player.Position.To2D().Extend(Game.CursorPos.To2D(), 300);
             var minList =
                 MinionManager.GetMinions(Player.Position, 550f).Where(min =>
-                    HealthPrediction.GetHealthPrediction(min,(int)(Q.Delay + min.Distance(Player) / Orbwalking.GetMyProjectileSpeed()) * 1000) <= (Q.GetDamage(min)+Player.GetAutoAttackDamage(min))
-                    && HealthPrediction.GetHealthPrediction(min, (int)(Q.Delay + min.Distance(Player) / Orbwalking.GetMyProjectileSpeed()) * 1000) > 0);
+                    HealthPrediction.GetHealthPrediction(min,(int)(Q.Delay + min.Distance(PosAfterQ) / Orbwalking.GetMyProjectileSpeed()) * 1000)+Game.Ping <= (Q.GetDamage(min)+Player.GetAutoAttackDamage(min))
+                    && HealthPrediction.GetHealthPrediction(min, (int)(Q.Delay + min.Distance(PosAfterQ) / Orbwalking.GetMyProjectileSpeed()) * 1000)+Game.Ping > 0);
             if (!minList.First().IsValidTarget()) return;
             CastQ(Vector3.Zero,minList.First());
         }
@@ -363,63 +379,8 @@ namespace VayneHunterRework
                 Menu.SubMenu("NoCondemn").AddItem(new MenuItem("nC"+hero.ChampionName, hero.ChampionName).SetValue(false));
             }
         }
-
-        bool isWall(Vector3 Pos)
-        {
-            CollisionFlags cFlags = NavMesh.GetCollisionFlags(Pos);
-            return (cFlags == CollisionFlags.Wall);
-        }
-        bool isUnderTurret(Vector3 Position)
-        {
-            foreach (var tur in ObjectManager.Get<Obj_AI_Turret>().Where(turr => turr.IsAlly && (turr.Health != 0)))
-            {
-                if (tur.Distance(Position) <= 975f) return true;
-            }
-            return false;
-        }
-        bool isUnderEnTurret(Vector3 Position)
-        {
-            foreach (var tur in ObjectManager.Get<Obj_AI_Turret>().Where(turr => turr.IsEnemy && (turr.Health != 0)))
-            {
-                if (tur.Distance(Position) <= 975f) return true;
-            }
-            return false;
-        } 
-        bool isMenuEnabled(String val)
-        {
-            return Menu.Item(val).GetValue<bool>();
-        }
-        float getPerValue(bool mana)
-        {
-            if (mana) return (Player.Mana / Player.MaxMana) * 100;
-            return (Player.Health / Player.MaxHealth) * 100;
-        }
-        float getPerValueTarget(Obj_AI_Hero target,bool mana)
-        {
-            if (mana) return (target.Mana / target.MaxMana) * 100;
-            return (target.Health / target.MaxHealth) * 100;
-        }
-        bool isGrass(Vector3 Pos)
-        {
-            return NavMesh.IsWallOfGrass(Pos);
-        }
-
-        void CheckAndWard(Vector3 sPos,Vector3 EndPosition,Obj_AI_Hero target)
-        {
-            if (isGrass(EndPosition))
-            {
-                var WardSlot = FindBestWardItem();
-                if (WardSlot == null) return;
-                for (int i = 0; i < Vector3.Distance(sPos, EndPosition); i += (int)target.BoundingRadius)
-                {
-                    var v = sPos.To2D().Extend(EndPosition.To2D(), -i).To3D();
-                    if (isGrass(v))
-                    {
-                        WardSlot.UseItem(v);
-                    }
-                }
-            }
-        }
+        
+        #region Items & Tumble
         void UseItems(Obj_AI_Hero tar)
         {
             var ownH = getPerValue(false);
@@ -474,7 +435,7 @@ namespace VayneHunterRework
                 }
             }
         }
-
+        
         void takeLantern()
         {
             foreach (GameObject obj in ObjectManager.Get<GameObject>())
@@ -487,6 +448,7 @@ namespace VayneHunterRework
                 }
             }
         }
+        #endregion
         private static SpellDataInst GetItemSpell(InventorySlot invSlot)
         {
             return ObjectManager.Player.Spellbook.Spells.FirstOrDefault(spell => (int)spell.Slot == invSlot.Slot + 4);
@@ -507,6 +469,70 @@ namespace VayneHunterRework
                 Items.UseItem(id, target);
             }
         }
+        bool isWall(Vector3 Pos)
+        {
+            CollisionFlags cFlags = NavMesh.GetCollisionFlags(Pos);
+            return (cFlags == CollisionFlags.Wall);
+        }
+        bool isUnderTurret(Vector3 Position)
+        {
+            foreach (var tur in ObjectManager.Get<Obj_AI_Turret>().Where(turr => turr.IsAlly && (turr.Health != 0)))
+            {
+                if (tur.Distance(Position) <= 975f) return true;
+            }
+            return false;
+        }
+        bool isUnderEnTurret(Vector3 Position)
+        {
+            foreach (var tur in ObjectManager.Get<Obj_AI_Turret>().Where(turr => turr.IsEnemy && (turr.Health != 0)))
+            {
+                if (tur.Distance(Position) <= 975f) return true;
+            }
+            return false;
+        }
+        public static bool isMenuEnabled(String val)
+        {
+            return Menu.Item(val).GetValue<bool>();
+        }
+        float getPerValue(bool mana)
+        {
+            if (mana) return (Player.Mana / Player.MaxMana) * 100;
+            return (Player.Health / Player.MaxHealth) * 100;
+        }
+        float getPerValueTarget(Obj_AI_Hero target, bool mana)
+        {
+            if (mana) return (target.Mana / target.MaxMana) * 100;
+            return (target.Health / target.MaxHealth) * 100;
+        }
+        bool isGrass(Vector3 Pos)
+        {
+            return NavMesh.IsWallOfGrass(Pos);
+        }
 
+        void CheckAndWard(Vector3 sPos, Vector3 EndPosition, Obj_AI_Hero target)
+        {
+            if (isGrass(EndPosition))
+            {
+                var WardSlot = FindBestWardItem();
+                if (WardSlot == null) return;
+                for (int i = 0; i < Vector3.Distance(sPos, EndPosition); i += (int)target.BoundingRadius)
+                {
+                    var v = sPos.To2D().Extend(EndPosition.To2D(), -i).To3D();
+                    if (isGrass(v))
+                    {
+                        WardSlot.UseItem(v);
+                    }
+                }
+            }
+        }
+        
     }
+    internal class QSSSpell
+        {
+            public String ChampName { get; set; }
+            public String SpellName { get; set;}
+            public String SpellBuff { get; set; }
+            public bool isEnabled { get; set; }
+            public bool onlyKill { get; set; }
+        }
 }
