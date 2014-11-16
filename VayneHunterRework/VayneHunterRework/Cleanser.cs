@@ -23,7 +23,7 @@ namespace VayneHunterRework
                     VayneHunterRework.Menu.SubMenu("QSSSpell")
                         .AddItem(new MenuItem("onlyK" + spell.SpellBuff, spell.SpellName + " if killed by it?").SetValue(spell.onlyKill));
                     VayneHunterRework.Menu.SubMenu("QSSSpell").AddItem(new MenuItem("Spacer" + spell.SpellBuff, " "));
-                }
+                }//
             }
             
         }

@@ -79,6 +79,8 @@ namespace VayneHunterRework
             Menu.SubMenu("Items").AddItem(new MenuItem("BotrkH", "Botrk Harrass").SetValue(false));
             Menu.SubMenu("Items").AddItem(new MenuItem("YoumuuC", "Youmuu Combo").SetValue(true));
             Menu.SubMenu("Items").AddItem(new MenuItem("YoumuuH", "Youmuu Harrass").SetValue(false));
+            Menu.SubMenu("Items").AddItem(new MenuItem("BilgeC", "Cutlass Combo").SetValue(true));
+            Menu.SubMenu("Items").AddItem(new MenuItem("BilgeH", "Cutlass Harrass").SetValue(false));
             Menu.SubMenu("Items").AddItem(new MenuItem("OwnHPercBotrk", "Min Own H. % Botrk").SetValue(new Slider(50, 1, 100)));
             Menu.SubMenu("Items").AddItem(new MenuItem("EnHPercBotrk", "Min Enemy H. % Botrk").SetValue(new Slider(20, 1, 100)));
 
@@ -251,6 +253,9 @@ namespace VayneHunterRework
 
         void QFarmCheck()
         {
+           // if (COrbwalker.ActiveMode != Orbwalking.OrbwalkingMode.LastHit ||
+           //     COrbwalker.ActiveMode != Orbwalking.OrbwalkingMode.LaneClear ||
+           //     COrbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Mixed) return; //Tempfix
             if (!Q.IsReady()) return;
             var PosAfterQ = Player.Position.To2D().Extend(Game.CursorPos.To2D(), 300);
             var minList =
@@ -397,6 +402,14 @@ namespace VayneHunterRework
             if (Menu.Item("YoumuuH").GetValue<bool>() && COrbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Mixed)
             {
                 UseItem(3142);
+            }
+            if (Menu.Item("BilgeC").GetValue<bool>() && COrbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
+            {
+                UseItem(3144,tar);
+            }
+            if (Menu.Item("BilgeH").GetValue<bool>() && COrbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Mixed)
+            {
+                UseItem(3144, tar);
             }
         }
         void WallTumble()
