@@ -88,7 +88,14 @@ namespace VayneHunterRework
                 if (VayneHunterRework.isMenuEnabled("en" + cc.buffName))
                 {
                     Console.WriteLine("Should Cleanse. " + cc.buffName + " cause it is a spell");
-                    Cleanse();
+                    if (cc.buffName == "zedulttargetmark")
+                    {
+                        Utility.DelayAction.Add(500, () => Cleanse());
+                    }
+                    else
+                    {
+                        Cleanse();
+                    }
                 }
                 if (VayneHunterRework.isMenuEnabled("onlyK" + cc.buffName) && cc.willKillMe)
                 {
