@@ -274,7 +274,7 @@ namespace DZDraven_Reloaded
             var Pred = E.GetPrediction(target);
             if (Pred.Hitchance >= HitChance.Medium)
             {
-                E.Cast(Pred.UnitPosition, isMenuEnabled("Packets"));
+                E.Cast(target, isMenuEnabled("Packets"));
             }
         }
         public static void Catch(bool shouldUseWForIt, PossibleReticle Axe)
@@ -374,7 +374,7 @@ namespace DZDraven_Reloaded
                     var ManaR = Menu.Item("RManaC").GetValue<Slider>().Value;
                     if (getUnitsInPath(Player, RTarget, R) && getPerValue(true) >= ManaR &&!Player.HasBuff("dravenrdoublecast", true))
                     {
-                        R.Cast(Pred.UnitPosition, isMenuEnabled("Packets"));
+                        R.Cast(RTarget, isMenuEnabled("Packets"));
                     }
                     break;
                 case xSLxOrbwalker.Mode.Harass:
@@ -382,7 +382,7 @@ namespace DZDraven_Reloaded
                     var ManaRH = Menu.Item("RManaH").GetValue<Slider>().Value;
                     if (getUnitsInPath(Player, RTarget, R) && getPerValue(true) >= ManaRH && !Player.HasBuff("dravenrdoublecast", true))
                     {
-                        R.Cast(Pred.UnitPosition, isMenuEnabled("Packets"));
+                        R.Cast(RTarget, isMenuEnabled("Packets"));
                     }
                     break;
             }
@@ -394,7 +394,7 @@ namespace DZDraven_Reloaded
             if (!RTarget.IsValidTarget() || Pred.Hitchance < HitChance.Medium || !R.IsReady()) return;
             if (getUnitsInPath(Player, RTarget, R) &&  !Player.HasBuff("dravenrdoublecast", true))
             {
-                R.Cast(Pred.CastPosition, isMenuEnabled("Packets"));
+                R.Cast(RTarget, isMenuEnabled("Packets"));
             }
         }
         static void castItems(Obj_AI_Hero tar)
