@@ -144,9 +144,10 @@ namespace DZDraven_Reloaded
             var target = SimpleTs.GetTarget(xSLxOrbwalker.GetAutoAttackRange(), SimpleTs.DamageType.Physical);
             var Etarget = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Physical);
             var RTarget = SimpleTs.GetTarget(2000f, SimpleTs.DamageType.Physical);
+            CatchAxes();
             Cleanser.cleanserBySpell();
             Cleanser.cleanserByBuffType();
-            CatchAxes();
+            
             if(target.IsValidTarget())CastQ();
             if(Etarget.IsValidTarget())CastE(Etarget);
             if (RTarget.IsValidTarget()) CastRExecute(RTarget);
@@ -237,13 +238,13 @@ namespace DZDraven_Reloaded
             //Game.PrintChat("I'm Combo");
             var Axe = getClosestAxe(out shouldUseWForIt);
             
-            if (Axe == null)
+            if (Axe == null || Axes.Count == 0)
             {
                 xSLxOrbwalker.CustomOrbwalkMode = false;
-                xSLxOrbwalker.SetAttack(true);
+               // xSLxOrbwalker.SetAttack(true);
                 return;
             }
-            if (shouldUseWForIt) { xSLxOrbwalker.SetAttack(false); } else { xSLxOrbwalker.SetAttack(true);}
+          //  if (shouldUseWForIt) { xSLxOrbwalker.SetAttack(false); } else { xSLxOrbwalker.SetAttack(true);}
             switch (xSLxOrbwalker.CurrentMode)
             {
                 case xSLxOrbwalker.Mode.Combo:

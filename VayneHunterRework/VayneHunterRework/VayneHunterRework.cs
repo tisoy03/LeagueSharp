@@ -515,8 +515,8 @@ namespace VayneHunterRework
         }
         bool isGrass(Vector3 Pos)
         {
-            return NavMesh.IsWallOfGrass(Pos,65);
-        //return false; 
+            //return NavMesh.IsWallOfGrass(Pos);
+            return false; 
         }
 
         void CheckAndWard(Vector3 sPos, Vector3 EndPosition, Obj_AI_Hero target)
