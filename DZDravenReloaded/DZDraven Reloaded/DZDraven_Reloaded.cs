@@ -140,6 +140,11 @@ namespace DZDraven_Reloaded
         {
             if (Player.IsDead) return;
             minionThere();
+            if (Axes.Count == 0)
+            {
+                xSLxOrbwalker.CustomOrbwalkMode = false;
+                return;
+            }
             //Game.PrintChat(hasWBuff().ToString());
             var target = SimpleTs.GetTarget(xSLxOrbwalker.GetAutoAttackRange(), SimpleTs.DamageType.Physical);
             var Etarget = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Physical);
@@ -236,12 +241,16 @@ namespace DZDraven_Reloaded
         {
             bool shouldUseWForIt;
             //Game.PrintChat("I'm Combo");
+            if (Axes.Count == 0)
+            {
+                xSLxOrbwalker.CustomOrbwalkMode = false;
+                return;
+            }
             var Axe = getClosestAxe(out shouldUseWForIt);
             
             if (Axe == null || Axes.Count == 0)
             {
                 xSLxOrbwalker.CustomOrbwalkMode = false;
-               // xSLxOrbwalker.SetAttack(true);
                 return;
             }
           //  if (shouldUseWForIt) { xSLxOrbwalker.SetAttack(false); } else { xSLxOrbwalker.SetAttack(true);}
