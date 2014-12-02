@@ -54,8 +54,8 @@ namespace DZDraven_Reloaded
         private static Obj_AI_Base _lastTarget;
         private static Spell _movementPrediction;
         private static int _lastMovement;
-        private static int _Windup;
-
+        private static int _windup;
+        private static int lastRealAttack;
         public static void AddToMenu(Menu menu)
         {
             _movementPrediction = new Spell(SpellSlot.Unknown, GetAutoAttackRange());
@@ -150,13 +150,17 @@ namespace DZDraven_Reloaded
                 return;
             var missile = (Obj_SpellMissile)sender;
             if (missile.SpellCaster is Obj_AI_Hero && missile.SpellCaster.IsValid && IsAutoAttack(missile.SData.Name))
+            {
                 FireAfterAttack(missile.SpellCaster, _lastTarget);
+                if (sender.IsMe)
+                    lastRealAttack = Environment.TickCount;
+            }
         }
 
         private static void OnUpdate(EventArgs args)
         {
             CheckAutoWindUp();
-            if (CurrentMode == Mode.None || MenuGUI.IsChatOpen || CustomOrbwalkMode)
+            if (CurrentMode == Mode.None || MenuGUI.IsChatOpen || CustomOrbwalkMode || MyHero.IsChannelingImportantSpell())
                 return;
             var target = GetPossibleTarget();
             Orbwalk(Game.CursorPos, target);
@@ -235,32 +239,32 @@ namespace DZDraven_Reloaded
 
         public static void Orbwalk(Vector3 goalPosition, Obj_AI_Base target)
         {
-            if (target != null && CanAttack() && IsAllowedToAttack())
+            if (target != null && (CanAttack() || HaveCancled()) && IsAllowedToAttack())
             {
                 _disableNextAttack = false;
                 FireBeforeAttack(target);
                 if (!_disableNextAttack)
                 {
-                    //if(CurrentMode != Mode.Harass || !target.IsMinion || Menu.Item("Harass_Lasthit").GetValue<bool>())
-                    //{
-                    MyHero.IssueOrder(GameObjectOrder.AttackUnit, target);
-                    if (!(target is Obj_AI_Hero))
+                    if (CurrentMode != Mode.Harass || !target.IsMinion || Menu.Item("Harass_Lasthit").GetValue<bool>())
+                    {
+                        MyHero.IssueOrder(GameObjectOrder.AttackUnit, target);
                         _lastAATick = Environment.TickCount + Game.Ping / 2;
-                    //}
+                    }
                 }
             }
             if (!CanMove() || !IsAllowedToMove())
                 return;
-            //if(MyHero.IsMelee() && target != null && target.Distance(MyHero) < GetAutoAttackRange(MyHero, target) &&
-            //	Menu.Item("orb_Melee_Prediction").GetValue<bool>() && target is Obj_AI_Hero && Game.CursorPos.Distance(target.Position) < 300)
-            //{
-            //	_movementPrediction.Delay = MyHero.BasicAttack.SpellCastTime;
-            //	_movementPrediction.Speed = MyHero.BasicAttack.MissileSpeed;
-            //	MoveTo(_movementPrediction.GetPrediction(target).UnitPosition);
-            //}
-            //else
-            MoveTo(goalPosition);
+            if (MyHero.IsMelee() && target != null && target.Distance(MyHero) < GetAutoAttackRange(MyHero, target) &&
+                Menu.Item("orb_Melee_Prediction").GetValue<bool>() && target is Obj_AI_Hero && Game.CursorPos.Distance(target.Position) < 300)
+            {
+                _movementPrediction.Delay = MyHero.BasicAttack.SpellCastTime;
+                _movementPrediction.Speed = MyHero.BasicAttack.MissileSpeed;
+                MoveTo(_movementPrediction.GetPrediction(target).UnitPosition);
+            }
+            else
+                MoveTo(goalPosition);
         }
+
 
         private static void MoveTo(Vector3 position)
         {
@@ -546,10 +550,17 @@ namespace DZDraven_Reloaded
             return false;
         }
 
+        private static bool HaveCancled()
+        {
+            if (_lastAATick - Environment.TickCount > MyHero.AttackCastDelay * 1000 + 25)
+                return lastRealAttack < _lastAATick;
+            return false;
+        }
+
         public static bool CanMove()
         {
             if (_lastAATick <= Environment.TickCount)
-                return Environment.TickCount + Game.Ping / 2 >= _lastAATick + MyHero.AttackCastDelay * 1000 + _Windup && _movement;
+                return Environment.TickCount + Game.Ping / 2 >= _lastAATick + MyHero.AttackCastDelay * 1000 + _windup && _movement;
             return false;
         }
 
@@ -562,7 +573,7 @@ namespace DZDraven_Reloaded
         {
             var ret = offset;
             if (MyHero.ChampionName == "Azir")
-                ret += 125;
+                ret += 50;
             return Menu.Item("orb_Misc_Farmdelay").GetValue<Slider>().Value + ret;
         }
 
@@ -615,7 +626,7 @@ namespace DZDraven_Reloaded
         {
             if (!Menu.Item("orb_Misc_AutoWindUp").GetValue<bool>())
             {
-                _Windup = GetCurrentWindupTime();
+                _windup = GetCurrentWindupTime();
                 return;
             }
             var additional = 0;
@@ -627,9 +638,9 @@ namespace DZDraven_Reloaded
                 additional = +20;
             var windUp = Game.Ping + additional;
             if (windUp < 40)
-                windUp = 200;
+                windUp = 40;
             Menu.Item("orb_Misc_ExtraWindUp").SetValue(windUp < 200 ? new Slider(windUp, 200, 0) : new Slider(200, 200, 0));
-            _Windup = windUp;
+            _windup = windUp;
         }
 
         public static int GetCurrentWindupTime()
@@ -654,8 +665,6 @@ namespace DZDraven_Reloaded
             var ret = source.AttackRange + MyHero.BoundingRadius;
             if (target != null)
                 ret += target.BoundingRadius;
-            if (target is Obj_AI_Hero)
-                ret -= 25;
             return ret;
         }
 
