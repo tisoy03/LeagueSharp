@@ -143,7 +143,6 @@ namespace DZDraven_Reloaded
             if (Axes.Count == 0)
             {
                 xSLxOrbwalker.CustomOrbwalkMode = false;
-                return;
             }
             //Game.PrintChat(hasWBuff().ToString());
             var target = SimpleTs.GetTarget(xSLxOrbwalker.GetAutoAttackRange(), SimpleTs.DamageType.Physical);
@@ -248,7 +247,7 @@ namespace DZDraven_Reloaded
             }
             var Axe = getClosestAxe(out shouldUseWForIt);
             
-            if (Axe == null || Axes.Count == 0)
+            if (Axe == null)
             {
                 xSLxOrbwalker.CustomOrbwalkMode = false;
                 return;
