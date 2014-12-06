@@ -527,7 +527,7 @@ namespace VayneHunterRework
                 if (WardSlot == null) return;
                 for (int i = 0; i < Vector3.Distance(sPos, EndPosition); i += (int)target.BoundingRadius)
                 {
-                    var v = sPos.To2D().Extend(EndPosition.To2D(), -i).To3D();
+                    var v = sPos.To2D().Extend(EndPosition.To2D(), i).To3D();
                     if (isGrass(v))
                     {
                         WardSlot.UseItem(v);
