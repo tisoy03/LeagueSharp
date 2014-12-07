@@ -124,7 +124,6 @@ namespace VayneHunterRework
             var hasIT = Items.HasItem(3139) || Items.HasItem(3140) || Items.HasItem(3137);
             if (!VayneHunterRework.isMenuEnabled("UseQSS") || !hasIT) return;
             int numBuffs = UnitBuffs(Player);
-           //Console.WriteLine("Should Cleanse. "+numBuffs +" cause of the bufftype check");
             if(numBuffs >= 1)Cleanse();
         }
 

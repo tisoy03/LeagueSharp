@@ -47,6 +47,7 @@ namespace VayneHunterRework
             Menu.SubMenu("Combo").AddItem(new MenuItem("UseRC", "Use R Combo").SetValue(false));
             Menu.SubMenu("Combo").AddItem(new MenuItem("QManaC", "Min Q Mana %").SetValue(new Slider(35, 1, 100)));
             Menu.SubMenu("Combo").AddItem(new MenuItem("EManaC", "Min E Mana %").SetValue(new Slider(20, 1, 100)));
+            Menu.SubMenu("Combo").AddItem(new MenuItem("NEnUlt", "Only ult when x enemies").SetValue(new Slider(2, 1, 5)));
 
             Menu.AddSubMenu(new Menu("[VH] Harrass", "Harrass"));
             Menu.SubMenu("Harrass").AddItem(new MenuItem("UseQH", "Use Q Harrass")).SetValue(true);
@@ -299,9 +300,13 @@ namespace VayneHunterRework
             {
                 case Orbwalking.OrbwalkingMode.Combo:
                     var ManaC = Menu.Item("QManaC").GetValue<Slider>().Value;
+                    var EnMin = Menu.Item("NEnUlt").GetValue<Slider>().Value;
+                    var EnemiesList =
+                        ObjectManager.Get<Obj_AI_Hero>()
+                            .Where(h => h.IsValid && !h.IsDead && h.Distance(Player) <= 900 && h.IsEnemy).ToList();
                     if (getPerValue(true) >= ManaC && isMenuEnabled("UseQC"))
                     {
-                        if(isMenuEnabled("UseRC") && R.IsReady())R.CastOnUnit(Player);
+                        if(isMenuEnabled("UseRC") && R.IsReady() && EnemiesList.Count >= EnMin)R.CastOnUnit(Player);
                         if(!customPos){CastTumble(target);}else{CastTumble(Pos,target);}
                     }
                     break;
