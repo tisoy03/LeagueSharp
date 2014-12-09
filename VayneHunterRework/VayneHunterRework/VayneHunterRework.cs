@@ -199,10 +199,10 @@ namespace VayneHunterRework
             var DrawCond = Menu.Item("DrawCond").GetValue<Circle>();
             var DrawDrake = Menu.Item("DrawDrake").GetValue<Circle>();
             var DrawMid = Menu.Item("DrawMid").GetValue<Circle>();
-            Vector2 MidWallQPos = new Vector2(6010.5869140625f, 8508.8740234375f);
-            Vector2 DrakeWallQPos = new Vector2(11334.74f, 4517.47f);
-            if (DrawDrake.Active && Player.Distance(DrakeWallQPos) < 1500f) Utility.DrawCircle(new Vector3(11590.95f, 4656.26f, 0f), 75f, DrawDrake.Color);
-            if (DrawMid.Active && Player.Distance(MidWallQPos) < 1500f) Utility.DrawCircle(new Vector3(6623, 8649, 0f), 75f, DrawMid.Color);
+            Vector2 MidWallQPos = new Vector2(6707.485f, 8802.744f);
+            Vector2 DrakeWallQPos = new Vector2(11514, 4462);
+            if (DrawDrake.Active && Player.Distance(DrakeWallQPos) < 1500f) Utility.DrawCircle(new Vector3(12052, 4826, 0f), 75f, DrawDrake.Color);
+            if (DrawMid.Active && Player.Distance(MidWallQPos) < 1500f) Utility.DrawCircle(new Vector3(6958, 8944, 0f), 75f, DrawMid.Color);
             if (DrawE.Active)Utility.DrawCircle(Player.Position,E.Range,DrawE.Color);
             if (DrawCond.Active) DrawPostCondemn();
             
@@ -420,31 +420,32 @@ namespace VayneHunterRework
         void WallTumble()
         {
             //Credits to Chogart
-            Vector2 MidWallQPos = new Vector2(6010.5869140625f, 8508.8740234375f);
-            Vector2 DrakeWallQPos = new Vector2(11334.74f, 4517.47f);
+            Vector2 MidWallQPos = new Vector2(6707.485f, 8802.744f);
+            Vector2 DrakeWallQPos = new Vector2(11514, 4462);
             if (Player.Distance(MidWallQPos) >= Player.Distance(DrakeWallQPos))
             {
 
-                if (Player.Position.X < 11540 || Player.Position.X > 11600 || Player.Position.Y < 4638 ||
-                    Player.Position.Y > 4712)
+                if (Player.Position.X < 12000 || Player.Position.X > 12070 || Player.Position.Y < 4800 ||
+                    Player.Position.Y > 4872)
                 {
-                    Packet.C2S.Move.Encoded(new Packet.C2S.Move.Struct(11590.95f, 4656.26f)).Send();
+                    Packet.C2S.Move.Encoded(new Packet.C2S.Move.Struct(12050, 4827)).Send();
                 }
                 else
                 {
-                    Packet.C2S.Move.Encoded(new Packet.C2S.Move.Struct(11590.95f, 4656.26f)).Send();
+                    Packet.C2S.Move.Encoded(new Packet.C2S.Move.Struct(12050, 4827)).Send();
                     Q.Cast(DrakeWallQPos, true);
                 }
             }
             else
             {
-                if (Player.Position.X < 6600 || Player.Position.X > 6660 || Player.Position.Y < 8630 || Player.Position.Y > 8680)
+                if (Player.Position.X < 6908 || Player.Position.X > 6978 || Player.Position.Y < 8917 ||
+                    Player.Position.Y > 8989)
                 {
-                    Packet.C2S.Move.Encoded(new Packet.C2S.Move.Struct(6623, 8649)).Send();
+                    Packet.C2S.Move.Encoded(new Packet.C2S.Move.Struct(6958, 8944)).Send();
                 }
                 else
                 {
-                    Packet.C2S.Move.Encoded(new Packet.C2S.Move.Struct(6623, 8649)).Send();
+                    Packet.C2S.Move.Encoded(new Packet.C2S.Move.Struct(6958, 8944)).Send();
                     Q.Cast(MidWallQPos, true);
                 }
             }
