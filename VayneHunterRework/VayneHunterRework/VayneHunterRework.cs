@@ -282,10 +282,13 @@ namespace VayneHunterRework
                     if (b.Name == "vaynesilvereddebuff" && b.Count == 2)
                     {
                         COrbwalker.ForceTarget(hero);
+                        Hud.SelectedUnit = hero;
                         return;
                     }
                 }
             }
+            Hud.SelectedUnit = null;
+            COrbwalker.ForceTarget(null);
         }
         void SmartQCheck(Obj_AI_Hero target)
         {
