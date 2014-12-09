@@ -67,9 +67,10 @@ namespace VayneHunterRework
             Menu.SubMenu("Misc").AddItem(new MenuItem("SmartQ", "Try to QE First").SetValue(false));
             Menu.SubMenu("Misc").AddItem(new MenuItem("ENext", "E Next Auto").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Toggle)));
             Menu.SubMenu("Misc").AddItem(new MenuItem("PushDistance", "E Push Dist").SetValue(new Slider(425, 400, 500)));
-            Menu.SubMenu("Misc").AddItem(new MenuItem("CondemnTurret", "Try to Condemn to turret").SetValue(true));
+            Menu.SubMenu("Misc").AddItem(new MenuItem("CondemnTurret", "Try to Condemn to turret").SetValue(false));
             Menu.SubMenu("Misc").AddItem(new MenuItem("AutoE", "Auto E").SetValue(false));
             Menu.SubMenu("Misc").AddItem(new MenuItem("NoEEnT", "No E Under enemy turret").SetValue(true));
+            Menu.SubMenu("Misc").AddItem(new MenuItem("SpecialFocus", "Focus targets with 2 W marks").SetValue(false));
             Menu.SubMenu("Misc").AddItem(new MenuItem("WallTumble", "Tumble Over Wall").SetValue(new KeyBind("Y".ToCharArray()[0], KeyBindType.Press)));
             Menu.SubMenu("Misc").AddItem(new MenuItem("ThreshLantern", "Grab Thresh Lantern").SetValue(new KeyBind("S".ToCharArray()[0], KeyBindType.Press)));
             Menu.AddSubMenu(new Menu("[VH] BushRevealer", "BushReveal"));
@@ -172,6 +173,7 @@ namespace VayneHunterRework
             if (Menu.Item("WallTumble").GetValue<KeyBind>().Active) WallTumble();
             if (Menu.Item("ThreshLantern").GetValue<KeyBind>().Active) takeLantern();
             QFarmCheck();
+            FocusTarget();
             //Cleanser
             Cleanser.cleanserBySpell();
             Cleanser.cleanserByBuffType();
@@ -266,7 +268,25 @@ namespace VayneHunterRework
             if (!minList.First().IsValidTarget()) return;
             CastQ(Vector3.Zero,minList.First());
         }
-        
+
+        void FocusTarget()
+        {
+            if (!isMenuEnabled("SpecialFocus")) return;
+            foreach (
+                var hero in
+                    ObjectManager.Get<Obj_AI_Hero>()
+                        .Where(hero => hero.IsValidTarget(Orbwalking.GetRealAutoAttackRange(null))))
+            {
+                foreach (var b in hero.Buffs)
+                {
+                    if (b.Name == "vaynesilvereddebuff" && b.Count == 2)
+                    {
+                        COrbwalker.ForceTarget(hero);
+                        return;
+                    }
+                }
+            }
+        }
         void SmartQCheck(Obj_AI_Hero target)
         {
             if (!Q.IsReady() || !target.IsValidTarget()) return;
