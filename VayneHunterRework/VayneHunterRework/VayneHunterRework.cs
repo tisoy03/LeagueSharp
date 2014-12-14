@@ -97,6 +97,7 @@ namespace VayneHunterRework
 
             Menu.AddSubMenu(new Menu("[VH] QSS", "QSSMenu"));
            Menu.SubMenu("QSSMenu").AddItem(new MenuItem("UseQSS", "Use QSS").SetValue(true));
+           Menu.SubMenu("QSSMenu").AddItem(new MenuItem("QSSMinBuffs", "Min Buffs to QSS").SetValue(new Slider(2,1,5)));
             Menu.AddSubMenu(new Menu("[VH] QSS Buff Types", "QSST"));
             Cleanser.CreateTypeQSSMenu();
             Menu.AddSubMenu(new Menu("[VH] QSS Spells", "QSSSpell"));
