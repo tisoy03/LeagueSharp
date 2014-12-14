@@ -238,7 +238,7 @@ namespace VayneHunterRework
 
         static Obj_AI_Hero getByChampName(String Name)
         {
-            return ObjectManager.Get<Obj_AI_Hero>().First(h => h.ChampionName == Name);
+            return ObjectManager.Get<Obj_AI_Hero>().First(h => h.ChampionName == Name && h.IsEnemy);
         }
 
     }
