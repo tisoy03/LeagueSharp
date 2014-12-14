@@ -64,7 +64,7 @@ namespace VayneHunterRework
 
             var menuDrawing = new Menu("Drawing", "lxOrbwalker_Draw");
             menuDrawing.AddItem(new MenuItem("lxOrbwalker_Draw_AARange", "AA Circle").SetValue(new Circle(true, Color.FloralWhite)));
-            menuDrawing.AddItem(new MenuItem("lxOrbwalker_Draw_AARange_Enemy", "AA Circle Enemy").SetValue(new Circle(true, Color.Pink)));
+            menuDrawing.AddItem(new MenuItem("lxOrbwalker_Draw_AARange3nemy", "AA Circle Enemy").SetValue(new Circle(true, Color.Pink)));
             menuDrawing.AddItem(new MenuItem("lxOrbwalker_Draw_Holdzone", "Holdzone").SetValue(new Circle(true, Color.FloralWhite)));
             menuDrawing.AddItem(new MenuItem("lxOrbwalker_Draw_MinionHPBar", "Minion HPBar").SetValue(new Circle(true, Color.Black)));
             menuDrawing.AddItem(new MenuItem("lxOrbwalker_Draw_MinionHPBar_thickness", "^ HPBar Thickness").SetValue(new Slider(1, 1, 3)));
@@ -76,7 +76,7 @@ namespace VayneHunterRework
             var menuMisc = new Menu("Misc", "lxOrbwalker_Misc");
             menuMisc.AddItem(new MenuItem("lxOrbwalker_Misc_Holdzone", "Hold Position").SetValue(new Slider(50, 100, 0)));
             menuMisc.AddItem(new MenuItem("lxOrbwalker_Misc_Farmdelay", "Farm Delay").SetValue(new Slider(0, 200, 0)));
-            menuMisc.AddItem(new MenuItem("lxOrbwalker_Misc_ExtraWindUp", "Extra Winduptime").SetValue(new Slider(80, 200, 0)));
+            menuMisc.AddItem(new MenuItem("lxOrbwalker_Misc3xtraWindUp", "Extra Winduptime").SetValue(new Slider(80, 200, 0)));
             menuMisc.AddItem(new MenuItem("lxOrbwalker_Misc_AutoWindUp", "Autoset Windup").SetValue(false));
             menuMisc.AddItem(new MenuItem("lxOrbwalker_Misc_Priority_Unit", "Priority Unit").SetValue(new StringList(new[] { "Minion", "Hero" })));
             menuMisc.AddItem(new MenuItem("lxOrbwalker_Misc_Humanizer", "Humanizer Delay").SetValue(new Slider(50, 100, 0)));
@@ -172,23 +172,23 @@ namespace VayneHunterRework
                 Utility.DrawCircle(MyHero.Position, GetAutoAttackRange(), Menu.Item("lxOrbwalker_Draw_AARange").GetValue<Circle>().Color);
             }
 
-            if (Menu.Item("lxOrbwalker_Draw_AARange_Enemy").GetValue<Circle>().Active ||
+            if (Menu.Item("lxOrbwalker_Draw_AARange3nemy").GetValue<Circle>().Active ||
                 Menu.Item("lxOrbwalker_Draw_hitbox").GetValue<Circle>().Active)
             {
                 foreach (var enemy in AllEnemys.Where(enemy => enemy.IsValidTarget(1500)))
                 {
-                    if (Menu.Item("lxOrbwalker_Draw_AARange_Enemy").GetValue<Circle>().Active)
-                        Utility.DrawCircle(enemy.Position, GetAutoAttackRange(enemy, MyHero), Menu.Item("lxOrbwalker_Draw_AARange_Enemy").GetValue<Circle>().Color);
+                    if (Menu.Item("lxOrbwalker_Draw_AARange3nemy").GetValue<Circle>().Active)
+                        Utility.DrawCircle(enemy.Position, GetAutoAttackRange(enemy, MyHero), Menu.Item("lxOrbwalker_Draw_AARange3nemy").GetValue<Circle>().Color);
                     if (Menu.Item("lxOrbwalker_Draw_hitbox").GetValue<Circle>().Active)
                         Utility.DrawCircle(enemy.Position, enemy.BoundingRadius, Menu.Item("lxOrbwalker_Draw_hitbox").GetValue<Circle>().Color);
                 }
             }
 
-            if (Menu.Item("lxOrbwalker_Draw_AARange_Enemy").GetValue<Circle>().Active)
+            if (Menu.Item("lxOrbwalker_Draw_AARange3nemy").GetValue<Circle>().Active)
             {
                 foreach (var enemy in AllEnemys.Where(enemy => enemy.IsValidTarget(1500)))
                 {
-                    Utility.DrawCircle(enemy.Position, GetAutoAttackRange(enemy, MyHero), Menu.Item("lxOrbwalker_Draw_AARange_Enemy").GetValue<Circle>().Color);
+                    Utility.DrawCircle(enemy.Position, GetAutoAttackRange(enemy, MyHero), Menu.Item("lxOrbwalker_Draw_AARange3nemy").GetValue<Circle>().Color);
 
                 }
             }
@@ -562,7 +562,7 @@ namespace VayneHunterRework
 
         public static bool CanMove()
         {
-            var extraWindup = Menu.Item("lxOrbwalker_Misc_ExtraWindUp").GetValue<Slider>().Value;
+            var extraWindup = Menu.Item("lxOrbwalker_Misc3xtraWindUp").GetValue<Slider>().Value;
             if (_lastAATick <= Environment.TickCount)
                 return Environment.TickCount + Game.Ping / 2 >= _lastAATick + MyHero.AttackCastDelay * 1000 + extraWindup && _movement;
             return false;
@@ -640,12 +640,12 @@ namespace VayneHunterRework
             var windUp = Game.Ping + additional;
             if (windUp < 40)
                 windUp = 40;
-            Menu.Item("lxOrbwalker_Misc_ExtraWindUp").SetValue(windUp < 200 ? new Slider(windUp, 200, 0) : new Slider(200, 200, 0));
+            Menu.Item("lxOrbwalker_Misc3xtraWindUp").SetValue(windUp < 200 ? new Slider(windUp, 200, 0) : new Slider(200, 200, 0));
         }
 
         public static int GetCurrentWindupTime()
         {
-            return Menu.Item("lxOrbwalker_Misc_ExtraWindUp").GetValue<Slider>().Value;
+            return Menu.Item("lxOrbwalker_Misc3xtraWindUp").GetValue<Slider>().Value;
         }
 
         public static void EnableDrawing()

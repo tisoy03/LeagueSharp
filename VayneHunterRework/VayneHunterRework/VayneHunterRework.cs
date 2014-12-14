@@ -24,6 +24,15 @@ namespace VayneHunterRework
         public static Obj_AI_Base current; // for tower farming
         public static Obj_AI_Base last; // for tower farming
 
+        private static int[] QWE = new[] { 1, 2, 3, 1, 1, 4, 1, 2, 1, 2, 4, 2, 2, 3, 3, 4, 3, 3 };
+        private static int[] QEW = new[] { 1, 3, 2, 1, 1, 4, 1, 3, 1, 3, 4, 3, 3, 2, 2, 4, 2, 2 };
+        private static int[] WQE = new[] { 2, 1, 3, 2, 2, 4, 2, 1, 2, 1, 4, 1, 1, 3, 3, 4, 3, 3 };
+        private static int[] WEQ = new[] { 2, 3, 1, 2, 2, 4, 2, 3, 2, 3, 4, 3, 3, 1, 1, 4, 1, 1 };
+        private static int[] EQW = new[] { 3, 1, 2, 3, 3, 4, 3, 1, 3, 1, 4, 1, 1, 2, 2, 4, 2, 2 };
+        private static int[] EWQ = new[] { 3, 2, 1, 3, 3, 4, 3, 2, 3, 2, 4, 2, 2, 1, 1, 4, 1, 1 };
+
+        private static StringList Orders = new StringList(new [] {"QWE","QEW","WQE","WEQ","EQW","EWQ"},3);
+
         public VayneHunterRework()
         {
             CustomEvents.Game.OnGameLoad +=Game_OnGameLoad;
@@ -94,11 +103,11 @@ namespace VayneHunterRework
             Cleanser.CreateQSSSpellMenu();
             Menu.AddSubMenu(new Menu("[VH] Don't Condemn", "NoCondemn"));
             CreateNoCondemnMenu();
-            /**
+            
             Menu.AddSubMenu(new Menu("[VH] AutoLeveler", "AutoLevel"));
-            Menu.SubMenu("AutoLevel").AddItem(new MenuItem("ALSeq", "AutoLevel Seq").SetValue(new StringList(new []{"Q,W,E Max W,Q,E","Q,E,W Max Q,W,E"},0)));
+            Menu.SubMenu("AutoLevel").AddItem(new MenuItem("ALSeq", "AutoLevel Seq").SetValue(Orders));
             Menu.SubMenu("AutoLevel").AddItem(new MenuItem("ALAct", "AutoLevel Active").SetValue(false));
-             * */
+
             Menu.AddSubMenu(new Menu("[VH] Drawings", "Draw"));
             Menu.SubMenu("Draw").AddItem(new MenuItem("DrawE", "Draw E").SetValue(new Circle(true,Color.MediumPurple)));
             Menu.SubMenu("Draw").AddItem(new MenuItem("DrawCond", "Draw Pos. Aft. E if Stun").SetValue(new Circle(true, Color.Red)));
@@ -116,11 +125,27 @@ namespace VayneHunterRework
             Orbwalking.AfterAttack += Orbwalker_AfterAttack;
             Game.OnGameUpdate += Game_OnGameUpdate;
            // Game.OnGameProcessPacket += GameOnOnGameProcessPacket;
-           Interrupter.OnPossibleToInterrupt += Interrupter_OnPossibleToInterrupt;
-           AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
-           Drawing.OnDraw += Drawing_OnDraw;
+            Interrupter.OnPossibleToInterrupt += Interrupter_OnPossibleToInterrupt;
+            AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
+            Drawing.OnDraw += Drawing_OnDraw;
             GameObject.OnCreate += Cleanser.OnCreateObj;
             GameObject.OnDelete += Cleanser.OnDeleteObj;
+            Menu.Item("ALAct").ValueChanged += AutoLevel_ValueChanged;
+
+            if (isMenuEnabled("ALAct"))
+            {
+                var AutoLevel =
+                    new AutoLevel(
+                        getSequence(
+                            Menu.Item("ALSeq").GetValue<StringList>().SList[
+                                Menu.Item("ALSeq").GetValue<StringList>().SelectedIndex]));
+
+            }
+        }
+
+        private void AutoLevel_ValueChanged(object sender, OnValueChangeEventArgs e)
+        {
+            AutoLevel.Enabled(e.GetNewValue<bool>());
         }
 
        
@@ -131,12 +156,11 @@ namespace VayneHunterRework
                  AfterAA(target);
             }
         }
-        
+
         void AfterAA(Obj_AI_Base target)
         {
             if (!(target is Obj_AI_Hero)) return;
             var tar = (Obj_AI_Hero)target;
-
 
             switch (COrbwalker.ActiveMode)
             {
@@ -401,6 +425,28 @@ namespace VayneHunterRework
                     break;
             }
         }
+
+        int[] getSequence(String Order)
+        {
+            switch (Order)
+            {
+                case "QWE":
+                    return QWE;
+                case "QEW":
+                    return QEW;
+                case "WQE":
+                    return WQE;
+                case "EQW":
+                    return EQW;
+                case "WEQ":
+                    return WEQ;
+                case "EWQ":
+                    return EWQ;
+                default:
+                    return null;
+            }
+        }
+
         private static void CreateNoCondemnMenu()
         {
             foreach (var hero in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsEnemy))
