@@ -48,7 +48,7 @@ namespace VayneHunterRework
             COrbwalker = new Orbwalking.Orbwalker(lxMenu);
             Menu.AddSubMenu(lxMenu);
             var tsMenu = new Menu("Target Selector", "TargetSel");
-            SimpleTs.AddToMenu(tsMenu);
+            TargetSelector.AddToMenu(tsMenu);
             Menu.AddSubMenu(tsMenu);
             Menu.AddSubMenu(new Menu("[VH] Combo", "Combo"));
             Menu.SubMenu("Combo").AddItem(new MenuItem("UseQC", "Use Q Combo")).SetValue(true);
