@@ -71,6 +71,7 @@ namespace VayneHunterRework
             Menu.SubMenu("Farm").AddItem(new MenuItem("QManaLC", "Min Q Mana % LC").SetValue(new Slider(35, 1, 100)));
             Menu.AddSubMenu(new Menu("[VH] Misc", "Misc"));
             Menu.SubMenu("Misc").AddItem(new MenuItem("Packets", "Packet Casting").SetValue(true));
+            Menu.SubMenu("Misc").AddItem(new MenuItem("NoAAStealth", "Don't AA while stealthed").SetValue(false));
             Menu.SubMenu("Misc").AddItem(new MenuItem("AntiGP", "Anti Gapcloser")).SetValue(true);
             Menu.SubMenu("Misc").AddItem(new MenuItem("Interrupt", "Interrupter").SetValue(true));
             Menu.SubMenu("Misc").AddItem(new MenuItem("SmartQ", "Try to QE First").SetValue(false));
@@ -152,11 +153,13 @@ namespace VayneHunterRework
        
         private void Orbwalker_AfterAttack(AttackableUnit unit, AttackableUnit target)
         {
-            if (unit.IsMe && target.IsValidTarget())
+            if (unit.IsMe)
             {
                  AfterAA(target);
             }
         }
+
+      
 
         void AfterAA(AttackableUnit target)
         {
@@ -199,6 +202,7 @@ namespace VayneHunterRework
             if (Menu.Item("ThreshLantern").GetValue<KeyBind>().Active) takeLantern();
             QFarmCheck();
             FocusTarget();
+            NoAAStealth();
             //Cleanser
             Cleanser.cleanserBySpell();
             Cleanser.cleanserByBuffType();
@@ -234,6 +238,8 @@ namespace VayneHunterRework
             if (DrawCond.Active) DrawPostCondemn();
             
         }
+
+       
 
         void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
         {
@@ -294,6 +300,18 @@ namespace VayneHunterRework
             CastQ(Vector3.Zero,minList.First());
         }
 
+        void NoAAStealth()
+        {
+            if (isMenuEnabled("NoAAStealth") && Player.HasBuff("vaynetumblefade"))
+            {
+                COrbwalker.SetAttack(false);
+            }
+            else
+            {
+                COrbwalker.SetAttack(true);
+            }
+        }
+
         void FocusTarget()
         {
             if (!isMenuEnabled("SpecialFocus")) return;
@@ -340,7 +358,7 @@ namespace VayneHunterRework
             }
         }
 
-        void CastQ(Vector3 Pos,AttackableUnit target,bool customPos=false)
+        void CastQ(Vector3 Pos,Obj_AI_Base target,bool customPos=false)
         {
            if (!Q.IsReady() || !target.IsValidTarget()) return;
            
@@ -375,7 +393,7 @@ namespace VayneHunterRework
             }
         }
 
-        void CastTumble(AttackableUnit target)
+        void CastTumble(Obj_AI_Base target)
         {
             
             //Q.Cast(Game.CursorPos, isMenuEnabled("Packets"));
@@ -386,7 +404,7 @@ namespace VayneHunterRework
             var distanceAfterTumble = Vector3.DistanceSquared(posAfterTumble, target.ServerPosition);
             if (distanceAfterTumble < 550 * 550 && distanceAfterTumble > 100 * 100)Q.Cast(Game.CursorPos, isMenuEnabled("Packets"));
         }
-        void CastTumble(Vector3 Pos,AttackableUnit target)
+        void CastTumble(Vector3 Pos,Obj_AI_Base target)
         {
            //Q.Cast(Pos, isMenuEnabled("Packets"));
           //  return;
