@@ -302,7 +302,7 @@ namespace VayneHunterRework
 
         void NoAAStealth()
         {
-            if (isMenuEnabled("NoAAStealth") && Player.HasBuff("vaynetumblefade"))
+            if (isMenuEnabled("NoAAStealth") && Player.HasBuff("vaynetumblefade",true))
             {
                 COrbwalker.SetAttack(false);
             }
