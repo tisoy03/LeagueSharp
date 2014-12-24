@@ -21,8 +21,8 @@ namespace VayneHunterRework
         public static Spell Q, W, E, R;
         public static Menu Menu;
         public static Vector3 AfterCond = Vector3.Zero;
-        public static Obj_AI_Base current; // for tower farming
-        public static Obj_AI_Base last; // for tower farming
+        public static AttackableUnit current; // for tower farming
+        public static AttackableUnit last; // for tower farming
 
         private static int[] QWE = new[] { 1, 2, 3, 1, 1, 4, 1, 2, 1, 2, 4, 2, 2, 3, 3, 4, 3, 3 };
         private static int[] QEW = new[] { 1, 3, 2, 1, 1, 4, 1, 3, 1, 3, 4, 3, 3, 2, 2, 4, 2, 2 };
@@ -150,7 +150,7 @@ namespace VayneHunterRework
         }
 
        
-        private void Orbwalker_AfterAttack(Obj_AI_Base unit, Obj_AI_Base target)
+        private void Orbwalker_AfterAttack(AttackableUnit unit, AttackableUnit target)
         {
             if (unit.IsMe && target.IsValidTarget())
             {
@@ -158,7 +158,7 @@ namespace VayneHunterRework
             }
         }
 
-        void AfterAA(Obj_AI_Base target)
+        void AfterAA(AttackableUnit target)
         {
             if (!(target is Obj_AI_Hero)) return;
             var tar = (Obj_AI_Hero)target;
@@ -243,7 +243,7 @@ namespace VayneHunterRework
 
         }
 
-        void Interrupter_OnPossibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
+        void Interrupter_OnPossibleToInterrupt(AttackableUnit unit, InterruptableSpell spell)
         {
             var Sender = (Obj_AI_Hero)unit;
             if (!isMenuEnabled("Interrupt") || !E.IsReady() || !Sender.IsValidTarget()) return;
@@ -340,7 +340,7 @@ namespace VayneHunterRework
             }
         }
 
-        void CastQ(Vector3 Pos,Obj_AI_Base target,bool customPos=false)
+        void CastQ(Vector3 Pos,AttackableUnit target,bool customPos=false)
         {
            if (!Q.IsReady() || !target.IsValidTarget()) return;
            
@@ -375,7 +375,7 @@ namespace VayneHunterRework
             }
         }
 
-        void CastTumble(Obj_AI_Base target)
+        void CastTumble(AttackableUnit target)
         {
             
             //Q.Cast(Game.CursorPos, isMenuEnabled("Packets"));
@@ -386,7 +386,7 @@ namespace VayneHunterRework
             var distanceAfterTumble = Vector3.DistanceSquared(posAfterTumble, target.ServerPosition);
             if (distanceAfterTumble < 550 * 550 && distanceAfterTumble > 100 * 100)Q.Cast(Game.CursorPos, isMenuEnabled("Packets"));
         }
-        void CastTumble(Vector3 Pos,Obj_AI_Base target)
+        void CastTumble(Vector3 Pos,AttackableUnit target)
         {
            //Q.Cast(Pos, isMenuEnabled("Packets"));
           //  return;
