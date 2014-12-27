@@ -624,7 +624,8 @@ namespace VayneHunterRework
                     var v = sPos.To2D().Extend(EndPosition.To2D(), i).To3D();
                     if (isGrass(v))
                     {
-                        WardSlot.UseItem(v);
+                        //WardSlot.UseItem(v);
+                        Player.Spellbook.CastSpell(WardSlot.SpellSlot, v);
                     }
                 }
             }
