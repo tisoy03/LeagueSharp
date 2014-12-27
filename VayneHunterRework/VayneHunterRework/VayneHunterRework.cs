@@ -14,7 +14,6 @@ namespace VayneHunterRework
 {
     class VayneHunterRework
     {
-        public static LXOrbwalker Orbwalker = new LXOrbwalker();
         public static Orbwalking.Orbwalker COrbwalker;
         public static Obj_AI_Hero Player = ObjectManager.Player;
         public static String charName = "Vayne";
@@ -43,10 +42,9 @@ namespace VayneHunterRework
             if (Player.ChampionName != charName) return;
             Cleanser.CreateQSSSpellList();
             Menu = new Menu("VayneHunter Rework", "VHRework", true);
-            var lxMenu = new Menu("Orbwalker", "LXOrb");
-            //LXOrbwalker.AddToMenu(lxMenu);
-            COrbwalker = new Orbwalking.Orbwalker(lxMenu);
-            Menu.AddSubMenu(lxMenu);
+            var orbMenu = new Menu("Orbwalker", "orbwalker");
+            COrbwalker = new Orbwalking.Orbwalker(orbMenu);
+            Menu.AddSubMenu(orbMenu);
             var tsMenu = new Menu("Target Selector", "TargetSel");
             TargetSelector.AddToMenu(tsMenu);
             Menu.AddSubMenu(tsMenu);
@@ -369,7 +367,7 @@ namespace VayneHunterRework
                     var EnMin = Menu.Item("NEnUlt").GetValue<Slider>().Value;
                     var EnemiesList =
                         ObjectManager.Get<Obj_AI_Hero>()
-                            .Where(h => h.IsValid && !h.IsDead && h.Distance(Player) <= 900 && h.IsEnemy).ToList();
+                            .Where(h => h.IsValid && !h.IsDead && h.Distance(Player.Position) <= 900 && h.IsEnemy).ToList();
                     if (getPerValue(true) >= ManaC && isMenuEnabled("UseQC"))
                     {
                         if(isMenuEnabled("UseRC") && R.IsReady() && EnemiesList.Count >= EnMin)R.CastOnUnit(Player);
