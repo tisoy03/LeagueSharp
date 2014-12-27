@@ -31,7 +31,7 @@ namespace Muramana
             GameObject.OnDelete += GameObject_OnDelete;
         }
 
-        private static void OrbwalkingOnAtk(Obj_AI_Base unit, Obj_AI_Base target)
+        private static void OrbwalkingOnAtk(AttackableUnit unit, AttackableUnit target)
         {
             int Mur = Items.HasItem(Muramana) ? 3042 : 3043;
             if (ObjectManager.Get<Obj_AI_Hero>().Contains(target) && (Items.HasItem(Mur)) && (Menu.Item("useM").GetValue<bool>()) && (Items.CanUseItem(Mur)))
