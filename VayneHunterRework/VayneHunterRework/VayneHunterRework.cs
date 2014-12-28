@@ -266,10 +266,11 @@ namespace VayneHunterRework
             {
                 var EPred = E.GetPrediction(En);
                 int pushDist = Menu.Item("PushDistance").GetValue<Slider>().Value;
+                var FinalPosition = EPred.UnitPosition.To2D().Extend(Position.To2D(), -pushDist).To3D();
                 for (int i = 0; i < pushDist; i += (int)En.BoundingRadius)
                 {
                     Vector3 loc3 = EPred.UnitPosition.To2D().Extend(Position.To2D(), -i).To3D();
-                    var OrTurret = isMenuEnabled("CondemnTurret") && isUnderTurret(loc3);
+                    var OrTurret = isMenuEnabled("CondemnTurret") && isUnderTurret(FinalPosition);
                     AfterCond = loc3;
                     if (isWall(loc3) || OrTurret)
                     {
