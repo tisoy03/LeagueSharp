@@ -22,6 +22,7 @@ namespace VayneHunterRework
         public static Vector3 AfterCond = Vector3.Zero;
         public static AttackableUnit current; // for tower farming
         public static AttackableUnit last; // for tower farming
+        private static float LastMoveC;
 
         private static int[] QWE = new[] { 1, 2, 3, 1, 1, 4, 1, 2, 1, 2, 4, 2, 2, 3, 3, 4, 3, 3 };
         private static int[] QEW = new[] { 1, 3, 2, 1, 1, 4, 1, 3, 1, 3, 4, 3, 3, 2, 2, 4, 2, 2 };
@@ -143,9 +144,9 @@ namespace VayneHunterRework
             }
         }
 
-        private void AutoLevel_ValueChanged(object sender, OnValueChangeEventArgs e)
+        private void AutoLevel_ValueChanged(object sender, OnValueChangeEventArgs ev)
         {
-            AutoLevel.Enabled(e.GetNewValue<bool>());
+            AutoLevel.Enabled(ev.GetNewValue<bool>());
         }
 
        
@@ -393,10 +394,6 @@ namespace VayneHunterRework
 
         void CastTumble(Obj_AI_Base target)
         {
-            
-            //Q.Cast(Game.CursorPos, isMenuEnabled("Packets"));
-         //  return;
-          
             var posAfterTumble =
                 ObjectManager.Player.ServerPosition.To2D().Extend(Game.CursorPos.To2D(), 300).To3D();
             var distanceAfterTumble = Vector3.DistanceSquared(posAfterTumble, target.ServerPosition);
@@ -404,8 +401,6 @@ namespace VayneHunterRework
         }
         void CastTumble(Vector3 Pos,Obj_AI_Base target)
         {
-           //Q.Cast(Pos, isMenuEnabled("Packets"));
-          //  return;
             var posAfterTumble =
                 ObjectManager.Player.ServerPosition.To2D().Extend(Pos.To2D(), 300).To3D();
             var distanceAfterTumble = Vector3.DistanceSquared(posAfterTumble, target.ServerPosition);
@@ -515,12 +510,12 @@ namespace VayneHunterRework
                     Player.Position.Y > 4872)
                 {
                     //Packet.C2S.Move.Encoded(new Packet.C2S.Move.Struct(12050, 4827)).Send();
-                    Player.IssueOrder(GameObjectOrder.MoveTo, new Vector2(12050, 4827).To3D());
+                    MoveToLimited(new Vector2(12050, 4827).To3D());
                 }
                 else
                 {
                     //Packet.C2S.Move.Encoded(new Packet.C2S.Move.Struct(12050, 4827)).Send();
-                    Player.IssueOrder(GameObjectOrder.MoveTo, new Vector2(12050, 4827).To3D());
+                    MoveToLimited(new Vector2(12050, 4827).To3D());
                     Q.Cast(DrakeWallQPos, true);
                 }
             }
@@ -530,17 +525,27 @@ namespace VayneHunterRework
                     Player.Position.Y > 8989)
                 {
                    // Packet.C2S.Move.Encoded(new Packet.C2S.Move.Struct(6958, 8944)).Send();
-                    Player.IssueOrder(GameObjectOrder.MoveTo, new Vector2(6958, 8944).To3D());
+                    MoveToLimited(new Vector2(6958, 8944).To3D());
                 }
                 else
                 {
                     //Packet.C2S.Move.Encoded(new Packet.C2S.Move.Struct(6958, 8944)).Send();
-                    Player.IssueOrder(GameObjectOrder.MoveTo, new Vector2(6958, 8944).To3D());
+                    MoveToLimited(new Vector2(6958, 8944).To3D());
                     Q.Cast(MidWallQPos, true);
                 }
             }
         }
-        
+
+        void MoveToLimited(Vector3 where)
+        {
+            if (Environment.TickCount - LastMoveC < 80)
+            {
+                return;
+            }
+            LastMoveC = Environment.TickCount;
+            Player.IssueOrder(GameObjectOrder.MoveTo, where);
+        }
+
         void takeLantern()
         {
             foreach (GameObject obj in ObjectManager.Get<GameObject>())
@@ -548,7 +553,10 @@ namespace VayneHunterRework
                 if (obj.Name.Contains("ThreshLantern") &&obj.Position.Distance(ObjectManager.Player.ServerPosition) <= 500 && obj.IsAlly)
                 {
                     GamePacket pckt =Packet.C2S.InteractObject.Encoded(new Packet.C2S.InteractObject.Struct(ObjectManager.Player.NetworkId,obj.NetworkId));
-                    pckt.Send();
+
+                    //TODO Revert this once packets get fixed with 4.21
+                    
+                    //pckt.Send();
                     return;
                 }
             }
@@ -611,8 +619,8 @@ namespace VayneHunterRework
         }
         bool isGrass(Vector3 Pos)
         {
-            //return NavMesh.IsWallOfGrass(Pos);
-            return false; 
+            return NavMesh.IsWallOfGrass(Pos,65);
+            //return false; 
         }
 
         void CheckAndWard(Vector3 sPos, Vector3 EndPosition, Obj_AI_Hero target)
