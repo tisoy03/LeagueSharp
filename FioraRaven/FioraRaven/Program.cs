@@ -42,7 +42,7 @@ namespace FioraRaven
             menu.AddSubMenu(new Menu("Orbwalker","Orbwalker1"));
             Orbwalker = new Orbwalking.Orbwalker(menu.SubMenu("Orbwalker1"));
             var ts = new Menu("Target Selector","TargetSelector");
-            SimpleTs.AddToMenu(ts);
+            TargetSelector.AddToMenu(ts);
             menu.AddSubMenu(ts);
             menu.AddSubMenu(new Menu("Fiora Combo", "Combo"));
             menu.SubMenu("Combo").AddItem(new MenuItem("UseQ", "Use Q").SetValue(true));
@@ -108,7 +108,7 @@ namespace FioraRaven
                 {
                     if(player.Distance(hero.Position)<=600f)
                     {
-                        Obj_AI_Hero tar1 = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Physical);
+                        Obj_AI_Hero tar1 = TargetSelector.GetTarget(R.Range, TargetSelector.DamageType.Physical);
                         R.Cast(tar1);
                     }
                 }
@@ -116,7 +116,7 @@ namespace FioraRaven
                 {
                     if (player.Distance(spell.End)<=270f)
                     {
-                        Obj_AI_Hero tar1 = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Physical);
+                        Obj_AI_Hero tar1 = TargetSelector.GetTarget(R.Range, TargetSelector.DamageType.Physical);
                         R.Cast(tar1);
                     }
                 }
@@ -124,7 +124,7 @@ namespace FioraRaven
                 {
                     if (spell.Target.IsMe)
                     {
-                        Obj_AI_Hero tar1 = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Physical);
+                        Obj_AI_Hero tar1 = TargetSelector.GetTarget(R.Range, TargetSelector.DamageType.Physical);
                         R.Cast(tar1);
                     }
                 }
@@ -132,7 +132,7 @@ namespace FioraRaven
                 {
                     if (spell.Target.IsMe || player.Distance(spell.Target.Position)<=50f)
                     {
-                        Obj_AI_Hero tar1 = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Physical);
+                        Obj_AI_Hero tar1 = TargetSelector.GetTarget(R.Range, TargetSelector.DamageType.Physical);
                         R.Cast(tar1);
                     }
                 }
@@ -141,7 +141,7 @@ namespace FioraRaven
                 {
                     if (player.Distance(hero.Position) <= 600f)
                     {
-                        Obj_AI_Hero tar1 = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Physical);
+                        Obj_AI_Hero tar1 = TargetSelector.GetTarget(R.Range, TargetSelector.DamageType.Physical);
                         R.Cast(tar1);
                     }
                 }
@@ -151,7 +151,7 @@ namespace FioraRaven
                     W.Cast();      
             }
         }
-        static void Orbwalking_OnAttack(Obj_AI_Base unit, Obj_AI_Base target)
+        static void Orbwalking_OnAttack(AttackableUnit unit, AttackableUnit target)
         {
             if (unit.IsMe)
             {
@@ -170,7 +170,7 @@ namespace FioraRaven
                 }
             }
         }
-        public static void Orbwalking_AfterAttack(Obj_AI_Base unit, Obj_AI_Base target)
+        public static void Orbwalking_AfterAttack(AttackableUnit unit, AttackableUnit target)
         {
             if (unit.IsMe)
             {
@@ -196,7 +196,7 @@ namespace FioraRaven
         {
             if (!Q.IsReady())firstQ = false;
             if (isCombo()) { 
-                var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
+                var target = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical);
                 CastQ(target);
                 if ((R.GetDamage(target) >= target.Health))
                 {
