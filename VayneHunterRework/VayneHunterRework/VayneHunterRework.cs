@@ -514,11 +514,13 @@ namespace VayneHunterRework
                 if (Player.Position.X < 12000 || Player.Position.X > 12070 || Player.Position.Y < 4800 ||
                     Player.Position.Y > 4872)
                 {
-                    Packet.C2S.Move.Encoded(new Packet.C2S.Move.Struct(12050, 4827)).Send();
+                    //Packet.C2S.Move.Encoded(new Packet.C2S.Move.Struct(12050, 4827)).Send();
+                    Player.IssueOrder(GameObjectOrder.MoveTo, new Vector2(12050, 4827).To3D());
                 }
                 else
                 {
-                    Packet.C2S.Move.Encoded(new Packet.C2S.Move.Struct(12050, 4827)).Send();
+                    //Packet.C2S.Move.Encoded(new Packet.C2S.Move.Struct(12050, 4827)).Send();
+                    Player.IssueOrder(GameObjectOrder.MoveTo, new Vector2(12050, 4827).To3D());
                     Q.Cast(DrakeWallQPos, true);
                 }
             }
@@ -527,11 +529,13 @@ namespace VayneHunterRework
                 if (Player.Position.X < 6908 || Player.Position.X > 6978 || Player.Position.Y < 8917 ||
                     Player.Position.Y > 8989)
                 {
-                    Packet.C2S.Move.Encoded(new Packet.C2S.Move.Struct(6958, 8944)).Send();
+                   // Packet.C2S.Move.Encoded(new Packet.C2S.Move.Struct(6958, 8944)).Send();
+                    Player.IssueOrder(GameObjectOrder.MoveTo, new Vector2(6958, 8944).To3D());
                 }
                 else
                 {
-                    Packet.C2S.Move.Encoded(new Packet.C2S.Move.Struct(6958, 8944)).Send();
+                    //Packet.C2S.Move.Encoded(new Packet.C2S.Move.Struct(6958, 8944)).Send();
+                    Player.IssueOrder(GameObjectOrder.MoveTo, new Vector2(6958, 8944).To3D());
                     Q.Cast(MidWallQPos, true);
                 }
             }
