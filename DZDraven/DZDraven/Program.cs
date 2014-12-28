@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using System.Windows.Input;
 using LeagueSharp;
 using LeagueSharp.Common;
-using SharpDX;
 
 using Color = System.Drawing.Color;
 
@@ -29,6 +29,8 @@ namespace DZDraven
         static void Game_OnGameLoad(EventArgs args)
         {
             if (player.BaseSkinName != charName) { return; }
+            Game.PrintChat("DZDraven is Outdated! Please use DZDraven Reloaded!");
+            return;
             menu = new Menu("DZDraven", "DZdrvenMenu", true);
             menu.AddSubMenu(new Menu("Orbwalker", "Orbwalker1"));
             Orbwalker = new Orbwalking.Orbwalker(menu.SubMenu("Orbwalker1"));
