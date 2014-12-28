@@ -295,7 +295,7 @@ namespace VayneHunterRework
                 MinionManager.GetMinions(Player.Position, 550f).Where(min =>
                     HealthPrediction.GetHealthPrediction(min,(int)(Q.Delay + min.Distance(PosAfterQ) / Orbwalking.GetMyProjectileSpeed()) * 1000)+Game.Ping <= (Q.GetDamage(min)+Player.GetAutoAttackDamage(min))
                     && HealthPrediction.GetHealthPrediction(min, (int)(Q.Delay + min.Distance(PosAfterQ) / Orbwalking.GetMyProjectileSpeed()) * 1000)+Game.Ping > 0);
-            if (!minList.First().IsValidTarget()) return;
+            if (!minList.Any()) return;
             CastQ(Vector3.Zero,minList.First());
         }
 
