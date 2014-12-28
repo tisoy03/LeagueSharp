@@ -32,7 +32,7 @@ namespace DZDraven_Reloaded
             xSLxOrbwalker.AddToMenu(xSLxMenu);
             Menu.AddSubMenu(xSLxMenu);
             var ts = new Menu("Target Selector", "TargetSelector");
-            SimpleTs.AddToMenu(ts);
+            TargetSelector.AddToMenu(ts);
             Menu.AddSubMenu(ts);
 
             Menu.AddSubMenu(new Menu("[Draven]Combo", "Combo"));
@@ -145,9 +145,9 @@ namespace DZDraven_Reloaded
                 xSLxOrbwalker.CustomOrbwalkMode = false;
             }
             //Game.PrintChat(hasWBuff().ToString());
-            var target = SimpleTs.GetTarget(xSLxOrbwalker.GetAutoAttackRange(), SimpleTs.DamageType.Physical);
-            var Etarget = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Physical);
-            var RTarget = SimpleTs.GetTarget(2000f, SimpleTs.DamageType.Physical);
+            var target = TargetSelector.GetTarget(xSLxOrbwalker.GetAutoAttackRange(), TargetSelector.DamageType.Physical);
+            var Etarget = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Physical);
+            var RTarget = TargetSelector.GetTarget(2000f, TargetSelector.DamageType.Physical);
             CatchAxes();
             Cleanser.cleanserBySpell();
             Cleanser.cleanserByBuffType();
