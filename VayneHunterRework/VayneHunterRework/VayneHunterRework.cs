@@ -330,8 +330,6 @@ namespace VayneHunterRework
                     }
                 }
             }
-            Hud.SelectedUnit = null;
-            COrbwalker.ForceTarget(null);
         }
         void SmartQCheck(Obj_AI_Hero target)
         {
