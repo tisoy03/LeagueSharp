@@ -18,13 +18,13 @@ namespace VayneHunterRework
         public static AttackableUnit current; // for tower farming
         public static AttackableUnit last; // for tower farming
         private static float LastMoveC;
-
-        private static int[] QWE = new[] { 1, 2, 3, 1, 1, 4, 1, 2, 1, 2, 4, 2, 2, 3, 3, 4, 3, 3 };
+        private static bool aLInit = false;
+        private static int[] QWE = new[] { 1, 3, 2, 1, 1, 4, 1, 2, 1, 2, 4, 2, 2, 3, 3, 4, 3, 3 };
         private static int[] QEW = new[] { 1, 3, 2, 1, 1, 4, 1, 3, 1, 3, 4, 3, 3, 2, 2, 4, 2, 2 };
-        private static int[] WQE = new[] { 2, 1, 3, 2, 2, 4, 2, 1, 2, 1, 4, 1, 1, 3, 3, 4, 3, 3 };
-        private static int[] WEQ = new[] { 2, 3, 1, 2, 2, 4, 2, 3, 2, 3, 4, 3, 3, 1, 1, 4, 1, 1 };
-        private static int[] EQW = new[] { 3, 1, 2, 3, 3, 4, 3, 1, 3, 1, 4, 1, 1, 2, 2, 4, 2, 2 };
-        private static int[] EWQ = new[] { 3, 2, 1, 3, 3, 4, 3, 2, 3, 2, 4, 2, 2, 1, 1, 4, 1, 1 };
+        private static int[] WQE = new[] { 1, 3, 2, 2, 2, 4, 2, 1, 2, 1, 4, 1, 1, 3, 3, 4, 3, 3 };
+        private static int[] WEQ = new[] { 1, 3, 2, 2, 2, 4, 2, 3, 2, 3, 4, 3, 3, 1, 1, 4, 1, 1 };
+        private static int[] EQW = new[] { 1, 3, 2, 3, 3, 4, 3, 1, 3, 1, 4, 1, 1, 2, 2, 4, 2, 2 };
+        private static int[] EWQ = new[] { 1, 3, 2, 3, 3, 4, 3, 2, 3, 2, 4, 2, 2, 1, 1, 4, 1, 1 };
 
         private static StringList Orders = new StringList(new [] {"QWE","QEW","WQE","WEQ","EQW","EWQ"},3);
 
@@ -130,7 +130,7 @@ namespace VayneHunterRework
             
             Menu.AddSubMenu(new Menu("[VH] AutoLeveler", "AutoLevel"));
             Menu.SubMenu("AutoLevel").AddItem(new MenuItem("ALSeq", "AutoLevel Seq").SetValue(Orders));
-            Menu.SubMenu("AutoLevel").AddItem(new MenuItem("ALAct", "AutoLevel Active").SetValue(true));
+            Menu.SubMenu("AutoLevel").AddItem(new MenuItem("ALAct", "AutoLevel Active").SetValue(false));
 
             Menu.AddSubMenu(new Menu("[VH] Drawings", "Draw"));
             Menu.SubMenu("Draw").AddItem(new MenuItem("DrawE", "Draw E").SetValue(new Circle(true,Color.MediumPurple)));
@@ -156,19 +156,29 @@ namespace VayneHunterRework
             GameObject.OnDelete += Cleanser.OnDeleteObj;
             Menu.Item("ALAct").ValueChanged += AutoLevel_ValueChanged;
 
-            if (isMenuEnabled("ALAct"))
+            if (isMenuEnabled("ALAct") && !aLInit)
             {
-                var AutoLevel =
+                var AutoLevel_I =
                     new AutoLevel(
                         getSequence(
                             Menu.Item("ALSeq").GetValue<StringList>().SList[
                                 Menu.Item("ALSeq").GetValue<StringList>().SelectedIndex]));
-
+                aLInit = true;
             }
         }
 
         private void AutoLevel_ValueChanged(object sender, OnValueChangeEventArgs ev)
         {
+            if (isMenuEnabled("ALAct") && !aLInit)
+            {
+                var AutoLevel_I =
+                    new AutoLevel(
+                        getSequence(
+                            Menu.Item("ALSeq").GetValue<StringList>().SList[
+                                Menu.Item("ALSeq").GetValue<StringList>().SelectedIndex]));
+                aLInit = true;
+            }
+
             AutoLevel.Enabled(ev.GetNewValue<bool>());
         }
 
