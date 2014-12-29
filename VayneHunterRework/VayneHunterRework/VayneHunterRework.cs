@@ -130,7 +130,7 @@ namespace VayneHunterRework
             
             Menu.AddSubMenu(new Menu("[VH] AutoLeveler", "AutoLevel"));
             Menu.SubMenu("AutoLevel").AddItem(new MenuItem("ALSeq", "AutoLevel Seq").SetValue(Orders));
-            Menu.SubMenu("AutoLevel").AddItem(new MenuItem("ALAct", "AutoLevel Active").SetValue(false));
+            Menu.SubMenu("AutoLevel").AddItem(new MenuItem("ALAct", "AutoLevel Active").SetValue(true));
 
             Menu.AddSubMenu(new Menu("[VH] Drawings", "Draw"));
             Menu.SubMenu("Draw").AddItem(new MenuItem("DrawE", "Draw E").SetValue(new Circle(true,Color.MediumPurple)));
