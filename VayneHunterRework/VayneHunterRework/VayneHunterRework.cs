@@ -98,6 +98,7 @@ namespace VayneHunterRework
                     .AddItem(
                         new MenuItem("ThreshLantern", "Grab Thresh Lantern").SetValue(new KeyBind("S".ToCharArray()[0],
                             KeyBindType.Press)));
+                MiscGSubMenu.AddItem(new MenuItem("UseIgn", "Use Ignite")).SetValue(true);
             }
             MiscSubMenu.AddSubMenu(MiscTSubMenu);
             MiscSubMenu.AddSubMenu(MiscCSubMenu);
@@ -134,6 +135,8 @@ namespace VayneHunterRework
             Menu.SubMenu("AutoPot").AddItem(new MenuItem("APM", "Mana Pot").SetValue(true));
             Menu.SubMenu("AutoPot").AddItem(new MenuItem("APH_Slider", "Health Pot %").SetValue(new Slider(35,1)));
             Menu.SubMenu("AutoPot").AddItem(new MenuItem("APM_Slider", "Mana Pot %").SetValue(new Slider(35, 1)));
+            Menu.SubMenu("AutoPot").AddItem(new MenuItem("APHeal", "Use Heal").SetValue(true));
+            Menu.SubMenu("AutoPot").AddItem(new MenuItem("APHeal_Slider", "Heal %").SetValue(new Slider(35, 1)));
 
             Menu.AddSubMenu(new Menu("[VH] AutoLeveler", "AutoLevel"));
             Menu.SubMenu("AutoLevel").AddItem(new MenuItem("ALSeq", "AutoLevel Seq").SetValue(Orders));
@@ -263,9 +266,21 @@ namespace VayneHunterRework
                 default:
                     break;
             }  
+
+            //Ignite
+            var dmg = 50 + 20 * Player.Level;
+            var tg = TargetSelector.GetSelectedTarget();
+            var ign = Player.GetSpellSlot("summonerdot");
+            if (isMenuEnabled("UseIgn") && dmg > tg.Health)
+            {
+                if (ign != SpellSlot.Unknown && Player.Spellbook.CanUseSpell(ign) == SpellState.Ready)
+                {
+                    Player.Spellbook.CastSpell(ign);
+                }
+            }
         }
 
-        void AutoPot()
+        private void AutoPot()
         {
             if (ObjectManager.Player.HasBuff("Recall") || Utility.InFountain() && Utility.InShopRange())
                 return;
@@ -280,7 +295,17 @@ namespace VayneHunterRework
             {
                 UseItem(2004);
             }
+            //Summoner Heal
+            if (isMenuEnabled("APHeal") && getPerValue(false) <= Menu.Item("APHeal_Slider").GetValue<Slider>().Value)
+            {
+                var heal = Player.GetSpellSlot("summonerheal");
+                if (heal != SpellSlot.Unknown && Player.Spellbook.CanUseSpell(heal) == SpellState.Ready)
+                {
+                    Player.Spellbook.CastSpell(heal);
+                }
+            }
         }
+
         void Drawing_OnDraw(EventArgs args)
         {
             if (Player.IsDead) return;
