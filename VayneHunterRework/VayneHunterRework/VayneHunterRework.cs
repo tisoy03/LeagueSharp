@@ -82,6 +82,7 @@ namespace VayneHunterRework
                 MiscCSubMenu.AddItem(new MenuItem("ENext", "E Next Auto").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Toggle)));
                 MiscCSubMenu.AddItem(new MenuItem("PushDistance", "E Push Dist").SetValue(new Slider(425, 400, 500)));
                 MiscCSubMenu.AddItem(new MenuItem("CondemnTurret", "Try to Condemn to turret").SetValue(false));
+                MiscCSubMenu.AddItem(new MenuItem("CondemnFlag", "Condemn to J4 flag").SetValue(true));
                 MiscCSubMenu.AddItem(new MenuItem("AutoE", "Auto E").SetValue(false));
                 MiscCSubMenu.AddItem(new MenuItem("NoEEnT", "No E Under enemy turret").SetValue(true));
             }
@@ -304,8 +305,9 @@ namespace VayneHunterRework
                 {
                     Vector3 loc3 = EPred.UnitPosition.To2D().Extend(Position.To2D(), -i).To3D();
                     var OrTurret = isMenuEnabled("CondemnTurret") && isUnderTurret(FinalPosition);
+                    var OrFlag = isMenuEnabled("CondemnFlag") && isJ4FlagThere(loc3, En);
                     AfterCond = loc3;
-                    if (isWall(loc3) || OrTurret)
+                    if (isWall(loc3) || OrTurret || OrFlag)
                     {
                         if(isMenuEnabled("BushRevealer"))CheckAndWard(Position,loc3,En);
                         target = En;
@@ -320,9 +322,6 @@ namespace VayneHunterRework
 
         void QFarmCheck()
         {
-           // if (COrbwalker.ActiveMode != Orbwalking.OrbwalkingMode.LastHit ||
-           //     COrbwalker.ActiveMode != Orbwalking.OrbwalkingMode.LaneClear ||
-           //     COrbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Mixed) return; //Tempfix
             if (!Q.IsReady()) return;
             var PosAfterQ = Player.Position.To2D().Extend(Game.CursorPos.To2D(), 300);
             var minList =
@@ -335,14 +334,8 @@ namespace VayneHunterRework
 
         void NoAAStealth()
         {
-            if (isMenuEnabled("NoAAStealth") && Player.HasBuff("vaynetumblefade",true))
-            {
-                COrbwalker.SetAttack(false);
-            }
-            else
-            {
-                COrbwalker.SetAttack(true);
-            }
+            var mb = (isMenuEnabled("NoAAStealth") && Player.HasBuff("vaynetumblefade", true))?false:true;
+            COrbwalker.SetAttack(mb);
         }
 
         void FocusTarget()
@@ -364,6 +357,7 @@ namespace VayneHunterRework
                 }
             }
         }
+        #region Q Region
         void SmartQCheck(Obj_AI_Hero target)
         {
             if (!Q.IsReady() || !target.IsValidTarget()) return;
@@ -446,8 +440,9 @@ namespace VayneHunterRework
                 Q.Cast(Pos, isMenuEnabled("Packets"));
             }
         }
+        #endregion
 
-        
+        #region E Region
         void CastE(Obj_AI_Hero target, bool isForGapcloser = false)
         {
             if (!E.IsReady() || !target.IsValidTarget()) return;
@@ -479,6 +474,7 @@ namespace VayneHunterRework
                     break;
             }
         }
+        #endregion
 
         int[] getSequence(String Order)
         {
@@ -603,6 +599,8 @@ namespace VayneHunterRework
             }
         }
         #endregion
+
+        #region utility methods
         int getEnemiesInRange(Vector3 point, float range)
         {
             return
@@ -676,6 +674,20 @@ namespace VayneHunterRework
             return NavMesh.IsWallOfGrass(Pos,65);
             //return false; 
         }
+
+        bool isJ4FlagThere(Vector3 Position,Obj_AI_Hero target)
+        {
+            foreach (
+                var obj in ObjectManager.Get<Obj_AI_Base>().Where(m => m.Distance(Position) <= target.BoundingRadius))
+            {
+                if (obj.Name == "Beacon")
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        #endregion
 
         void CheckAndWard(Vector3 sPos, Vector3 EndPosition, Obj_AI_Hero target)
         {
