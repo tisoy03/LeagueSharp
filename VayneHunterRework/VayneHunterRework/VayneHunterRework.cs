@@ -18,15 +18,15 @@ namespace VayneHunterRework
         public static AttackableUnit current; // for tower farming
         public static AttackableUnit last; // for tower farming
         private static float LastMoveC;
-        private static bool aLInit = false;
-        private static int[] QWE = new[] { 1, 3, 2, 1, 1, 4, 1, 2, 1, 2, 4, 2, 2, 3, 3, 4, 3, 3 };
-        private static int[] QEW = new[] { 1, 3, 2, 1, 1, 4, 1, 3, 1, 3, 4, 3, 3, 2, 2, 4, 2, 2 };
-        private static int[] WQE = new[] { 1, 3, 2, 2, 2, 4, 2, 1, 2, 1, 4, 1, 1, 3, 3, 4, 3, 3 };
-        private static int[] WEQ = new[] { 1, 3, 2, 2, 2, 4, 2, 3, 2, 3, 4, 3, 3, 1, 1, 4, 1, 1 };
-        private static int[] EQW = new[] { 1, 3, 2, 3, 3, 4, 3, 1, 3, 1, 4, 1, 1, 2, 2, 4, 2, 2 };
-        private static int[] EWQ = new[] { 1, 3, 2, 3, 3, 4, 3, 2, 3, 2, 4, 2, 2, 1, 1, 4, 1, 1 };
+        private static bool aLInit;
+        private static int[] QWE =  { 1, 3, 2, 1, 1, 4, 1, 2, 1, 2, 4, 2, 2, 3, 3, 4, 3, 3 };
+        private static int[] QEW =  { 1, 3, 2, 1, 1, 4, 1, 3, 1, 3, 4, 3, 3, 2, 2, 4, 2, 2 };
+        private static int[] WQE =  { 1, 3, 2, 2, 2, 4, 2, 1, 2, 1, 4, 1, 1, 3, 3, 4, 3, 3 };
+        private static int[] WEQ =  { 1, 3, 2, 2, 2, 4, 2, 3, 2, 3, 4, 3, 3, 1, 1, 4, 1, 1 };
+        private static int[] EQW =  { 1, 3, 2, 3, 3, 4, 3, 1, 3, 1, 4, 1, 1, 2, 2, 4, 2, 2 };
+        private static int[] EWQ =  { 1, 3, 2, 3, 3, 4, 3, 2, 3, 2, 4, 2, 2, 1, 1, 4, 1, 1 };
 
-        private static StringList Orders = new StringList(new [] {"QWE","QEW","WQE","WEQ","EQW","EWQ"},3);
+        private static StringList Orders = new StringList(new [] {"QWE","QEW","WQE","WEQ","EQW","EWQ"},2);
 
         public VayneHunterRework()
         {
@@ -300,7 +300,7 @@ namespace VayneHunterRework
                 var EPred = E.GetPrediction(En);
                 int pushDist = Menu.Item("PushDistance").GetValue<Slider>().Value;
                 var FinalPosition = EPred.UnitPosition.To2D().Extend(Position.To2D(), -pushDist).To3D();
-                for (int i = 0; i < pushDist; i += (int)En.BoundingRadius)
+                for (int i = 1; i < pushDist; i += (int)En.BoundingRadius)
                 {
                     Vector3 loc3 = EPred.UnitPosition.To2D().Extend(Position.To2D(), -i).To3D();
                     var OrTurret = isMenuEnabled("CondemnTurret") && isUnderTurret(FinalPosition);
@@ -683,13 +683,14 @@ namespace VayneHunterRework
             {
                 var WardSlot = FindBestWardItem();
                 if (WardSlot == null) return;
-                for (int i = 0; i < Vector3.Distance(sPos, EndPosition); i += (int)target.BoundingRadius)
+                for (int i = 1; i < Vector3.Distance(sPos, EndPosition); i += (int)target.BoundingRadius)
                 {
                     var v = sPos.To2D().Extend(EndPosition.To2D(), i).To3D();
                     if (isGrass(v))
                     {
                         //WardSlot.UseItem(v);
                         Player.Spellbook.CastSpell(WardSlot.SpellSlot, v);
+                        return;
                     }
                 }
             }
