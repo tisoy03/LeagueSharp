@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using LeagueSharp.Common;
 using LeagueSharp;
 using SharpDX;
+using SharpDX.Win32;
 using Color = System.Drawing.Color;
 
 namespace VayneHunterRework
@@ -49,6 +50,7 @@ namespace VayneHunterRework
             var tsMenu = new Menu("Target Selector", "TargetSel");
             TargetSelector.AddToMenu(tsMenu);
             Menu.AddSubMenu(tsMenu);
+
             Menu.AddSubMenu(new Menu("[VH] Combo", "Combo"));
             Menu.SubMenu("Combo").AddItem(new MenuItem("UseQC", "Use Q Combo")).SetValue(true);
             Menu.SubMenu("Combo").AddItem(new MenuItem("UseEC", "Use E Combo").SetValue(true));
@@ -60,31 +62,57 @@ namespace VayneHunterRework
             Menu.AddSubMenu(new Menu("[VH] Harrass", "Harrass"));
             Menu.SubMenu("Harrass").AddItem(new MenuItem("UseQH", "Use Q Harrass")).SetValue(true);
             Menu.SubMenu("Harrass").AddItem(new MenuItem("UseEH", "Use E Harrass").SetValue(true));
-           // Menu.SubMenu("Harrass").AddItem(new MenuItem("3RdE", "Try to 3rd Proc E").SetValue(true));
             Menu.SubMenu("Harrass").AddItem(new MenuItem("QManaH", "Min Q Mana %").SetValue(new Slider(35, 1, 100)));
             Menu.SubMenu("Harrass").AddItem(new MenuItem("EManaH", "Min E Mana %").SetValue(new Slider(20, 1, 100)));
+
             Menu.AddSubMenu(new Menu("[VH] Farm", "Farm"));
             Menu.SubMenu("Farm").AddItem(new MenuItem("UseQLH", "Use Q LastHit")).SetValue(true);
             Menu.SubMenu("Farm").AddItem(new MenuItem("UseQLC", "Use Q Laneclear")).SetValue(true);
             Menu.SubMenu("Farm").AddItem(new MenuItem("QManaLH", "Min Q Mana % LH").SetValue(new Slider(35, 1, 100)));
             Menu.SubMenu("Farm").AddItem(new MenuItem("QManaLC", "Min Q Mana % LC").SetValue(new Slider(35, 1, 100)));
-            Menu.AddSubMenu(new Menu("[VH] Misc", "Misc"));
-            Menu.SubMenu("Misc").AddItem(new MenuItem("Packets", "Packet Casting").SetValue(true));
-            Menu.SubMenu("Misc").AddItem(new MenuItem("NoAAStealth", "Don't AA while stealthed").SetValue(false));
-            Menu.SubMenu("Misc").AddItem(new MenuItem("AntiGP", "Anti Gapcloser")).SetValue(true);
-            Menu.SubMenu("Misc").AddItem(new MenuItem("Interrupt", "Interrupter").SetValue(true));
-            Menu.SubMenu("Misc").AddItem(new MenuItem("SmartQ", "Try to QE First").SetValue(false));
-            Menu.SubMenu("Misc").AddItem(new MenuItem("ENext", "E Next Auto").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Toggle)));
-            Menu.SubMenu("Misc").AddItem(new MenuItem("PushDistance", "E Push Dist").SetValue(new Slider(425, 400, 500)));
-            Menu.SubMenu("Misc").AddItem(new MenuItem("CondemnTurret", "Try to Condemn to turret").SetValue(false));
-            Menu.SubMenu("Misc").AddItem(new MenuItem("AutoE", "Auto E").SetValue(false));
-            Menu.SubMenu("Misc").AddItem(new MenuItem("NoEEnT", "No E Under enemy turret").SetValue(true));
-            Menu.SubMenu("Misc").AddItem(new MenuItem("SpecialFocus", "Focus targets with 2 W marks").SetValue(false));
-            Menu.SubMenu("Misc").AddItem(new MenuItem("WallTumble", "Tumble Over Wall").SetValue(new KeyBind("Y".ToCharArray()[0], KeyBindType.Press)));
-            Menu.SubMenu("Misc").AddItem(new MenuItem("ThreshLantern", "Grab Thresh Lantern").SetValue(new KeyBind("S".ToCharArray()[0], KeyBindType.Press)));
+
+            var MiscSubMenu = new Menu("[VH] Misc", "Misc");
+
+            var MiscTSubMenu = new Menu("Misc - Tumble", "MiscT");
+            {
+                MiscTSubMenu.AddItem(new MenuItem("SmartQ", "Try to QE First").SetValue(false));
+                MiscTSubMenu.AddItem(new MenuItem("NoQEn", "Don't Q into enemies").SetValue(true));
+                MiscTSubMenu.AddItem(new MenuItem("NoAAStealth", "Don't AA while stealthed").SetValue(false));
+                MiscTSubMenu
+                    .AddItem(
+                        new MenuItem("WallTumble", "Tumble Over Wall").SetValue(new KeyBind("Y".ToCharArray()[0],
+                            KeyBindType.Press)));
+            }
+            var MiscCSubMenu = new Menu("Misc - Condemn", "MiscC");
+            {
+                MiscCSubMenu.AddItem(new MenuItem("ENext", "E Next Auto").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Toggle)));
+                MiscCSubMenu.AddItem(new MenuItem("PushDistance", "E Push Dist").SetValue(new Slider(425, 400, 500)));
+                MiscCSubMenu.AddItem(new MenuItem("CondemnTurret", "Try to Condemn to turret").SetValue(false));
+                MiscCSubMenu.AddItem(new MenuItem("AutoE", "Auto E").SetValue(false));
+                MiscCSubMenu.AddItem(new MenuItem("NoEEnT", "No E Under enemy turret").SetValue(true));
+            }
+            var MiscGSubMenu = new Menu("Misc - General", "MiscG");
+            {
+
+                MiscGSubMenu.AddItem(new MenuItem("Packets", "Packet Casting").SetValue(true));
+                MiscGSubMenu.AddItem(new MenuItem("AntiGP", "Anti Gapcloser")).SetValue(true);
+                MiscGSubMenu.AddItem(new MenuItem("Interrupt", "Interrupter").SetValue(true));
+                MiscGSubMenu
+                    .AddItem(new MenuItem("SpecialFocus", "Focus targets with 2 W marks").SetValue(false));
+                MiscGSubMenu
+                    .AddItem(
+                        new MenuItem("ThreshLantern", "Grab Thresh Lantern").SetValue(new KeyBind("S".ToCharArray()[0],
+                            KeyBindType.Press)));
+            }
+            MiscSubMenu.AddSubMenu(MiscTSubMenu);
+            MiscSubMenu.AddSubMenu(MiscCSubMenu);
+            MiscSubMenu.AddSubMenu(MiscGSubMenu);
+            Menu.AddSubMenu(MiscSubMenu);
+
             Menu.AddSubMenu(new Menu("[VH] BushRevealer", "BushReveal"));
             //Menu.SubMenu("BushReveal").AddItem(new MenuItem("BushReveal", "Bush Revealer").SetValue(new KeyBind("Z".ToCharArray()[0], KeyBindType.Toggle)));
             Menu.SubMenu("BushReveal").AddItem(new MenuItem("BushRevealer", "Trinket bush on condemn").SetValue(true));
+
             Menu.AddSubMenu(new Menu("[VH] Items", "Items"));
             Menu.SubMenu("Items").AddItem(new MenuItem("BotrkC", "Botrk Combo").SetValue(true));
             Menu.SubMenu("Items").AddItem(new MenuItem("BotrkH", "Botrk Harrass").SetValue(false));
@@ -96,8 +124,9 @@ namespace VayneHunterRework
             Menu.SubMenu("Items").AddItem(new MenuItem("EnHPercBotrk", "Min Enemy H. % Botrk").SetValue(new Slider(20, 1, 100)));
 
             Menu.AddSubMenu(new Menu("[VH] QSS", "QSSMenu"));
-           Menu.SubMenu("QSSMenu").AddItem(new MenuItem("UseQSS", "Use QSS").SetValue(true));
-           Menu.SubMenu("QSSMenu").AddItem(new MenuItem("QSSMinBuffs", "Min Buffs to QSS").SetValue(new Slider(2,1,5)));
+            Menu.SubMenu("QSSMenu").AddItem(new MenuItem("UseQSS", "Use QSS").SetValue(true));
+            Menu.SubMenu("QSSMenu").AddItem(new MenuItem("QSSMinBuffs", "Min Buffs to QSS").SetValue(new Slider(2,1,5)));
+
             Menu.AddSubMenu(new Menu("[VH] QSS Buff Types", "QSST"));
             Cleanser.CreateTypeQSSMenu();
             Menu.AddSubMenu(new Menu("[VH] QSS Spells", "QSSSpell"));
@@ -398,7 +427,7 @@ namespace VayneHunterRework
             var distanceAfterTumble = Vector3.DistanceSquared(posAfterTumble, target.ServerPosition);
             if (distanceAfterTumble < 550*550 && distanceAfterTumble > 100*100)
             {
-                if (getEnemiesInRange(Game.CursorPos, 500f) >= 3 && getAlliesInRange(Game.CursorPos, 410f) < 3) return;
+                if (getEnemiesInRange(posAfterTumble, 500f) >= 3 && getAlliesInRange(posAfterTumble, 410f) < 3 && isMenuEnabled("NoQEn")) return;
                 Q.Cast(Game.CursorPos, isMenuEnabled("Packets"));
             }
         }
@@ -409,7 +438,7 @@ namespace VayneHunterRework
             var distanceAfterTumble = Vector3.DistanceSquared(posAfterTumble, target.ServerPosition);
             if (distanceAfterTumble < 550*550 && distanceAfterTumble > 100*100)
             {
-                if (getEnemiesInRange(Game.CursorPos, 500f) >= 3 && getAlliesInRange(Game.CursorPos, 410f) < 3) return;
+                if (getEnemiesInRange(posAfterTumble, 500f) >= 3 && getAlliesInRange(posAfterTumble, 410f) < 3 && isMenuEnabled("NoQEn")) return;
                 Q.Cast(Pos, isMenuEnabled("Packets"));
             }
         }
