@@ -396,15 +396,25 @@ namespace VayneHunterRework
             var posAfterTumble =
                 ObjectManager.Player.ServerPosition.To2D().Extend(Game.CursorPos.To2D(), 300).To3D();
             var distanceAfterTumble = Vector3.DistanceSquared(posAfterTumble, target.ServerPosition);
-            if (distanceAfterTumble < 550 * 550 && distanceAfterTumble > 100 * 100)Q.Cast(Game.CursorPos, isMenuEnabled("Packets"));
+            if (distanceAfterTumble < 550*550 && distanceAfterTumble > 100*100)
+            {
+                if (getEnemiesInRange(Game.CursorPos, 500f) >= 3 && getAlliesInRange(Game.CursorPos, 410f) < 3) return;
+                Q.Cast(Game.CursorPos, isMenuEnabled("Packets"));
+            }
         }
         void CastTumble(Vector3 Pos,Obj_AI_Base target)
         {
             var posAfterTumble =
                 ObjectManager.Player.ServerPosition.To2D().Extend(Pos.To2D(), 300).To3D();
             var distanceAfterTumble = Vector3.DistanceSquared(posAfterTumble, target.ServerPosition);
-            if (distanceAfterTumble < 550 * 550 && distanceAfterTumble > 100 * 100) Q.Cast(Pos, isMenuEnabled("Packets"));
+            if (distanceAfterTumble < 550*550 && distanceAfterTumble > 100*100)
+            {
+                if (getEnemiesInRange(Game.CursorPos, 500f) >= 3 && getAlliesInRange(Game.CursorPos, 410f) < 3) return;
+                Q.Cast(Pos, isMenuEnabled("Packets"));
+            }
         }
+
+        
         void CastE(Obj_AI_Hero target, bool isForGapcloser = false)
         {
             if (!E.IsReady() || !target.IsValidTarget()) return;
@@ -499,7 +509,6 @@ namespace VayneHunterRework
         }
         void WallTumble()
         {
-            //Credits to Chogart
             Vector2 MidWallQPos = new Vector2(6707.485f, 8802.744f);
             Vector2 DrakeWallQPos = new Vector2(11514, 4462);
             if (Player.Distance(MidWallQPos) >= Player.Distance(DrakeWallQPos))
@@ -561,6 +570,19 @@ namespace VayneHunterRework
             }
         }
         #endregion
+        int getEnemiesInRange(Vector3 point, float range)
+        {
+            return
+                ObjectManager.Get<Obj_AI_Hero>()
+                    .Where(h => h.IsEnemy && !h.IsDead && h.IsValid && h.Distance(point) <= range).ToList().Count;
+        }
+        int getAlliesInRange(Vector3 point, float range)
+        {
+            return
+                ObjectManager.Get<Obj_AI_Hero>()
+                    .Where(h => h.IsAlly && !h.IsDead && h.IsValid && h.Distance(point) <= range).ToList().Count;
+        }
+
         private static SpellDataInst GetItemSpell(InventorySlot invSlot)
         {
             return ObjectManager.Player.Spellbook.Spells.FirstOrDefault(spell => (int)spell.Slot == invSlot.Slot + 4);
