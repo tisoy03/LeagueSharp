@@ -8,5 +8,6 @@ namespace VayneHunterRework
 {
     class BushReveal
     {
+
     }
 }
