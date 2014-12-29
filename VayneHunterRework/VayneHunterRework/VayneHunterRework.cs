@@ -128,7 +128,13 @@ namespace VayneHunterRework
             Cleanser.CreateQSSSpellMenu();
             Menu.AddSubMenu(new Menu("[VH] Don't Condemn", "NoCondemn"));
             CreateNoCondemnMenu();
-            
+
+            Menu.AddSubMenu(new Menu("[VH] AutoPot", "AutoPot"));
+            Menu.SubMenu("AutoPot").AddItem(new MenuItem("APH", "Health Pot").SetValue(true));
+            Menu.SubMenu("AutoPot").AddItem(new MenuItem("APM", "Mana Pot").SetValue(true));
+            Menu.SubMenu("AutoPot").AddItem(new MenuItem("APH_Slider", "Health Pot %").SetValue(new Slider(35,1)));
+            Menu.SubMenu("AutoPot").AddItem(new MenuItem("APM_Slider", "Mana Pot %").SetValue(new Slider(35, 1)));
+
             Menu.AddSubMenu(new Menu("[VH] AutoLeveler", "AutoLevel"));
             Menu.SubMenu("AutoLevel").AddItem(new MenuItem("ALSeq", "AutoLevel Seq").SetValue(Orders));
             Menu.SubMenu("AutoLevel").AddItem(new MenuItem("ALAct", "AutoLevel Active").SetValue(false));
@@ -138,6 +144,7 @@ namespace VayneHunterRework
             Menu.SubMenu("Draw").AddItem(new MenuItem("DrawCond", "Draw Pos. Aft. E if Stun").SetValue(new Circle(true, Color.Red)));
             Menu.SubMenu("Draw").AddItem(new MenuItem("DrawDrake", "Draw Drake Spot").SetValue(new Circle(true, Color.WhiteSmoke)));
             Menu.SubMenu("Draw").AddItem(new MenuItem("DrawMid", "Draw Mid Spot").SetValue(new Circle(true, Color.WhiteSmoke)));
+
             Menu.AddToMainMenu();
             Game.PrintChat("<font color='#FF0000'>VayneHunter</font> <font color='#FFFFFF'>Rework loaded!</font>");
             Game.PrintChat("By <font color='#FF0000'>DZ</font><font color='#FFFFFF'>191</font>. Special Thanks to: Kurisuu & KonoeChan");
@@ -236,6 +243,9 @@ namespace VayneHunterRework
             QFarmCheck();
             FocusTarget();
             NoAAStealth();
+
+            AutoPot();
+
             //Cleanser
             Cleanser.cleanserBySpell();
             Cleanser.cleanserByBuffType();
@@ -254,8 +264,22 @@ namespace VayneHunterRework
                     break;
             }  
         }
-        
 
+        void AutoPot()
+        {
+            if (ObjectManager.Player.HasBuff("Recall") || Utility.InFountain() && Utility.InShopRange())
+                return;
+            //Health Pots
+            if (isMenuEnabled("APH") && getPerValue(false) <= Menu.Item("APH_Slider").GetValue<Slider>().Value && !Player.HasBuff("RegenerationPotion", true))
+            {
+                UseItem(2003);
+            }
+            //Mana Pots
+            if (isMenuEnabled("APM") && getPerValue(true) <= Menu.Item("APM_Slider").GetValue<Slider>().Value && !Player.HasBuff("FlaskOfCrystalWater", true))
+            {
+                UseItem(2004);
+            }
+        }
         void Drawing_OnDraw(EventArgs args)
         {
             if (Player.IsDead) return;
