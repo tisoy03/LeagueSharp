@@ -269,6 +269,7 @@ namespace VayneHunterRework
         {
             if (ObjectManager.Player.HasBuff("Recall") || Utility.InFountain() && Utility.InShopRange())
                 return;
+
             //Health Pots
             if (isMenuEnabled("APH") && getPerValue(false) <= Menu.Item("APH_Slider").GetValue<Slider>().Value && !Player.HasBuff("RegenerationPotion", true))
             {
