@@ -256,9 +256,9 @@ namespace VayneHunterRework
             switch (COrbwalker.ActiveMode)
             {
                 case Orbwalking.OrbwalkingMode.Combo:
-                    useIgnite();
                     Obj_AI_Hero tar2;
                     if (isMenuEnabled("UseEC") && CondemnCheck(Player.ServerPosition, out tar2)) { CastE(tar2);}
+                    useIgnite();
                     break;
                 case Orbwalking.OrbwalkingMode.Mixed:
                     Obj_AI_Hero tar3;
