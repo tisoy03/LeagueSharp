@@ -367,8 +367,9 @@ namespace VayneHunterRework
             var PosAfterQ = Player.Position.To2D().Extend(Game.CursorPos.To2D(), 300);
             var minList =
                 MinionManager.GetMinions(Player.Position, 550f).Where(min =>
-                    HealthPrediction.GetHealthPrediction(min,(int)(Q.Delay + min.Distance(PosAfterQ) / Orbwalking.GetMyProjectileSpeed()) * 1000)+Game.Ping <= (Q.GetDamage(min)+Player.GetAutoAttackDamage(min))
-                    && HealthPrediction.GetHealthPrediction(min, (int)(Q.Delay + min.Distance(PosAfterQ) / Orbwalking.GetMyProjectileSpeed()) * 1000)+Game.Ping > 0);
+                    HealthPrediction.GetHealthPrediction(min,(int)(Q.Delay + min.Distance(PosAfterQ) / Orbwalking.GetMyProjectileSpeed()) * 1000)+(Game.Ping/2) <= (Q.GetDamage(min)+Player.GetAutoAttackDamage(min))
+                    && HealthPrediction.GetHealthPrediction(min, (int)(Q.Delay + min.Distance(PosAfterQ) / Orbwalking.GetMyProjectileSpeed()) * 1000) + (Game.Ping / 2) > 0); //Player.GetAutoAttackDamage(min)
+           
             if (!minList.Any()) return;
             CastQ(Vector3.Zero,minList.First());
         }
