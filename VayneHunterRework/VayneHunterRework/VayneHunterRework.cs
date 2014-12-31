@@ -584,7 +584,7 @@ namespace VayneHunterRework
             var dmg = 50 + 20 * Player.Level;
             var tg = TargetSelector.GetSelectedTarget();
             var ign = Player.GetSpellSlot("summonerdot");
-            if (isMenuEnabled("UseIgn") && dmg > tg.Health)
+            if (isMenuEnabled("UseIgn") && tg.IsValidTarget() && dmg > tg.Health)
             {
                 if (ign != SpellSlot.Unknown && Player.Spellbook.CanUseSpell(ign) == SpellState.Ready)
                 {
