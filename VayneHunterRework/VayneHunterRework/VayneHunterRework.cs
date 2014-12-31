@@ -256,6 +256,7 @@ namespace VayneHunterRework
             switch (COrbwalker.ActiveMode)
             {
                 case Orbwalking.OrbwalkingMode.Combo:
+                    useIgnite();
                     Obj_AI_Hero tar2;
                     if (isMenuEnabled("UseEC") && CondemnCheck(Player.ServerPosition, out tar2)) { CastE(tar2);}
                     break;
@@ -267,17 +268,7 @@ namespace VayneHunterRework
                     break;
             }  
 
-            //Ignite
-            var dmg = 50 + 20 * Player.Level;
-            var tg = TargetSelector.GetSelectedTarget();
-            var ign = Player.GetSpellSlot("summonerdot");
-            if (isMenuEnabled("UseIgn") && dmg > tg.Health)
-            {
-                if (ign != SpellSlot.Unknown && Player.Spellbook.CanUseSpell(ign) == SpellState.Ready)
-                {
-                    Player.Spellbook.CastSpell(ign);
-                }
-            }
+            
         }
 
         private void AutoPot()
@@ -382,6 +373,7 @@ namespace VayneHunterRework
             CastQ(Vector3.Zero,minList.First());
         }
 
+        
         void NoAAStealth()
         {
             var mb = (isMenuEnabled("NoAAStealth") && Player.HasBuff("vaynetumblefade", true))?false:true;
@@ -586,6 +578,21 @@ namespace VayneHunterRework
                 UseItem(3144, tar);
             }
         }
+        void useIgnite()
+        {
+            //Ignite
+            var dmg = 50 + 20 * Player.Level;
+            var tg = TargetSelector.GetSelectedTarget();
+            var ign = Player.GetSpellSlot("summonerdot");
+            if (isMenuEnabled("UseIgn") && dmg > tg.Health)
+            {
+                if (ign != SpellSlot.Unknown && Player.Spellbook.CanUseSpell(ign) == SpellState.Ready)
+                {
+                    Player.Spellbook.CastSpell(ign, tg);
+                }
+            }
+        }
+
         void WallTumble()
         {
             Vector2 MidWallQPos = new Vector2(6707.485f, 8802.744f);
@@ -727,15 +734,7 @@ namespace VayneHunterRework
 
         bool isJ4FlagThere(Vector3 Position,Obj_AI_Hero target)
         {
-            foreach (
-                var obj in ObjectManager.Get<Obj_AI_Base>().Where(m => m.Distance(Position) <= target.BoundingRadius))
-            {
-                if (obj.Name == "Beacon")
-                {
-                    return true;
-                }
-            }
-            return false;
+            return ObjectManager.Get<Obj_AI_Base>().Any(m => m.Distance(Position) <= target.BoundingRadius && m.Name == "Beacon");
         }
         #endregion
 
