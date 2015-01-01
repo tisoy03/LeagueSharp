@@ -306,8 +306,8 @@ namespace VayneHunterRework
             var DrawMid = Menu.Item("DrawMid").GetValue<Circle>();
             Vector2 MidWallQPos = new Vector2(6707.485f, 8802.744f);
             Vector2 DrakeWallQPos = new Vector2(11514, 4462);
-            if (DrawDrake.Active && Player.Distance(DrakeWallQPos) < 1500f) Utility.DrawCircle(new Vector3(12052, 4826, 0f), 75f, DrawDrake.Color);
-            if (DrawMid.Active && Player.Distance(MidWallQPos) < 1500f) Utility.DrawCircle(new Vector3(6958, 8944, 0f), 75f, DrawMid.Color);
+            if (DrawDrake.Active && Player.Distance(DrakeWallQPos) < 1500f && isSummonersRift()) Utility.DrawCircle(new Vector3(12052, 4826, 0f), 75f, DrawDrake.Color);
+            if (DrawMid.Active && Player.Distance(MidWallQPos) < 1500f  && isSummonersRift()) Utility.DrawCircle(new Vector3(6958, 8944, 0f), 75f, DrawMid.Color);
             if (DrawE.Active)Utility.DrawCircle(Player.Position,E.Range,DrawE.Color);
             if (DrawCond.Active) DrawPostCondemn();
             
@@ -596,6 +596,7 @@ namespace VayneHunterRework
 
         void WallTumble()
         {
+            if(!isSummonersRift())return;
             Vector2 MidWallQPos = new Vector2(6707.485f, 8802.744f);
             Vector2 DrakeWallQPos = new Vector2(11514, 4462);
             if (Player.Distance(MidWallQPos) >= Player.Distance(DrakeWallQPos))
@@ -659,6 +660,12 @@ namespace VayneHunterRework
         #endregion
 
         #region utility methods
+
+        bool isSummonersRift()
+        {
+            return Game.MapId == GameMapId.SummonersRift;
+        }
+
         int getEnemiesInRange(Vector3 point, float range)
         {
             return
