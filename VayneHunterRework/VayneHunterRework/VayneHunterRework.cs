@@ -347,7 +347,7 @@ namespace VayneHunterRework
                     Vector3 loc3 = EPred.UnitPosition.To2D().Extend(Position.To2D(), -i).To3D();
                     var OrTurret = isMenuEnabled("CondemnTurret") && isUnderTurret(FinalPosition);
                     var OrFlag = isMenuEnabled("CondemnFlag") && isJ4FlagThere(loc3, En);
-                    var OrFountain = isMenuEnabled("CondemnTurret") && isUnderTurret(FinalPosition);
+                    var OrFountain = isMenuEnabled("CondemnTurret") && isFountain(FinalPosition);
                     AfterCond = loc3;
                     if (isWall(loc3) || OrTurret || OrFlag || OrFountain)
                     {
