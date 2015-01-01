@@ -664,7 +664,7 @@ namespace VayneHunterRework
 
         bool isSummonersRift()
         {
-            return Game.MapId == GameMapId.SummonersRift;
+          return true;
         }
 
         int getEnemiesInRange(Vector3 point, float range)
