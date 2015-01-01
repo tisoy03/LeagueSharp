@@ -347,8 +347,9 @@ namespace VayneHunterRework
                     Vector3 loc3 = EPred.UnitPosition.To2D().Extend(Position.To2D(), -i).To3D();
                     var OrTurret = isMenuEnabled("CondemnTurret") && isUnderTurret(FinalPosition);
                     var OrFlag = isMenuEnabled("CondemnFlag") && isJ4FlagThere(loc3, En);
+                    var OrFountain = isMenuEnabled("CondemnTurret") && isUnderTurret(FinalPosition);
                     AfterCond = loc3;
-                    if (isWall(loc3) || OrTurret || OrFlag)
+                    if (isWall(loc3) || OrTurret || OrFlag || OrFountain)
                     {
                         if(isMenuEnabled("BushRevealer"))CheckAndWard(Position,loc3,En);
                         target = En;
@@ -744,6 +745,24 @@ namespace VayneHunterRework
         {
             return ObjectManager.Get<Obj_AI_Base>().Any(m => m.Distance(Position) <= target.BoundingRadius && m.Name == "Beacon");
         }
+
+        bool isFountain(Vector3 Position)
+        {
+            float fountainRange = 750;
+            var map = Utility.Map.GetMap();
+            if (map != null && map._MapType == Utility.Map.MapType.SummonersRift)
+            {
+                fountainRange = 1050;
+            }
+            return
+                ObjectManager.Get<GameObject>()
+                    .Where(spawnPoint => spawnPoint is Obj_SpawnPoint && spawnPoint.IsAlly)
+                    .Any(
+                        spawnPoint =>
+                            Vector2.Distance(Position.To2D(), spawnPoint.Position.To2D()) <
+                            fountainRange);
+        }
+
         #endregion
 
         void CheckAndWard(Vector3 sPos, Vector3 EndPosition, Obj_AI_Hero target)
