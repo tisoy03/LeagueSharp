@@ -37,6 +37,8 @@ namespace VayneHunterRework
         {
             if (Player.ChampionName != charName) return;
             Cleanser.CreateQSSSpellList();
+
+            #region Menu
             Menu = new Menu("VayneHunter Rework", "VHRework", true);
             var orbMenu = new Menu("Orbwalker", "orbwalker");
             COrbwalker = new Orbwalking.Orbwalker(orbMenu);
@@ -149,9 +151,12 @@ namespace VayneHunterRework
             Menu.SubMenu("Draw").AddItem(new MenuItem("DrawMid", "Draw Mid Spot").SetValue(new Circle(true, Color.WhiteSmoke)));
 
             Menu.AddToMainMenu();
+            #endregion
+
             Game.PrintChat("<font color='#FF0000'>VayneHunter</font> <font color='#FFFFFF'>Rework loaded!</font>");
             Game.PrintChat("By <font color='#FF0000'>DZ</font><font color='#FFFFFF'>191</font>. Special Thanks to: Kurisuu & KonoeChan");
             Game.PrintChat("If you like my assemblies feel free to donate me (link on the forum :) )");
+
            //Cleanser.cleanUselessSpells();
             Q = new Spell(SpellSlot.Q);
             E = new Spell(SpellSlot.E,550f);
@@ -159,6 +164,7 @@ namespace VayneHunterRework
             E.SetTargetted(0.25f,1600f);
             Orbwalking.AfterAttack += Orbwalker_AfterAttack;
             Game.OnGameUpdate += Game_OnGameUpdate;
+
            // Game.OnGameProcessPacket += GameOnOnGameProcessPacket;
             Interrupter.OnPossibleToInterrupt += Interrupter_OnPossibleToInterrupt;
             AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
@@ -166,6 +172,8 @@ namespace VayneHunterRework
             GameObject.OnCreate += Cleanser.OnCreateObj;
             GameObject.OnDelete += Cleanser.OnDeleteObj;
             Menu.Item("ALAct").ValueChanged += AutoLevel_ValueChanged;
+
+            #region AutoLeveler
 
             if (isMenuEnabled("ALAct") && !aLInit)
             {
@@ -193,7 +201,9 @@ namespace VayneHunterRework
             AutoLevel.Enabled(ev.GetNewValue<bool>());
         }
 
-       
+            #endregion
+
+
         private void Orbwalker_AfterAttack(AttackableUnit unit, AttackableUnit target)
         {
             if (unit.IsMe)
@@ -202,7 +212,23 @@ namespace VayneHunterRework
             }
         }
 
-      
+        #region Drawing
+        void Drawing_OnDraw(EventArgs args)
+        {
+            if (Player.IsDead) return;
+            var DrawE = Menu.Item("DrawE").GetValue<Circle>();
+            var DrawCond = Menu.Item("DrawCond").GetValue<Circle>();
+            var DrawDrake = Menu.Item("DrawDrake").GetValue<Circle>();
+            var DrawMid = Menu.Item("DrawMid").GetValue<Circle>();
+            Vector2 MidWallQPos = new Vector2(6707.485f, 8802.744f);
+            Vector2 DrakeWallQPos = new Vector2(11514, 4462);
+            if (DrawDrake.Active && Player.Distance(DrakeWallQPos) < 1500f && isSummonersRift()) Utility.DrawCircle(new Vector3(12052, 4826, 0f), 75f, DrawDrake.Color);
+            if (DrawMid.Active && Player.Distance(MidWallQPos) < 1500f && isSummonersRift()) Utility.DrawCircle(new Vector3(6958, 8944, 0f), 75f, DrawMid.Color);
+            if (DrawE.Active) Utility.DrawCircle(Player.Position, E.Range, DrawE.Color);
+            if (DrawCond.Active) DrawPostCondemn();
+
+        }
+        #endregion
 
         void AfterAA(AttackableUnit target)
         {
@@ -227,12 +253,7 @@ namespace VayneHunterRework
             ENextAuto(tar);
             UseItems(tar);
         }
-        private void ENextAuto(Obj_AI_Hero tar)
-        {
-            if (!E.IsReady() || !tar.IsValid || !Menu.Item("ENext").GetValue<KeyBind>().Active) return;
-                CastE(tar,true);
-            Menu.Item("ENext").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Toggle,false));
-        }
+
 
         void Game_OnGameUpdate(EventArgs args)
         {
@@ -271,49 +292,14 @@ namespace VayneHunterRework
             
         }
 
-        private void AutoPot()
+        #region Miscellaneous
+
+        private void ENextAuto(Obj_AI_Hero tar)
         {
-            if (ObjectManager.Player.HasBuff("Recall") || Utility.InFountain() && Utility.InShopRange())
-                return;
-
-            //Health Pots
-            if (isMenuEnabled("APH") && getPerValue(false) <= Menu.Item("APH_Slider").GetValue<Slider>().Value && !Player.HasBuff("RegenerationPotion", true))
-            {
-                UseItem(2003);
-            }
-            //Mana Pots
-            if (isMenuEnabled("APM") && getPerValue(true) <= Menu.Item("APM_Slider").GetValue<Slider>().Value && !Player.HasBuff("FlaskOfCrystalWater", true))
-            {
-                UseItem(2004);
-            }
-            //Summoner Heal
-            if (isMenuEnabled("APHeal") && getPerValue(false) <= Menu.Item("APHeal_Slider").GetValue<Slider>().Value)
-            {
-                var heal = Player.GetSpellSlot("summonerheal");
-                if (heal != SpellSlot.Unknown && Player.Spellbook.CanUseSpell(heal) == SpellState.Ready)
-                {
-                    Player.Spellbook.CastSpell(heal);
-                }
-            }
+            if (!E.IsReady() || !tar.IsValid || !Menu.Item("ENext").GetValue<KeyBind>().Active) return;
+            CastE(tar, true);
+            Menu.Item("ENext").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Toggle, false));
         }
-
-        void Drawing_OnDraw(EventArgs args)
-        {
-            if (Player.IsDead) return;
-            var DrawE = Menu.Item("DrawE").GetValue<Circle>();
-            var DrawCond = Menu.Item("DrawCond").GetValue<Circle>();
-            var DrawDrake = Menu.Item("DrawDrake").GetValue<Circle>();
-            var DrawMid = Menu.Item("DrawMid").GetValue<Circle>();
-            Vector2 MidWallQPos = new Vector2(6707.485f, 8802.744f);
-            Vector2 DrakeWallQPos = new Vector2(11514, 4462);
-            if (DrawDrake.Active && Player.Distance(DrakeWallQPos) < 1500f && isSummonersRift()) Utility.DrawCircle(new Vector3(12052, 4826, 0f), 75f, DrawDrake.Color);
-            if (DrawMid.Active && Player.Distance(MidWallQPos) < 1500f  && isSummonersRift()) Utility.DrawCircle(new Vector3(6958, 8944, 0f), 75f, DrawMid.Color);
-            if (DrawE.Active)Utility.DrawCircle(Player.Position,E.Range,DrawE.Color);
-            if (DrawCond.Active) DrawPostCondemn();
-            
-        }
-
-       
 
         void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
         {
@@ -401,6 +387,138 @@ namespace VayneHunterRework
                 }
             }
         }
+
+
+        int[] getSequence(String Order)
+        {
+            switch (Order)
+            {
+                case "QWE":
+                    return QWE;
+                case "QEW":
+                    return QEW;
+                case "WQE":
+                    return WQE;
+                case "EQW":
+                    return EQW;
+                case "WEQ":
+                    return WEQ;
+                case "EWQ":
+                    return EWQ;
+                default:
+                    return null;
+            }
+        }
+
+        private static void CreateNoCondemnMenu()
+        {
+            foreach (var hero in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsEnemy))
+            {
+                Menu.SubMenu("NoCondemn").AddItem(new MenuItem("nC" + hero.ChampionName, hero.ChampionName).SetValue(false));
+            }
+        }
+
+        void CheckAndWard(Vector3 sPos, Vector3 EndPosition, Obj_AI_Hero target)
+        {
+            if (isGrass(EndPosition))
+            {
+                var WardSlot = FindBestWardItem();
+                if (WardSlot == null) return;
+                for (int i = 1; i < Vector3.Distance(sPos, EndPosition); i += (int)target.BoundingRadius)
+                {
+                    var v = sPos.To2D().Extend(EndPosition.To2D(), i).To3D();
+                    if (isGrass(v))
+                    {
+                        //WardSlot.UseItem(v);
+                        Player.Spellbook.CastSpell(WardSlot.SpellSlot, v);
+                        return;
+                    }
+                }
+            }
+        }
+
+        void DrawPostCondemn()
+        {
+            var DrawCond = Menu.Item("DrawCond").GetValue<Circle>();
+            foreach (var En in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsEnemy && hero.IsValidTarget() && !isMenuEnabled("nC" + hero.ChampionName) && hero.Distance(Player.Position) <= E.Range))
+            {
+                var EPred = E.GetPrediction(En);
+                int pushDist = Menu.Item("PushDistance").GetValue<Slider>().Value;
+                for (int i = 0; i < pushDist; i += (int)En.BoundingRadius)
+                {
+                    Vector3 loc3 = EPred.UnitPosition.To2D().Extend(Player.Position.To2D(), -i).To3D();
+                    if (isWall(loc3)) Utility.DrawCircle(loc3, 100f, DrawCond.Color);
+
+                }
+            }
+        }
+
+        void takeLantern()
+        {
+            foreach (GameObject obj in ObjectManager.Get<GameObject>())
+            {
+                if (obj.Name.Contains("ThreshLantern") && obj.Position.Distance(ObjectManager.Player.ServerPosition) <= 500 && obj.IsAlly)
+                {
+                    GamePacket pckt = Packet.C2S.InteractObject.Encoded(new Packet.C2S.InteractObject.Struct(ObjectManager.Player.NetworkId, obj.NetworkId));
+
+                    //TODO Revert this once packets get fixed with 4.21
+
+                    //pckt.Send();
+                    return;
+                }
+            }
+        }
+
+        void WallTumble()
+        {
+            if (!isSummonersRift()) return;
+            Vector2 MidWallQPos = new Vector2(6707.485f, 8802.744f);
+            Vector2 DrakeWallQPos = new Vector2(11514, 4462);
+            if (Player.Distance(MidWallQPos) >= Player.Distance(DrakeWallQPos))
+            {
+
+                if (Player.Position.X < 12000 || Player.Position.X > 12070 || Player.Position.Y < 4800 ||
+                    Player.Position.Y > 4872)
+                {
+                    //Packet.C2S.Move.Encoded(new Packet.C2S.Move.Struct(12050, 4827)).Send();
+                    MoveToLimited(new Vector2(12050, 4827).To3D());
+                }
+                else
+                {
+                    //Packet.C2S.Move.Encoded(new Packet.C2S.Move.Struct(12050, 4827)).Send();
+                    MoveToLimited(new Vector2(12050, 4827).To3D());
+                    Q.Cast(DrakeWallQPos, true);
+                }
+            }
+            else
+            {
+                if (Player.Position.X < 6908 || Player.Position.X > 6978 || Player.Position.Y < 8917 ||
+                    Player.Position.Y > 8989)
+                {
+                    // Packet.C2S.Move.Encoded(new Packet.C2S.Move.Struct(6958, 8944)).Send();
+                    MoveToLimited(new Vector2(6958, 8944).To3D());
+                }
+                else
+                {
+                    //Packet.C2S.Move.Encoded(new Packet.C2S.Move.Struct(6958, 8944)).Send();
+                    MoveToLimited(new Vector2(6958, 8944).To3D());
+                    Q.Cast(MidWallQPos, true);
+                }
+            }
+        }
+
+        void MoveToLimited(Vector3 where)
+        {
+            if (Environment.TickCount - LastMoveC < 80)
+            {
+                return;
+            }
+            LastMoveC = Environment.TickCount;
+            Player.IssueOrder(GameObjectOrder.MoveTo, where);
+        }
+
+        #endregion
+
         #region Q Region
         void SmartQCheck(Obj_AI_Hero target)
         {
@@ -519,37 +637,8 @@ namespace VayneHunterRework
             }
         }
         #endregion
-
-        int[] getSequence(String Order)
-        {
-            switch (Order)
-            {
-                case "QWE":
-                    return QWE;
-                case "QEW":
-                    return QEW;
-                case "WQE":
-                    return WQE;
-                case "EQW":
-                    return EQW;
-                case "WEQ":
-                    return WEQ;
-                case "EWQ":
-                    return EWQ;
-                default:
-                    return null;
-            }
-        }
-
-        private static void CreateNoCondemnMenu()
-        {
-            foreach (var hero in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsEnemy))
-            {
-                Menu.SubMenu("NoCondemn").AddItem(new MenuItem("nC"+hero.ChampionName, hero.ChampionName).SetValue(false));
-            }
-        }
         
-        #region Items & Tumble
+        #region Items
         void UseItems(Obj_AI_Hero tar)
         {
             var ownH = getPerValue(false);
@@ -580,6 +669,7 @@ namespace VayneHunterRework
                 UseItem(3144, tar);
             }
         }
+
         void useIgnite()
         {
             //Ignite
@@ -595,72 +685,38 @@ namespace VayneHunterRework
             }
         }
 
-        void WallTumble()
+        private void AutoPot()
         {
-            if(!isSummonersRift())return;
-            Vector2 MidWallQPos = new Vector2(6707.485f, 8802.744f);
-            Vector2 DrakeWallQPos = new Vector2(11514, 4462);
-            if (Player.Distance(MidWallQPos) >= Player.Distance(DrakeWallQPos))
-            {
-
-                if (Player.Position.X < 12000 || Player.Position.X > 12070 || Player.Position.Y < 4800 ||
-                    Player.Position.Y > 4872)
-                {
-                    //Packet.C2S.Move.Encoded(new Packet.C2S.Move.Struct(12050, 4827)).Send();
-                    MoveToLimited(new Vector2(12050, 4827).To3D());
-                }
-                else
-                {
-                    //Packet.C2S.Move.Encoded(new Packet.C2S.Move.Struct(12050, 4827)).Send();
-                    MoveToLimited(new Vector2(12050, 4827).To3D());
-                    Q.Cast(DrakeWallQPos, true);
-                }
-            }
-            else
-            {
-                if (Player.Position.X < 6908 || Player.Position.X > 6978 || Player.Position.Y < 8917 ||
-                    Player.Position.Y > 8989)
-                {
-                   // Packet.C2S.Move.Encoded(new Packet.C2S.Move.Struct(6958, 8944)).Send();
-                    MoveToLimited(new Vector2(6958, 8944).To3D());
-                }
-                else
-                {
-                    //Packet.C2S.Move.Encoded(new Packet.C2S.Move.Struct(6958, 8944)).Send();
-                    MoveToLimited(new Vector2(6958, 8944).To3D());
-                    Q.Cast(MidWallQPos, true);
-                }
-            }
-        }
-
-        void MoveToLimited(Vector3 where)
-        {
-            if (Environment.TickCount - LastMoveC < 80)
-            {
+            if (ObjectManager.Player.HasBuff("Recall") || Utility.InFountain() && Utility.InShopRange())
                 return;
-            }
-            LastMoveC = Environment.TickCount;
-            Player.IssueOrder(GameObjectOrder.MoveTo, where);
-        }
 
-        void takeLantern()
-        {
-            foreach (GameObject obj in ObjectManager.Get<GameObject>())
+            //Health Pots
+            if (isMenuEnabled("APH") && getPerValue(false) <= Menu.Item("APH_Slider").GetValue<Slider>().Value && !Player.HasBuff("RegenerationPotion", true))
             {
-                if (obj.Name.Contains("ThreshLantern") &&obj.Position.Distance(ObjectManager.Player.ServerPosition) <= 500 && obj.IsAlly)
+                UseItem(2003);
+            }
+            //Mana Pots
+            if (isMenuEnabled("APM") && getPerValue(true) <= Menu.Item("APM_Slider").GetValue<Slider>().Value && !Player.HasBuff("FlaskOfCrystalWater", true))
+            {
+                UseItem(2004);
+            }
+            //Summoner Heal
+            if (isMenuEnabled("APHeal") && getPerValue(false) <= Menu.Item("APHeal_Slider").GetValue<Slider>().Value)
+            {
+                var heal = Player.GetSpellSlot("summonerheal");
+                if (heal != SpellSlot.Unknown && Player.Spellbook.CanUseSpell(heal) == SpellState.Ready)
                 {
-                    GamePacket pckt =Packet.C2S.InteractObject.Encoded(new Packet.C2S.InteractObject.Struct(ObjectManager.Player.NetworkId,obj.NetworkId));
-
-                    //TODO Revert this once packets get fixed with 4.21
-                    
-                    //pckt.Send();
-                    return;
+                    Player.Spellbook.CastSpell(heal);
                 }
             }
         }
+
+
+
+
         #endregion
 
-        #region utility methods
+        #region Utility Methods
 
         bool isSummonersRift()
         {
@@ -765,41 +821,5 @@ namespace VayneHunterRework
 
         #endregion
 
-        void CheckAndWard(Vector3 sPos, Vector3 EndPosition, Obj_AI_Hero target)
-        {
-            if (isGrass(EndPosition))
-            {
-                var WardSlot = FindBestWardItem();
-                if (WardSlot == null) return;
-                for (int i = 1; i < Vector3.Distance(sPos, EndPosition); i += (int)target.BoundingRadius)
-                {
-                    var v = sPos.To2D().Extend(EndPosition.To2D(), i).To3D();
-                    if (isGrass(v))
-                    {
-                        //WardSlot.UseItem(v);
-                        Player.Spellbook.CastSpell(WardSlot.SpellSlot, v);
-                        return;
-                    }
-                }
-            }
-        }
-
-        void DrawPostCondemn()
-        {
-            var DrawCond = Menu.Item("DrawCond").GetValue<Circle>();
-            foreach (var En in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsEnemy && hero.IsValidTarget() && !isMenuEnabled("nC" + hero.ChampionName) && hero.Distance(Player.Position) <= E.Range))
-            {
-                var EPred = E.GetPrediction(En);
-                int pushDist = Menu.Item("PushDistance").GetValue<Slider>().Value;
-                for (int i = 0; i < pushDist; i += (int)En.BoundingRadius)
-                {
-                    Vector3 loc3 = EPred.UnitPosition.To2D().Extend(Player.Position.To2D(), -i).To3D();
-                    if (isWall(loc3)) Utility.DrawCircle(loc3, 100f, DrawCond.Color);
-
-                }
-            }
-        }
-        
     }
-    
 }
