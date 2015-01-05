@@ -78,6 +78,7 @@ namespace DZDraven_Reloaded
             Menu.SubMenu("Misc").AddItem(new MenuItem("AntiGP", "Anti Gapcloser")).SetValue(true);
             Menu.SubMenu("Misc").AddItem(new MenuItem("Interrupt", "Interrupter").SetValue(true));
             Menu.SubMenu("Misc").AddItem(new MenuItem("WCatch", "Use W to catch axes").SetValue(true));
+            Menu.SubMenu("Misc").AddItem(new MenuItem("WCatchCombo", "Only in combo").SetValue(false));
 
             Menu.AddSubMenu(new Menu("[Draven] Items", "Items"));
             Menu.SubMenu("Items").AddItem(new MenuItem("BotrkC", "Botrk Combo").SetValue(true));
@@ -222,7 +223,11 @@ namespace DZDraven_Reloaded
             }
             var CatchRange = Menu.Item("CatchRadius").GetValue<Slider>().Value;
             var UseW = isMenuEnabled("WCatch");
+
             bool ShouldUseW;
+            if ((isMenuEnabled("WCatchCombo") && xSLxOrbwalker.CurrentMode != xSLxOrbwalker.Mode.Combo))
+                UseW = false;
+            
             var Axe =Axes.Where(
                     axe =>
                         axe.AxeGameObject.IsValid && axe.Position.Distance(Game.CursorPos) <= CatchRange).OrderBy(axe => axe.Distance())
