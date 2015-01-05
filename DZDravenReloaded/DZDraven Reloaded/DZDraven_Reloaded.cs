@@ -226,8 +226,10 @@ namespace DZDraven_Reloaded
 
             bool ShouldUseW;
             if ((isMenuEnabled("WCatchCombo") && xSLxOrbwalker.CurrentMode != xSLxOrbwalker.Mode.Combo))
+            {
                 UseW = false;
-            
+            }
+
             var Axe =Axes.Where(
                     axe =>
                         axe.AxeGameObject.IsValid && axe.Position.Distance(Game.CursorPos) <= CatchRange).OrderBy(axe => axe.Distance())
