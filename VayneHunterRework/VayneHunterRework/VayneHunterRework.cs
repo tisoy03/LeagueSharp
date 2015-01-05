@@ -87,6 +87,7 @@ namespace VayneHunterRework
                 MiscCSubMenu.AddItem(new MenuItem("CondemnTurret", "Try to Condemn to turret").SetValue(false));
                 MiscCSubMenu.AddItem(new MenuItem("CondemnFlag", "Condemn to J4 flag").SetValue(true));
                 MiscCSubMenu.AddItem(new MenuItem("AutoE", "Auto E").SetValue(false));
+                MiscCSubMenu.AddItem(new MenuItem("AutoEKS", "Smart E Ks").SetValue(true));
                 MiscCSubMenu.AddItem(new MenuItem("NoEEnT", "No E Under enemy turret").SetValue(true));
             }
             var MiscGSubMenu = new Menu("Misc - General", "MiscG");
@@ -268,6 +269,7 @@ namespace VayneHunterRework
             QFarmCheck();
             FocusTarget();
             NoAAStealth();
+            EKs();
 
             AutoPot();
 
@@ -377,17 +379,16 @@ namespace VayneHunterRework
                     ObjectManager.Get<Obj_AI_Hero>()
                         .Where(hero => hero.IsValidTarget(Orbwalking.GetRealAutoAttackRange(null))))
             {
-                foreach (var b in hero.Buffs)
+                if (has2WStacks(hero))
                 {
-                    if (b.Name == "vaynesilvereddebuff" && b.Count == 2)
-                    {
-                        COrbwalker.ForceTarget(hero);
-                        Hud.SelectedUnit = hero;
-                        return;
-                    }
-                }
-            }
-        }
+                    COrbwalker.ForceTarget(hero);
+                    Hud.SelectedUnit = hero;
+                    return;
+                }       
+             }
+         }
+            
+        
 
 
         int[] getSequence(String Order)
@@ -635,6 +636,27 @@ namespace VayneHunterRework
                     break;
             }
         }
+
+        void EKs()
+        {
+            if (Q.IsReady() || Player.CanAttack || !isMenuEnabled("AutoEKS"))
+                return;
+            foreach (
+                var hero in
+                    ObjectManager.Get<Obj_AI_Hero>().Where(h => h.Distance(Player) > E.Range - 120 && h.IsValidTarget())
+                )
+            {
+                if (has2WStacks(hero))
+                {
+                    if (Player.GetSpellDamage(hero, SpellSlot.W) + Player.GetSpellDamage(hero, SpellSlot.E) >=
+                        HealthPrediction.GetHealthPrediction(hero, (int) (Player.Distance(hero) / E.Speed) * 1000))
+                    {
+                        E.Cast(hero, isMenuEnabled("Packets"));
+                        return;
+                    }
+                }
+            }
+        }
         #endregion
         
         #region Items
@@ -722,6 +744,10 @@ namespace VayneHunterRework
           return true;
         }
 
+        bool has2WStacks(Obj_AI_Hero target)
+        {
+            return target.Buffs.Any(bu => bu.Name == "vaynesilvereddebuff" && bu.Count == 2);
+        }
         int getEnemiesInRange(Vector3 point, float range)
         {
             return
