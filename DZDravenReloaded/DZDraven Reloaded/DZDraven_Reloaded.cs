@@ -216,6 +216,7 @@ namespace DZDraven_Reloaded
 
         public static PossibleReticle getClosestAxe(out bool useW)
         {
+            
             if (Axes.Count <= 0)
             {
                 useW = false;

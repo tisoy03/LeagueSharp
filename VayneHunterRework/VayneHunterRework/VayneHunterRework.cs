@@ -2,6 +2,7 @@
 using System.Linq;
 using LeagueSharp.Common;
 using LeagueSharp;
+using LeagueSharp.Network.Packets;
 using SharpDX;
 using Color = System.Drawing.Color;
 
@@ -459,11 +460,13 @@ namespace VayneHunterRework
             {
                 if (obj.Name.Contains("ThreshLantern") && obj.Position.Distance(ObjectManager.Player.ServerPosition) <= 500 && obj.IsAlly)
                 {
-                    GamePacket pckt = Packet.C2S.InteractObject.Encoded(new Packet.C2S.InteractObject.Struct(ObjectManager.Player.NetworkId, obj.NetworkId));
-
-                    //TODO Revert this once packets get fixed with 4.21
-
-                    //pckt.Send();
+                    var InteractPKT = new PKT_InteractReq
+                    {
+                        NetworkId = Player.NetworkId,
+                        TargetNetworkId = obj.NetworkId
+                    };
+                    var pckt = new GamePacket(InteractPKT.Encode());
+                    pckt.Send();
                     return;
                 }
             }
@@ -480,12 +483,10 @@ namespace VayneHunterRework
                 if (Player.Position.X < 12000 || Player.Position.X > 12070 || Player.Position.Y < 4800 ||
                     Player.Position.Y > 4872)
                 {
-                    //Packet.C2S.Move.Encoded(new Packet.C2S.Move.Struct(12050, 4827)).Send();
                     MoveToLimited(new Vector2(12050, 4827).To3D());
                 }
                 else
                 {
-                    //Packet.C2S.Move.Encoded(new Packet.C2S.Move.Struct(12050, 4827)).Send();
                     MoveToLimited(new Vector2(12050, 4827).To3D());
                     Q.Cast(DrakeWallQPos, true);
                 }
@@ -495,12 +496,10 @@ namespace VayneHunterRework
                 if (Player.Position.X < 6908 || Player.Position.X > 6978 || Player.Position.Y < 8917 ||
                     Player.Position.Y > 8989)
                 {
-                    // Packet.C2S.Move.Encoded(new Packet.C2S.Move.Struct(6958, 8944)).Send();
                     MoveToLimited(new Vector2(6958, 8944).To3D());
                 }
                 else
                 {
-                    //Packet.C2S.Move.Encoded(new Packet.C2S.Move.Struct(6958, 8944)).Send();
                     MoveToLimited(new Vector2(6958, 8944).To3D());
                     Q.Cast(MidWallQPos, true);
                 }
