@@ -466,8 +466,8 @@ namespace VayneHunterRework
                         NetworkId = Player.NetworkId,
                         TargetNetworkId = obj.NetworkId
                     };
-                    var pckt = new GamePacket(InteractPKT.Encode());
-                    pckt.Send();
+                    //Credits to Trees
+                    Game.SendPacket(InteractPKT.Encode(), PacketChannel.C2S, PacketProtocolFlags.Reliable);
                     return;
                 }
             }
