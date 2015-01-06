@@ -43,7 +43,7 @@ namespace PennyJinx
 
             SetUpMenu();
             SetUpSpells();
-            Game.PrintChat("<font color='#7A6EFF'>PennyJinx</font> v 1.0.1.2 <font color='#FFFFFF'>Loaded!</font>");
+            Game.PrintChat("<font color='#7A6EFF'>PennyJinx</font> v 1.0.1.3 <font color='#FFFFFF'>Loaded!</font>");
 
             
             Drawing.OnDraw += Drawing_OnDraw;
