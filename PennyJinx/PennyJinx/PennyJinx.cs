@@ -26,7 +26,8 @@ namespace PennyJinx
         private static readonly StringList QMode = new StringList(new[] {"AOE mode", "Range mode", "Both"}, 2);
         public static Render.Sprite Sprite;
         public static PennyJinx instance;
-        public static List<SpriteManager.ScopeSprite> _KillableHeroes = new List<SpriteManager.ScopeSprite>(); 
+        public static List<SpriteManager.ScopeSprite> _KillableHeroes = new List<SpriteManager.ScopeSprite>();
+        public static float LastCheck;
         public PennyJinx()
         {
             instance = this;
@@ -56,6 +57,8 @@ namespace PennyJinx
             GameObject.OnDelete += Cleanser.OnDeleteObj;
             new SpriteManager.ScopeSprite();
         }
+
+        
 
         void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
         {
@@ -95,8 +98,7 @@ namespace PennyJinx
         private void Game_OnGameUpdate(EventArgs args)
         {
            
-            Auto();
-            
+            Auto();           
 
             if (Menu.Item("ManualR").GetValue<KeyBind>().Active){RCast();}
             switch (_orbwalker.ActiveMode)
@@ -115,17 +117,39 @@ namespace PennyJinx
                     break;
             }
             if (Menu.Item("ThreshLantern").GetValue<KeyBind>().Active) takeLantern();
-
-            Cleanser.cleanserBySpell();
-            Cleanser.cleanserByBuffType();
-
+            useSpellOnTeleport(_e);
             AutoPot();
+
+            Cleanser.cleanserByBuffType();
+            Cleanser.cleanserBySpell();
+
         }
 
         
 
 
         #region Various
+
+        public void useSpellOnTeleport(Spell spell)
+        {
+            if (!IsMenuEnabled("EOnTP") || (Environment.TickCount - LastCheck)<1500)
+                return;
+            LastCheck = Environment.TickCount;
+            Obj_AI_Hero player = ObjectManager.Player;
+            if (!spell.IsReady())
+                return;
+            foreach (
+                Obj_AI_Hero targetPosition in
+                    ObjectManager.Get<Obj_AI_Hero>()
+                        .Where(
+                            obj =>
+                                obj.Distance(player) < spell.Range && obj.Team != player.Team &&
+                                obj.HasBuff("teleport_target", true)))
+            {
+                spell.Cast(targetPosition.ServerPosition);
+            }
+        }
+
         private void AutoPot()
         {
             if (ObjectManager.Player.HasBuff("Recall") || Utility.InFountain() && Utility.InShopRange())
@@ -781,6 +805,7 @@ namespace PennyJinx
             {
                 miscMenu.AddItem(new MenuItem("Packets", "Use Packets").SetValue(true));
                 miscMenu.AddItem(new MenuItem("AntiGP", "Anti Gapcloser").SetValue(true));
+                miscMenu.AddItem(new MenuItem("EOnTP", "E On Teleport Location").SetValue(true));
                 miscMenu.AddItem(new MenuItem("Interrupter", "Use Interrupter").SetValue(true));
                 miscMenu.AddItem(new MenuItem("SwitchQNoEn", "Switch to Minigun when no enemies").SetValue(true));
                 miscMenu.AddItem(new MenuItem("C_Hit", "Hitchance").SetValue(new StringList(new[] {"Low","Medium","High","Very High"},2)));

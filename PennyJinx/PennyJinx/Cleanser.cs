@@ -74,7 +74,7 @@ namespace PennyJinx
                 if (!nameList.Contains(spell.ChampName)) qssSpells.Remove(spell);
             }
         }
-        internal static void cleanserBySpell()
+        public static void cleanserBySpell()
         {
             var hasIT = Items.HasItem(3139) || Items.HasItem(3140) || Items.HasItem(3137);
             if (!PennyJinx.IsMenuEnabled("UseQSS") || !hasIT) return;
@@ -105,7 +105,7 @@ namespace PennyJinx
             }
         }
 
-        internal static void enableCheck()
+        public static void enableCheck()
         {
             foreach (var spell in qssSpells)
             {
@@ -119,7 +119,7 @@ namespace PennyJinx
                 }
             }
         }
-        internal static void cleanserByBuffType()
+        public static void cleanserByBuffType()
         {
             var hasIT = Items.HasItem(3139) || Items.HasItem(3140) || Items.HasItem(3137);
             if (!PennyJinx.IsMenuEnabled("UseQSS") || !hasIT) return;
