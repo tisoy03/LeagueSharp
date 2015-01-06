@@ -94,13 +94,10 @@ namespace PennyJinx
 
         private void Game_OnGameUpdate(EventArgs args)
         {
-            Cleanser.cleanserBySpell();
-            Cleanser.cleanserByBuffType();
-
+           
             Auto();
-            AutoPot();
+            
 
-            if (Menu.Item("ThreshLantern").GetValue<KeyBind>().Active) takeLantern();
             if (Menu.Item("ManualR").GetValue<KeyBind>().Active){RCast();}
             switch (_orbwalker.ActiveMode)
             {
@@ -117,6 +114,12 @@ namespace PennyJinx
                     WUsageFarm();
                     break;
             }
+            if (Menu.Item("ThreshLantern").GetValue<KeyBind>().Active) takeLantern();
+
+            Cleanser.cleanserBySpell();
+            Cleanser.cleanserByBuffType();
+
+            AutoPot();
         }
 
         
