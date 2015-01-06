@@ -733,7 +733,6 @@ namespace PennyJinx
                 comboMenu.AddItem(new MenuItem("UseRC", "Use R Combo").SetValue(true));
                 comboMenu.AddItem(new MenuItem("QMode", "Q Usage Mode").SetValue(QMode));
                 comboMenu.AddItem(new MenuItem("EMode", "E Mode").SetValue(new StringList(new []{"PennyJinx","Marksman"})));
-                comboMenu.AddItem(new MenuItem("AABuffer", "AA Buffer for R").SetValue(new Slider(2, 0, 5)));
             }
             var manaManagerCombo = new Menu("Mana Manager", "mm_Combo");
             {
