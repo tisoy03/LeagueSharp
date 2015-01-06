@@ -120,8 +120,8 @@ namespace PennyJinx
             useSpellOnTeleport(_e);
             AutoPot();
 
-            Cleanser.cleanserByBuffType();
-            Cleanser.cleanserBySpell();
+           // Cleanser.cleanserByBuffType();
+            //Cleanser.cleanserBySpell();
 
         }
 
