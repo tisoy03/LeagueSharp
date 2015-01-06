@@ -491,7 +491,7 @@ namespace PennyJinx
         private void AutoWHarass()
         {
             //Uses W in Harrass, factoring hitchance
-            if (!IsMenuEnabled("AutoW"))
+            if (!IsMenuEnabled("AutoW") || isRecalling())
             {
                 return;
             }
@@ -509,7 +509,7 @@ namespace PennyJinx
 
         private void AutoWEmpaired()
         {
-            if (!IsMenuEnabled("AutoWEmp"))
+            if (!IsMenuEnabled("AutoWEmp") || isRecalling())
             {
                 return;
             }
@@ -539,7 +539,10 @@ namespace PennyJinx
                 Items.UseItem(id, target);
             }
         }
-
+        private static bool isRecalling()
+        {
+            return Player.HasBuff("Recall", true);
+        }
         private bool Packets()
         {
             return IsMenuEnabled("Packets");
