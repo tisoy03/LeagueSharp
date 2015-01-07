@@ -808,7 +808,6 @@ namespace PennyJinx
                 miscMenu.AddItem(new MenuItem("Interrupter", "Use Interrupter").SetValue(true));
                 miscMenu.AddItem(new MenuItem("SwitchQNoEn", "Switch to Minigun when no enemies").SetValue(true));
                 miscMenu.AddItem(new MenuItem("C_Hit", "Hitchance").SetValue(new StringList(new[] {"Low","Medium","High","Very High"},2)));
-                miscMenu.AddItem(new MenuItem("SpriteDraw", "Draw Sprite for R Killable").SetValue(true));
                 miscMenu.AddItem(new MenuItem("ManualR", "Manual R").SetValue(new KeyBind("T".ToCharArray()[0],KeyBindType.Press)));
                 miscMenu
                     .AddItem(
@@ -862,6 +861,7 @@ namespace PennyJinx
                 DrawMenu.AddItem(
                     new MenuItem("DrawE", "Draw E").SetValue(new Circle(true, System.Drawing.Color.MediumPurple)));
                 DrawMenu.AddItem(new MenuItem("DrawR", "Draw R").SetValue(new Circle(true, System.Drawing.Color.MediumPurple)));
+                miscMenu.AddItem(new MenuItem("SpriteDraw", "Draw Sprite for R Killable").SetValue(false));
             }
             Menu.AddSubMenu(DrawMenu);
 
