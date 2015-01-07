@@ -44,18 +44,27 @@ namespace PennyJinx
                     if (!HList.Any())
                         return null;
                     return HList.First();
-
                 }
             }
 
             private Vector2 _pos
             {
                 get {
-                    var Condition = (hero != null && PennyJinx.IsMenuEnabled("SpriteDraw") && PennyJinx._r.IsReady());
-                    return Condition?new Vector2(Drawing.WorldToScreen(hero.Position).X-hero.BoundingRadius*2+hero.BoundingRadius/2.5f, Drawing.WorldToScreen(hero.Position).Y-hero.BoundingRadius*2):Drawing.WorldToScreen(new Vector2(-200, -200).To3D()); 
+                    return
+                        new Vector2(
+                            Drawing.WorldToScreen(hero.Position).X - hero.BoundingRadius * 2 +
+                            hero.BoundingRadius / 2.5f, Drawing.WorldToScreen(hero.Position).Y - hero.BoundingRadius * 2);
+                    
                 }
             }
 
+            private bool condition
+            {
+                get
+                {
+                    return (hero != null && PennyJinx.IsMenuEnabled("SpriteDraw") && PennyJinx._r.IsReady());
+                }
+            }
             private Vector2 _TextPos
             {
                 get
@@ -75,11 +84,10 @@ namespace PennyJinx
             //Constructor
             public ScopeSprite()
             {
-                var Condition = Render.OnScreen(_pos) && (hero != null && PennyJinx.IsMenuEnabled("SpriteDraw") && PennyJinx._r.IsReady());
 
                 _sprite = new Render.Sprite(Properties.Resources.scope, new Vector2(0, 0))
                 {
-                    VisibleCondition = s => Condition,
+                    VisibleCondition = s => condition,
                     PositionUpdate =
                         () => _pos                   
                 };

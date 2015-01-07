@@ -26,7 +26,6 @@ namespace PennyJinx
         private static readonly StringList QMode = new StringList(new[] {"AOE mode", "Range mode", "Both"}, 2);
         public static Render.Sprite Sprite;
         public static PennyJinx instance;
-        public static List<SpriteManager.ScopeSprite> _KillableHeroes = new List<SpriteManager.ScopeSprite>();
         public static float LastCheck;
         public PennyJinx()
         {
@@ -55,7 +54,7 @@ namespace PennyJinx
             AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
             GameObject.OnCreate += Cleanser.OnCreateObj;
             GameObject.OnDelete += Cleanser.OnDeleteObj;
-        //new SpriteManager.ScopeSprite();
+           new SpriteManager.ScopeSprite();
         }
 
         
