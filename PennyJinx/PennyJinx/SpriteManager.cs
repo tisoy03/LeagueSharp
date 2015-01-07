@@ -84,7 +84,6 @@ namespace PennyJinx
             //Constructor
             public ScopeSprite()
             {
-
                 _sprite = new Render.Sprite(Properties.Resources.scope, new Vector2(0, 0))
                 {
                     VisibleCondition = s => condition,
