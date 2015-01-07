@@ -209,7 +209,7 @@ namespace PennyJinx
         {
             if (!IsMenuEnabled("SwitchQNoEn"))
                 return;
-            var Range = IsFishBone() ? Orbwalking.GetRealAutoAttackRange(null) : Player.AttackRange + GetFishboneRange();
+            var Range = IsFishBone() ? 525f + ObjectManager.Player.BoundingRadius + 65f :525f + ObjectManager.Player.BoundingRadius + 65f + GetFishboneRange() + 20f;
             if (Player.CountEnemysInRange((int)Range) == 0)
             {
                 if (IsFishBone())
@@ -268,7 +268,7 @@ namespace PennyJinx
             if (!IsMenuEnabled("UseQLC") ||!_q.IsReady() || GetPerValue(true) < GetSliderValue("QManaLC"))
                 return;
 
-            if (CountEnemyMinions(t2, 100) < GetSliderValue("MinQMinions"))
+            if (CountEnemyMinions(t2, 150) < GetSliderValue("MinQMinions"))
             {
                 SwitchLc();
             }
