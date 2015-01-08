@@ -547,7 +547,7 @@ namespace PennyJinx
             {
                 if (!IsMenuEnabled("AutoE") || !E.IsReady() || !enemy.HasBuffOfType(BuffType.Slow))
                 {
-                    continue;
+                    return;
                 }
 
                 var castPosition =
@@ -577,6 +577,47 @@ namespace PennyJinx
         }
 
         private static void ECast_DZ()
+        {
+            if (!E.IsReady())
+            {
+                return;
+            }
+
+            foreach (
+                var enemy in
+                    ObjectManager.Get<Obj_AI_Hero>().Where(h => h.IsValidTarget(E.Range - 140f) && (IsEmpaired(h))))
+            {
+                //E necessary mana. If the mode is combo: Combo mana, if not AutoE mana
+                var eMana = _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo
+                    ? GetSliderValue("EManaC")
+                    : GetSliderValue("AutoE_Mana");
+
+                if ((!IsMenuEnabled("UseEC") && _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo) || (!IsMenuEnabled("AutoE") && _orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.Combo))
+                {
+                    return;
+                }
+
+
+                //If it is slowed & moving
+                if (IsEmpairedLight(enemy) && IsMoving(enemy))
+                {
+                    //Has enough E Mana ?
+                    if (GetPerValue(true) >= eMana)
+                    {
+                        //Casting using predictions
+                        E.CastIfHitchanceEquals(enemy, CustomHitChance, Packets());
+                        return;
+                    }
+                }
+                //If the empairement ends later, cast the E
+                if (GetPerValue(true) >= eMana)
+                {
+                    //Casting using predictions
+                    E.CastIfHitchanceEquals(enemy, CustomHitChance, Packets());
+                }
+            }
+        }
+        private static void ECast_DZ_Auto()
         {
             if (!E.IsReady())
             {
