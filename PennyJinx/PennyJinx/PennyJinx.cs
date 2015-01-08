@@ -592,7 +592,11 @@ namespace PennyJinx
                     ? GetSliderValue("EManaC")
                     : GetSliderValue("AutoE_Mana");
 
-                if (!IsMenuEnabled("UseEC") && !IsMenuEnabled("AutoE"))
+                if ((!IsMenuEnabled("UseEC") && _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo))
+                {
+                    return;
+                }
+                if (!IsMenuEnabled("AutoE") && _orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.Combo)
                 {
                     return;
                 }
