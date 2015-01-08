@@ -902,8 +902,8 @@ namespace PennyJinx
             var farmMenu = new Menu("[PJ] Farm", "Farm");
             {
                 farmMenu.AddItem(new MenuItem("UseQLC", "Use Q Laneclear").SetValue(true));
-                farmMenu.AddItem(new MenuItem("UseWLH", "Use W Lasthit").SetValue(true));
-                farmMenu.AddItem(new MenuItem("UseWLC", "Use W Laneclear").SetValue(true));
+                farmMenu.AddItem(new MenuItem("UseWLH", "Use W Lasthit").SetValue(false));
+                farmMenu.AddItem(new MenuItem("UseWLC", "Use W Laneclear").SetValue(false));
                 farmMenu.AddItem(new MenuItem("MinQMinions", "Min Minions for Q").SetValue(new Slider(0, 4, 6)));
             }
             var manaManagerFarm = new Menu("Mana Manager", "mm_Farm");
