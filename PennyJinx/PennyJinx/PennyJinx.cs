@@ -343,9 +343,6 @@ namespace PennyJinx
 
         private void Auto()
         {
-            SwitchNoEn();
-            AutoWHarass();
-            AutoWEmpaired();
             if (GetEMode() == 0)
             {
                 ECast_DZ();
@@ -354,6 +351,9 @@ namespace PennyJinx
             {
                 ECast();
             }
+            SwitchNoEn();
+            AutoWHarass();
+            AutoWEmpaired();
         }
 
         private void HarrassLogic()
@@ -585,7 +585,7 @@ namespace PennyJinx
 
             foreach (
                 var enemy in
-                    ObjectManager.Get<Obj_AI_Hero>().Where(h => h.IsValidTarget(E.Range - E.Width) && (IsEmpaired(h))))
+                    ObjectManager.Get<Obj_AI_Hero>().Where(h => h.IsValidTarget(E.Range - 140f) && (IsEmpaired(h))))
             {
                 //E necessary mana. If the mode is combo: Combo mana, if not AutoE mana
                 var eMana = _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo
@@ -594,7 +594,7 @@ namespace PennyJinx
 
                 if (!IsMenuEnabled("UseEC") && !IsMenuEnabled("AutoE"))
                 {
-                    continue;
+                    return;
                 }
 
                 //If it is slowed & moving
@@ -604,7 +604,7 @@ namespace PennyJinx
                     if (GetPerValue(true) >= eMana)
                     {
                         //Casting using predictions
-                        E.CastIfHitchanceEquals(enemy, HitChance.High, Packets());
+                        E.CastIfHitchanceEquals(enemy, CustomHitChance, Packets());
                         return;
                     }
                 }
@@ -612,7 +612,7 @@ namespace PennyJinx
                 if (GetPerValue(true) >= eMana)
                 {
                     //Casting using predictions
-                    E.CastIfHitchanceEquals(enemy, HitChance.High, Packets());
+                    E.CastIfHitchanceEquals(enemy, CustomHitChance, Packets());
                 }
             }
         }
