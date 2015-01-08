@@ -592,14 +592,11 @@ namespace PennyJinx
                     ? GetSliderValue("EManaC")
                     : GetSliderValue("AutoE_Mana");
 
-                if ((!IsMenuEnabled("UseEC") && _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo))
+                if ((!IsMenuEnabled("UseEC") && _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo) || (!IsMenuEnabled("AutoE") && _orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.Combo))
                 {
                     return;
                 }
-                if (!IsMenuEnabled("AutoE") && _orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.Combo)
-                {
-                    return;
-                }
+
 
                 //If it is slowed & moving
                 if (IsEmpairedLight(enemy) && IsMoving(enemy))
