@@ -41,7 +41,7 @@ namespace PennyJinx
 
             SetUpMenu();
             SetUpSpells();
-            Game.PrintChat("<font color='#7A6EFF'>PennyJinx</font> v 1.0.1.7 <font color='#FFFFFF'>Loaded!</font>");
+            Game.PrintChat("<font color='#7A6EFF'>PennyJinx</font> v 1.0.1.9 <font color='#FFFFFF'>Loaded!</font>");
 
 
             Drawing.OnDraw += Drawing_OnDraw;
@@ -52,7 +52,7 @@ namespace PennyJinx
             AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
             GameObject.OnCreate += Cleanser.OnCreateObj;
             GameObject.OnDelete += Cleanser.OnDeleteObj;
-          // new SpriteManager.ScopeSprite();
+           //new SpriteManager.ScopeSprite();
         }
 
         private static void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
@@ -118,7 +118,7 @@ namespace PennyJinx
 
             if (Menu.Item("ManualR").GetValue<KeyBind>().Active)
             {
-                RCast();
+                ManualR();
             }
 
             switch (_orbwalker.ActiveMode)
@@ -646,7 +646,28 @@ namespace PennyJinx
                 R.CastIfHitchanceEquals(rTarget, CustomHitChance, Packets());
             }
         }
+        private static void ManualR()
+        {
+            //TODO R Collision
+            if (!R.IsReady())
+            {
+                return;
+            }
 
+            var rTarget = TargetSelector.GetTarget(R.Range, TargetSelector.DamageType.Physical);
+            if (!rTarget.IsValidTarget(R.Range))
+            {
+                return;
+            }
+
+
+            //Check for Mana && for target Killable. Also check for hitchance
+            if (R.GetDamage(rTarget) >=
+                HealthPrediction.GetHealthPrediction(rTarget, (int)(Player.Distance(rTarget) / 2000f) * 1000))
+            {
+                R.CastIfHitchanceEquals(rTarget, CustomHitChance, Packets());
+            }
+        }
         #endregion
 
         #region AutoSpells
