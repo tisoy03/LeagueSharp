@@ -124,14 +124,14 @@ namespace DZDraven_Reloaded
             Game.PrintChat("If you like my assemblies feel free to donate me (link on the forum :) )");
         }
 
-        static void xSLxOrbwalker_AfterAttack(Obj_AI_Base unit, Obj_AI_Base target)
+        static void xSLxOrbwalker_AfterAttack(AttackableUnit unit, AttackableUnit target)
         {
             //Game.PrintChat("Registered");
             if (!(target is Obj_AI_Hero)) return;
             if (unit.IsMe && target.IsValidTarget())
             {
                 Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
-                CastW(target);
+                CastW(target as Obj_AI_Base);
                 castItems((Obj_AI_Hero)target);
             }
         }
