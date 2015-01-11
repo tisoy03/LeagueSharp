@@ -41,7 +41,7 @@ namespace PennyJinx
 
             SetUpMenu();
             SetUpSpells();
-            Game.PrintChat("<font color='#7A6EFF'>PennyJinx</font> v 1.0.1.3 <font color='#FFFFFF'>Loaded!</font>");
+            Game.PrintChat("<font color='#7A6EFF'>PennyJinx</font> v 1.0.1.7 <font color='#FFFFFF'>Loaded!</font>");
 
 
             Drawing.OnDraw += Drawing_OnDraw;
@@ -530,7 +530,7 @@ namespace PennyJinx
             }
 
             var wMana = GetSliderValue("WMana" + str);
-            if (GetPerValue(true) >= wMana && IsMenuEnabled("UseWC"))
+            if (GetPerValue(true) >= wMana && IsMenuEnabled("UseW"+str))
             {
                 W.CastIfHitchanceEquals(wTarget, CustomHitChance, Packets());
             }
