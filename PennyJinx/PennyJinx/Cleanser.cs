@@ -239,18 +239,18 @@ namespace PennyJinx
 
             var theDamage = GetByChampName(spell.ChampName).GetDamageSpell(Player, spells).CalculatedDamage;
             BuffInstance theBuff = null;
-            foreach (var buff in Player.Buffs)
+            foreach (var buff in Player.Buffs.Where(buff => buff.Name == spell.SpellBuff))
             {
-                if (buff.Name == spell.SpellBuff)
-                {
-                    theBuff = buff;
-                }
+                theBuff = buff;
             }
-            if (theBuff != null)
+
+            if (theBuff == null)
             {
-                var endTime = theBuff.EndTime;
-                var difference = endTime - Environment.TickCount; //TODO Factor Player Regen
+                return theDamage >= (Player.Health);
             }
+
+            var endTime = theBuff.EndTime;
+            var difference = endTime - Environment.TickCount; //TODO Factor Player Regen
             return theDamage >= (Player.Health);
         }
 

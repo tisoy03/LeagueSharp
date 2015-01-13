@@ -52,7 +52,6 @@ namespace PennyJinx
             AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
             GameObject.OnCreate += Cleanser.OnCreateObj;
             GameObject.OnDelete += Cleanser.OnDeleteObj;
-           //new SpriteManager.ScopeSprite();
         }
 
         private static void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
@@ -85,7 +84,7 @@ namespace PennyJinx
                 return;
             }
 
-            if (!(target is Obj_AI_Minion) ||
+            if (target.Type != GameObjectType.obj_AI_Minion ||
                 (_orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.LaneClear &&
                  _orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.LastHit))
             {
@@ -341,7 +340,7 @@ namespace PennyJinx
 
         #region Combo/Harrass/Auto
 
-        private void Auto()
+        private static void Auto()
         {
             if (GetEMode() == 0)
             {
@@ -356,13 +355,13 @@ namespace PennyJinx
             AutoWEmpaired();
         }
 
-        private void HarrassLogic()
+        private static void HarrassLogic()
         {
             WCast(_orbwalker.ActiveMode);
             QManager("H");
         }
 
-        private void ComboLogic()
+        private static void ComboLogic()
         {
             WCast(_orbwalker.ActiveMode);
             RCast();
@@ -530,7 +529,7 @@ namespace PennyJinx
             }
 
             var wMana = GetSliderValue("WMana" + str);
-            if (GetPerValue(true) >= wMana && IsMenuEnabled("UseW"+str))
+            if (GetPerValue(true) >= wMana && IsMenuEnabled("UseW" + str))
             {
                 W.CastIfHitchanceEquals(wTarget, CustomHitChance, Packets());
             }
@@ -592,7 +591,8 @@ namespace PennyJinx
                     ? GetSliderValue("EManaC")
                     : GetSliderValue("AutoE_Mana");
 
-                if ((!IsMenuEnabled("UseEC") && _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo) || (!IsMenuEnabled("AutoE") && _orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.Combo))
+                if ((!IsMenuEnabled("UseEC") && _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo) ||
+                    (!IsMenuEnabled("AutoE") && _orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.Combo))
                 {
                     return;
                 }
@@ -617,6 +617,7 @@ namespace PennyJinx
                 }
             }
         }
+
         private static void RCast()
         {
             //TODO R Collision
@@ -646,6 +647,7 @@ namespace PennyJinx
                 R.CastIfHitchanceEquals(rTarget, CustomHitChance, Packets());
             }
         }
+
         private static void ManualR()
         {
             //TODO R Collision
@@ -663,11 +665,12 @@ namespace PennyJinx
 
             //Check for Mana && for target Killable. Also check for hitchance
             if (R.GetDamage(rTarget) >=
-                HealthPrediction.GetHealthPrediction(rTarget, (int)(Player.Distance(rTarget) / 2000f) * 1000))
+                HealthPrediction.GetHealthPrediction(rTarget, (int) (Player.Distance(rTarget)/2000f)*1000))
             {
                 R.CastIfHitchanceEquals(rTarget, CustomHitChance, Packets());
             }
         }
+
         #endregion
 
         #region AutoSpells
@@ -693,7 +696,7 @@ namespace PennyJinx
             }
         }
 
-        private void AutoWEmpaired()
+        private static void AutoWEmpaired()
         {
             if (!IsMenuEnabled("AutoWEmp") || Player.IsRecalling())
             {
