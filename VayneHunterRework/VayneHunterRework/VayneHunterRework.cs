@@ -2,7 +2,6 @@
 using System.Linq;
 using LeagueSharp.Common;
 using LeagueSharp;
-using LeagueSharp.Network.Packets;
 using SharpDX;
 using Color = System.Drawing.Color;
 
