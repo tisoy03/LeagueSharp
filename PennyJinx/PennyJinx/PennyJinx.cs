@@ -16,6 +16,7 @@ namespace PennyJinx
         public static Menu Menu;
         private static Orbwalking.Orbwalker _orbwalker;
         private static readonly StringList QMode = new StringList(new[] {"AOE mode", "Range mode", "Both"}, 2);
+        public static Render.Sprite Sprite;
         public static PennyJinx Instance;
         public static float LastCheck;
 
@@ -91,7 +92,7 @@ namespace PennyJinx
                 return;
             }
 
-            var t2 = target as Obj_AI_Minion;
+            var t2 = (Obj_AI_Minion) target;
             QSwitchLc(t2);
         }
 

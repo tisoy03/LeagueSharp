@@ -63,9 +63,9 @@ namespace PennyJinx.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap Scope {
+        internal static System.Drawing.Bitmap scope {
             get {
-                object obj = ResourceManager.GetObject("Scope", resourceCulture);
+                object obj = ResourceManager.GetObject("scope", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
