@@ -326,7 +326,7 @@ namespace VayneHunterRework
                 target = null;
                 return false;
             }
-            foreach (var En in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsEnemy && hero.IsValidTarget() && !isMenuEnabled("nC"+hero.ChampionName) && hero.Distance(Player.Position)<=E.Range))
+            foreach (var En in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsEnemy && hero.IsValidTarget() && !isMenuEnabled("nC"+hero.ChampionName) && hero.Distance(Position)<=E.Range))
             {
                 var EPred = E.GetPrediction(En);
                 int pushDist = Menu.Item("PushDistance").GetValue<Slider>().Value;
@@ -578,6 +578,70 @@ namespace VayneHunterRework
                 default:
                     break;
             }
+        }
+        Vector3 getQVectorMelee()
+        {
+            if (isMenuEnabled("SmartQ") || !isMenuEnabled("SpecialQMelee"))
+            {
+                return Player.Position.Extend(Game.CursorPos, Q.Range);
+            }
+
+            var Position = Game.CursorPos;
+            //Standard Q end position
+            var Extended = Player.Position.Extend(Position, Q.Range);
+            //Check for Melee enemies in that range
+            var HeroesThere =
+                ObjectManager.Get<Obj_AI_Hero>().Where(h => h.Distance(Extended) <= 375f && h.IsValidTarget() && h.IsMelee()).OrderBy(h => h.Distance(Player)).ToList();
+            //If the count is 0 return the normal position
+            if (HeroesThere.Count == 0)
+            {
+                return Extended;
+            }
+            //Find the closest hero
+            var theHero = HeroesThere.First();
+            //Extend the V3 of the hero radius to my player. Not used atm.
+            var HeroRadius = theHero.Position.Extend(Player.Position, theHero.AttackRange);
+            //Intersection.. Not used atm.
+            var Intersection = Geometry.Intersection(theHero.Position.To2D(), HeroRadius.To2D(), Player.Position.To2D(), Extended.To2D());
+            //Start angle
+            double Angle = 0;
+            //Step angle
+            var step = 10;
+            //The new extended variable
+            var newExtended = Extended;
+            //While the heroes near the new position are > 0 or the angle <= 180
+            while (
+                ObjectManager.Get<Obj_AI_Hero>()
+                    .Where(h => h.Distance(newExtended) <= 375f && h.IsValidTarget() && h.IsMelee())
+                    .ToList()
+                    .Count > 0 || Angle <= 45)
+            {
+                //Augment the angle by step
+                Angle += step;
+                //Second angle
+                var Angle2 = -Angle;
+                //Find the new extended position
+                newExtended = new Vector3(
+                    Extended.X * (float)Math.Cos(Geometry.DegreeToRadian(Angle)),
+                    Extended.Y * (float)Math.Sin(Geometry.DegreeToRadian(Angle)), Extended.Z);
+
+                //Move in one direction first. Then check:
+                //Are enemies still there?
+                //If they are then try the other direction
+                //If not the while cycle will just end.
+                if (
+                    ObjectManager.Get<Obj_AI_Hero>()
+                        .Where(h => h.Distance(newExtended) <= 375f && h.IsValidTarget() && h.IsMelee())
+                        .ToList()
+                        .Count > 0)
+                {
+                    newExtended = new Vector3(
+                    Extended.X * (float)Math.Cos(Geometry.DegreeToRadian(Angle2)),
+                    Extended.Y * (float)Math.Sin(Geometry.DegreeToRadian(Angle2)), Extended.Z);
+                }
+            }
+            //return the end position
+            return newExtended;
         }
 
         void CastTumble(Obj_AI_Base target)
