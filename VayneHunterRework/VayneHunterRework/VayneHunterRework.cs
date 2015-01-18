@@ -457,6 +457,7 @@ namespace VayneHunterRework
 
         void takeLantern()
         {
+            /**
             foreach (GameObject obj in ObjectManager.Get<GameObject>())
             {
                 if (obj.Name.Contains("ThreshLantern") && obj.Position.Distance(ObjectManager.Player.ServerPosition) <= 500 && obj.IsAlly)
@@ -471,6 +472,7 @@ namespace VayneHunterRework
                     return;
                 }
             }
+             * */
         }
 
         void WallTumble()
