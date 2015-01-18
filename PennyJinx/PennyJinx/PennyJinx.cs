@@ -4,7 +4,6 @@ using System.Drawing;
 using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
-using LeagueSharp.Network.Packets;
 
 namespace PennyJinx
 {
