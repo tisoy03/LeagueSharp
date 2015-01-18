@@ -14,7 +14,6 @@ namespace PennyJinx
         public class ScopeSprite
         {
             private static Render.Sprite _sprite;
-            public static Texture _texture;
             /*private Vector2 TextPos
             {
                 get
@@ -33,15 +32,8 @@ namespace PennyJinx
             }*/
             //Constructor
             public ScopeSprite()
-            {
-                _texture = Texture.FromMemory(
-                    Drawing.Direct3DDevice,
-                    (byte[])new ImageConverter().ConvertTo(Resources.scope, typeof(byte[])), 180, 180, 0,
-                    Usage.None, Format.A1, Pool.Managed, Filter.Default, Filter.Default, 0);
-               // _sprite = new Sprite(Drawing.Direct3DDevice);
-
-                
-                _sprite = new Render.Sprite(_texture, new Vector2(0, 0))
+            {               
+                _sprite = new Render.Sprite(Resources.Scope, new Vector2(0, 0))
                 {
                     VisibleCondition = s => Condition,
                     PositionUpdate =
@@ -50,7 +42,6 @@ namespace PennyJinx
                 };
                 _sprite.Add();
 
-                Drawing.OnEndScene += Drawing_OnEndScene;
                 Drawing.OnPreReset += Drawing_OnPreReset;
                 Drawing.OnPostReset += Drawing_OnPostReset;
                 AppDomain.CurrentDomain.DomainUnload += CurrentDomainOnDomainUnload;
@@ -106,8 +97,8 @@ namespace PennyJinx
 
             private static bool Condition
             {
-             //   get { return (Hero != null && PennyJinx.IsMenuEnabled("SpriteDraw") && PennyJinx.R.IsReady()); }
-                get { return Hero != null; }
+                get { return (Hero != null && PennyJinx.IsMenuEnabled("SpriteDraw") && PennyJinx.R.IsReady()); }
+               // get { return Hero != null; }
             }
 
             private void CurrentDomainOnDomainUnload(object sender, EventArgs e)
@@ -117,48 +108,14 @@ namespace PennyJinx
 
             private void Drawing_OnPostReset(EventArgs args)
             {
-                                _sprite.OnPostReset();
-                //_sprite.OnResetDevice();
+               _sprite.OnPostReset();
             }
 
             private void Drawing_OnPreReset(EventArgs args)
             {
                 _sprite.OnPreReset();
-                //_sprite.OnLostDevice();
             }
 
-            private void Drawing_OnEndScene(EventArgs args)
-            {
-                /***
-                if (Drawing.Direct3DDevice == null || Drawing.Direct3DDevice.IsDisposed)
-            {
-                return;
-            }
-
-                try
-                {
-                    if (_sprite.IsDisposed || !Condition)
-                    {
-                        return;
-                    }
-                    DrawSprite();
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Can't draw Sprite");
-                }
-                 * */
-            }
-            /**
-            private void DrawSprite()
-            {
-                _sprite.Begin();
-                var h = Hero;
-                //Game.PrintChat("Ahllo");
-                _sprite.Draw(_texture,new ColorBGRA(255, 255, 255, 0f),null, new Vector3(-Pos.X,-Pos.Y,0));
-                _sprite.End();
-            }
-             * */
         }
     }
 }

@@ -74,11 +74,10 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\scope %28Custom%29.png" />
+    <None Include="Resources\scope.dds" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\scope.dds" />
-    <None Include="Resources\scope.png" />
+    <None Include="Resources\Crosshair %28Custom%29.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

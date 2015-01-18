@@ -326,12 +326,12 @@ namespace VayneHunterRework
                 target = null;
                 return false;
             }
-            foreach (var En in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsEnemy && hero.IsValidTarget() && !isMenuEnabled("nC"+hero.ChampionName) && hero.Distance(Player.Position)<=E.Range))
+            foreach (var En in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsEnemy && hero.IsValidTarget() && !isMenuEnabled("nC"+hero.ChampionName) && hero.Distance(Position)<=E.Range))
             {
                 var EPred = E.GetPrediction(En);
                 int pushDist = Menu.Item("PushDistance").GetValue<Slider>().Value;
                 var FinalPosition = EPred.UnitPosition.To2D().Extend(Position.To2D(), -pushDist).To3D();
-                for (int i = 1; i < pushDist; i += (int)En.BoundingRadius)
+                for (int i = 1; i < pushDist; i += (int)65)
                 {
                     Vector3 loc3 = EPred.UnitPosition.To2D().Extend(Position.To2D(), -i).To3D();
                     var OrTurret = isMenuEnabled("CondemnTurret") && isUnderTurret(FinalPosition);
@@ -348,7 +348,72 @@ namespace VayneHunterRework
             }
             target = null;
             return false;
-            
+           
+        }
+
+        Vector3 getSpecialV3ForQ()
+        {
+            if (isMenuEnabled("SmartQ") || !isMenuEnabled("SpecialQMelee"))
+            {
+                return Player.Position.Extend(Game.CursorPos, Q.Range);
+            }
+
+            var Position = Game.CursorPos;
+            //Standard Q end position
+            var Extended = Player.Position.Extend(Position, Q.Range);
+            //Check for Melee enemies in that range
+            var HeroesThere =
+                ObjectManager.Get<Obj_AI_Hero>().Where(h => h.Distance(Extended) <= 375f && h.IsValidTarget() && h.IsMelee()).OrderBy(h => h.Distance(Player)).ToList();
+            //If the count is 0 return the normal position
+            if (HeroesThere.Count == 0)
+            {
+                return Extended;
+            }
+            //Find the closest hero
+            var theHero = HeroesThere.First();
+            //Extend the V3 of the hero radius to my player. Not used atm.
+            var HeroRadius = theHero.Position.Extend(Player.Position, theHero.AttackRange);
+            //Intersection.. Not used atm.
+            var Intersection = Geometry.Intersection(theHero.Position.To2D(), HeroRadius.To2D(), Player.Position.To2D(), Extended.To2D());
+            //Start angle
+            double Angle = 0;
+            //Step angle
+            var step = 10;
+            //The new extended variable
+            var newExtended = Extended;
+            //While the heroes near the new position are > 0 or the angle <= 180
+            while (
+                ObjectManager.Get<Obj_AI_Hero>()
+                    .Where(h => h.Distance(newExtended) <= 375f && h.IsValidTarget() && h.IsMelee())
+                    .ToList()
+                    .Count > 0 || Angle <= 45)
+            {
+                //Augment the angle by step
+                Angle += step;
+                //Second angle
+                var Angle2 = -Angle;
+                //Find the new extended position
+                newExtended = new Vector3(
+                    Extended.X * (float)Math.Cos(Geometry.DegreeToRadian(Angle)),
+                    Extended.Y * (float)Math.Sin(Geometry.DegreeToRadian(Angle)), Extended.Z);
+
+                //Move in one direction first. Then check:
+                //Are enemies still there?
+                //If they are then try the other direction
+                //If not the while cycle will just end.
+                if (
+                    ObjectManager.Get<Obj_AI_Hero>()
+                        .Where(h => h.Distance(newExtended) <= 375f && h.IsValidTarget() && h.IsMelee())
+                        .ToList()
+                        .Count > 0)
+                {
+                    newExtended = new Vector3(
+                    Extended.X * (float)Math.Cos(Geometry.DegreeToRadian(Angle2)),
+                    Extended.Y * (float)Math.Sin(Geometry.DegreeToRadian(Angle2)), Extended.Z);
+                }
+            }
+            //return the end position
+            return newExtended;
         }
 
         void QFarmCheck()
@@ -367,7 +432,7 @@ namespace VayneHunterRework
         
         void NoAAStealth()
         {
-            var mb = (isMenuEnabled("NoAAStealth") && Player.HasBuff("vaynetumblefade", true))?false:true;
+            var mb = (!isMenuEnabled("NoAAStealth") || !Player.HasBuff("vaynetumblefade", true));
             COrbwalker.SetAttack(mb);
         }
 
@@ -476,9 +541,9 @@ namespace VayneHunterRework
         void WallTumble()
         {
             if (!isSummonersRift()) return;
-            Vector2 MidWallQPos = new Vector2(6707.485f, 8802.744f);
-            Vector2 DrakeWallQPos = new Vector2(11514, 4462);
-            if (Player.Distance(MidWallQPos) >= Player.Distance(DrakeWallQPos))
+            var midWallQPos = new Vector2(6707.485f, 8802.744f);
+            var drakeWallQPos = new Vector2(11514, 4462);
+            if (Player.Distance(midWallQPos) >= Player.Distance(drakeWallQPos))
             {
 
                 if (Player.Position.X < 12000 || Player.Position.X > 12070 || Player.Position.Y < 4800 ||
@@ -489,7 +554,7 @@ namespace VayneHunterRework
                 else
                 {
                     MoveToLimited(new Vector2(12050, 4827).To3D());
-                    Q.Cast(DrakeWallQPos, true);
+                    Q.Cast(drakeWallQPos, true);
                 }
             }
             else
@@ -502,7 +567,7 @@ namespace VayneHunterRework
                 else
                 {
                     MoveToLimited(new Vector2(6958, 8944).To3D());
-                    Q.Cast(MidWallQPos, true);
+                    Q.Cast(midWallQPos, true);
                 }
             }
         }
@@ -531,12 +596,12 @@ namespace VayneHunterRework
             {
                 for (int I = 0; I <= 360; I += 65)
                 {
-                    var F1 = new Vector2(Player.Position.X + (float)(300 * Math.Cos(I * (Math.PI / 180))), Player.Position.Y + (float)(300 * Math.Sin(I * (Math.PI / 180)))).To3D();
+                    var f1 = new Vector2(Player.Position.X + (float)(300 * Math.Cos(I * (Math.PI / 180))), Player.Position.Y + (float)(300 * Math.Sin(I * (Math.PI / 180)))).To3D();
                    // var FinalPos = Player.Position.To2D().Extend(F1, 300).To3D();
                     Obj_AI_Hero targ;
-                    if (CondemnCheck(F1, out targ))
+                    if (CondemnCheck(f1, out targ))
                     {
-                        CastTumble(F1,target);
+                        CastTumble(f1,target);
                         CastE(target);
                         return;
                     }
@@ -545,35 +610,35 @@ namespace VayneHunterRework
             }
         }
 
-        void CastQ(Vector3 Pos,Obj_AI_Base target,bool customPos=false)
+        void CastQ(Vector3 pos,Obj_AI_Base target,bool customPos=false)
         {
            if (!Q.IsReady() || !target.IsValidTarget()) return;
            
             switch (COrbwalker.ActiveMode)
             {
                 case Orbwalking.OrbwalkingMode.Combo:
-                    var ManaC = Menu.Item("QManaC").GetValue<Slider>().Value;
-                    var EnMin = Menu.Item("NEnUlt").GetValue<Slider>().Value;
-                    var EnemiesList =
+                    var manaC = Menu.Item("QManaC").GetValue<Slider>().Value;
+                    var enMin = Menu.Item("NEnUlt").GetValue<Slider>().Value;
+                    var enemiesList =
                         ObjectManager.Get<Obj_AI_Hero>()
                             .Where(h => h.IsValid && !h.IsDead && h.Distance(Player.Position) <= 900 && h.IsEnemy).ToList();
-                    if (getPerValue(true) >= ManaC && isMenuEnabled("UseQC"))
+                    if (getPerValue(true) >= manaC && isMenuEnabled("UseQC"))
                     {
-                        if(isMenuEnabled("UseRC") && R.IsReady() && EnemiesList.Count >= EnMin)R.CastOnUnit(Player);
-                        if(!customPos){CastTumble(target);}else{CastTumble(Pos,target);}
+                        if(isMenuEnabled("UseRC") && R.IsReady() && enemiesList.Count >= enMin)R.CastOnUnit(Player);
+                        if(!customPos){CastTumble(target);}else{CastTumble(pos,target);}
                     }
                     break;
                 case Orbwalking.OrbwalkingMode.Mixed:
                     var ManaH = Menu.Item("QManaH").GetValue<Slider>().Value;
-                    if (getPerValue(true) >= ManaH && isMenuEnabled("UseQH")){ if (!customPos){ CastTumble(target);} else{ CastTumble(Pos, target);}}
+                    if (getPerValue(true) >= ManaH && isMenuEnabled("UseQH")){ if (!customPos){ CastTumble(target);} else{ CastTumble(pos, target);}}
                     break;
                 case Orbwalking.OrbwalkingMode.LastHit:
                     var ManaLH = Menu.Item("QManaLH").GetValue<Slider>().Value;
-                    if (getPerValue(true) >= ManaLH && isMenuEnabled("UseQLH")) { if (!customPos) { CastTumble(target); } else { CastTumble(Pos, target); } }
+                    if (getPerValue(true) >= ManaLH && isMenuEnabled("UseQLH")) { if (!customPos) { CastTumble(target); } else { CastTumble(pos, target); } }
                     break;
                 case Orbwalking.OrbwalkingMode.LaneClear:
                     var ManaLC = Menu.Item("QManaLC").GetValue<Slider>().Value;
-                    if (getPerValue(true) >= ManaLC && isMenuEnabled("UseQLC")){ if (!customPos){CastTumble(target); }else{ CastTumble(Pos, target);}}
+                    if (getPerValue(true) >= ManaLC && isMenuEnabled("UseQLC")){ if (!customPos){CastTumble(target); }else{ CastTumble(pos, target);}}
                     break;
                 default:
                     break;
@@ -617,16 +682,16 @@ namespace VayneHunterRework
             switch (COrbwalker.ActiveMode)
             {
                 case Orbwalking.OrbwalkingMode.Combo:
-                    var ManaC = Menu.Item("EManaC").GetValue<Slider>().Value;
-                    if (isMenuEnabled("UseEC") && getPerValue(true) >= ManaC)
+                    var manaC = Menu.Item("EManaC").GetValue<Slider>().Value;
+                    if (isMenuEnabled("UseEC") && getPerValue(true) >= manaC)
                     {
                         E.Cast(target, isMenuEnabled("Packets"));
                         AfterCond = Vector3.Zero;
                     }
                     break;
                 case Orbwalking.OrbwalkingMode.Mixed:
-                    var ManaH = Menu.Item("EManaH").GetValue<Slider>().Value;
-                    if (isMenuEnabled("UseEH") && getPerValue(true) >= ManaH)
+                    var manaH = Menu.Item("EManaH").GetValue<Slider>().Value;
+                    if (isMenuEnabled("UseEH") && getPerValue(true) >= manaH)
                     {
                         E.Cast(target, isMenuEnabled("Packets"));
                         AfterCond = Vector3.Zero;
@@ -796,12 +861,9 @@ namespace VayneHunterRework
         }
         bool isUnderEnTurret(Vector3 Position)
         {
-            foreach (var tur in ObjectManager.Get<Obj_AI_Turret>().Where(turr => turr.IsEnemy && (turr.Health != 0)))
-            {
-                if (tur.Distance(Position) <= 975f) return true;
-            }
-            return false;
+            return ObjectManager.Get<Obj_AI_Turret>().Where(turr => turr.IsEnemy && (turr.Health != 0)).Any(tur => tur.Distance(Position) <= 975f);
         }
+
         public static bool isMenuEnabled(String val)
         {
             return Menu.Item(val).GetValue<bool>();
@@ -822,12 +884,12 @@ namespace VayneHunterRework
             //return false; 
         }
 
-        bool isJ4FlagThere(Vector3 Position,Obj_AI_Hero target)
+        bool isJ4FlagThere(Vector3 position,Obj_AI_Hero target)
         {
-            return ObjectManager.Get<Obj_AI_Base>().Any(m => m.Distance(Position) <= target.BoundingRadius && m.Name == "Beacon");
+            return ObjectManager.Get<Obj_AI_Base>().Any(m => m.Distance(position) <= target.BoundingRadius && m.Name == "Beacon");
         }
 
-        bool isFountain(Vector3 Position)
+        bool isFountain(Vector3 position)
         {
             float fountainRange = 750;
             var map = Utility.Map.GetMap();
@@ -840,7 +902,7 @@ namespace VayneHunterRework
                     .Where(spawnPoint => spawnPoint is Obj_SpawnPoint && spawnPoint.IsAlly)
                     .Any(
                         spawnPoint =>
-                            Vector2.Distance(Position.To2D(), spawnPoint.Position.To2D()) <
+                            Vector2.Distance(position.To2D(), spawnPoint.Position.To2D()) <
                             fountainRange);
         }
 
