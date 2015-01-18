@@ -287,6 +287,7 @@ namespace PennyJinx
 
         private static void TakeLantern()
         {
+            /**
             foreach (var interactPkt in from obj in ObjectManager.Get<GameObject>()
                 where
                     obj.Name.Contains("ThreshLantern") &&
@@ -300,7 +301,10 @@ namespace PennyJinx
                 //Credits to Trees
                 Game.SendPacket(interactPkt.Encode(), PacketChannel.C2S, PacketProtocolFlags.Reliable);
                 return;
-            }
+            
+             * }
+             * */
+
         }
 
         private static void SwitchLc()
