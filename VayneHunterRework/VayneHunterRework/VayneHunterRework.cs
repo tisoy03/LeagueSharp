@@ -287,8 +287,6 @@ namespace VayneHunterRework
                     Obj_AI_Hero tar3;
                     if (isMenuEnabled("UseEH") && CondemnCheck(Player.ServerPosition, out tar3)) { CastE(tar3); }
                     break;
-                default:
-                    break;
             }  
 
             
@@ -357,7 +355,7 @@ namespace VayneHunterRework
             var minList =
                 MinionManager.GetMinions(Player.Position, 550f).Where(min =>
                     HealthPrediction.GetHealthPrediction(min,(int)(Q.Delay + min.Distance(PosAfterQ) / Orbwalking.GetMyProjectileSpeed()) * 1000)+(Game.Ping/2) <= (Q.GetDamage(min)+Player.GetAutoAttackDamage(min))
-                    && HealthPrediction.GetHealthPrediction(min, (int)(Q.Delay + min.Distance(PosAfterQ) / Orbwalking.GetMyProjectileSpeed()) * 1000) + (Game.Ping / 2) > 0); //Player.GetAutoAttackDamage(min)
+                    && HealthPrediction.GetHealthPrediction(min, (int)(Q.Delay + min.Distance(PosAfterQ) / Orbwalking.GetMyProjectileSpeed()) * 1000) + (Game.Ping / 2) > Player.GetAutoAttackDamage(min)); //Player.GetAutoAttackDamage(min)
            
             if (!minList.Any()) return;
             CastQ(Vector3.Zero,minList.First());
