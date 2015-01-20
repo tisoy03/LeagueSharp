@@ -88,11 +88,11 @@ namespace FioraRaven
         {
             if (isEn("DrQ"))
             {
-                Utility.DrawCircle(player.Position, Q.Range, Color.MediumPurple);
+                Render.Circle.DrawCircle(player.Position, Q.Range, Color.MediumPurple);
             }
             if (isEn("DrR"))
             {
-                Utility.DrawCircle(player.Position, R.Range, Color.MediumPurple);
+                Render.Circle.DrawCircle(player.Position, R.Range, Color.MediumPurple);
             }
         }
        
@@ -207,7 +207,7 @@ namespace FioraRaven
         public static void CastQ(Obj_AI_Hero target)
         {        
             if (!target.IsValidTarget()) return;
-            if(target.IsValidTarget(Q.Range) && Q.IsReady()&&Q.InRange(target.ServerPosition) && !firstQ && isEn("UseQ") && (Game.Time-QCastTime)>=(menu.Item("SecondQDelay").GetValue<Slider>().Value/1000))
+            if(target.IsValidTarget(Q.Range) && Q.IsReady()&&Q.IsInRange(target.ServerPosition) && !firstQ && isEn("UseQ") && (Game.Time-QCastTime)>=(menu.Item("SecondQDelay").GetValue<Slider>().Value/1000))
             {
                 Q.Cast(target, true, false);
                 firstQ = true;
@@ -216,7 +216,7 @@ namespace FioraRaven
         }
         public static void CastR(Obj_AI_Hero target)
         {
-            if (isCombo() && target.IsValidTarget() && R.InRange(target.ServerPosition) && isEn("UseR"))
+            if (isCombo() && target.IsValidTarget() && R.IsInRange(target.ServerPosition) && isEn("UseR"))
             {
                 R.Cast(target,true);
             }
