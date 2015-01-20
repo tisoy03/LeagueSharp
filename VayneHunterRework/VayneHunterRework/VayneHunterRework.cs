@@ -771,7 +771,7 @@ namespace VayneHunterRework
 
         private void AutoPot()
         {
-            if (ObjectManager.Player.HasBuff("Recall") || Utility.InFountain() && Utility.InShopRange())
+            if (ObjectManager.Player.HasBuff("Recall") || Player.InFountain() && Player.InShop())
                 return;
 
             //Health Pots
@@ -894,7 +894,7 @@ namespace VayneHunterRework
         {
             float fountainRange = 750;
             var map = Utility.Map.GetMap();
-            if (map != null && map._MapType == Utility.Map.MapType.SummonersRift)
+            if (map != null && map.Type == Utility.Map.MapType.SummonersRift)
             {
                 fountainRange = 1050;
             }
