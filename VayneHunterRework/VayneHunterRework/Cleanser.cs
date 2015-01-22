@@ -78,11 +78,7 @@ namespace VayneHunterRework
         {
             var hasIT = Items.HasItem(3139) || Items.HasItem(3140) || Items.HasItem(3137);
             if (!VayneHunterRework.isMenuEnabled("UseQSS") || !hasIT) return;
-           List<CC> ccList = new List<CC>();
-            foreach (var spell in qssSpells)
-            {
-                if (Player.HasBuff(spell.SpellBuff)) ccList.Add(new CC(){buffName = spell.SpellBuff,willKillMe = willSpellKillMe(spell)});
-            }
+            var ccList = (from spell in qssSpells where Player.HasBuff(spell.SpellBuff) select new CC { buffName = spell.SpellBuff, willKillMe = willSpellKillMe(spell) }).ToList();
             foreach (var cc in ccList)
             {
                 if (VayneHunterRework.isMenuEnabled("en" + cc.buffName))
