@@ -14,7 +14,7 @@ namespace DZDraven_Reloaded
 
         private static readonly string[] AttackResets = { "dariusnoxiantacticsonh", "fioraflurry", "garenq", "hecarimrapidslash", "jaxempowertwo", "jaycehypercharge", "leonashieldofdaybreak", "monkeykingdoubleattack", "mordekaisermaceofspades", "nasusq", "nautiluspiercinggaze", "netherblade", "parley", "poppydevastatingblow", "powerfist", "renektonpreexecute", "rengarq", "shyvanadoubleattack", "sivirw", "takedown", "talonnoxiandiplomacy", "trundletrollsmash", "vaynetumble", "vie", "volibearq", "xenzhaocombotarget", "yorickspectral" };
         private static readonly string[] NoAttacks = { "jarvanivcataclysmattack", "monkeykingdoubleattack", "shyvanadoubleattack", "shyvanadoubleattackdragon", "zyragraspingplantattack", "zyragraspingplantattack2", "zyragraspingplantattackfire", "zyragraspingplantattack2fire" };
-        private static readonly string[] Attacks = { "caitlynheadshotmissile", "frostarrow", "garenslash2", "kennenmegaproc", "lucianpassiveattack", "masteryidoublestrike", "quinnwenhanced", "renektonexecute", "renektonsuperexecute", "rengarnewpassivebuffdash", "trundleq", "xenzhaothrust", "viktorqbuff", "xenzhaothrust2", "xenzhaothrust3" };
+        private static readonly string[] Attacks = { "caitlynheadshotmissile", "frostarrow", "garenslash2", "kennenmegaproc", "masteryidoublestrike", "quinnwenhanced", "renektonexecute", "renektonsuperexecute", "rengarnewpassivebuffdash", "trundleq", "xenzhaothrust", "viktorqbuff", "xenzhaothrust2", "xenzhaothrust3" };
 
 
         public static Menu Menu;
@@ -76,9 +76,11 @@ namespace DZDraven_Reloaded
 
             var menuMisc = new Menu("Misc", "orb_Misc");
             menuMisc.AddItem(new MenuItem("orb_Misc_Holdzone", "Hold Position").SetValue(new Slider(50, 0, 200)));
-            menuMisc.AddItem(new MenuItem("orb_Misc_Farmdelay", "Farm Delay").SetValue(new Slider(0, 200, 0)));
+            menuMisc.AddItem(new MenuItem("orb_Misc_Farmdelay", "Farm Delay").SetValue(new Slider(0, 0, 300)));
+            if (MyHero.ChampionName == "Azir")
+                menuMisc.AddItem(new MenuItem("azir_Misc_Farmdelay", "Soilder Farm Delay").SetValue(new Slider(0, 0, 300)));
             menuMisc.AddItem(new MenuItem("orb_Misc_ExtraWindUp", "Extra Winduptime").SetValue(new Slider(80, 200, 0)));
-            menuMisc.AddItem(new MenuItem("orb_Misc_AutoWindUp", "Autoset Windup").SetValue(false));
+            menuMisc.AddItem(new MenuItem("orb_Misc_AutoWindUp", "Autoset Windup").SetValue(new KeyBind("O".ToCharArray()[0], KeyBindType.Press)));
             menuMisc.AddItem(new MenuItem("orb_Misc_Priority_Unit", "Priority Unit").SetValue(new StringList(new[] { "Minion", "Hero" })));
             menuMisc.AddItem(new MenuItem("orb_Misc_Humanizer", "Humanizer Delays").SetValue(new Slider(80, 50, 500)));
             menuMisc.AddItem(new MenuItem("orb_Misc_AllMovementDisabled", "Disable All Movement").SetValue(false));
@@ -145,10 +147,10 @@ namespace DZDraven_Reloaded
             //if(MyHero.Distance(sender.Position) < 500)
             //Game.PrintChat("obj: " + sender.Name);
 
-            if (sender.Name == "Azir_Base_P_Soldier_Ring.troy")
+            if (sender.Name == "Azir_Base_P_Soldier_Ring.troy" && Soilders.Count > 0)
             {
                 //Game.PrintChat("Solider Deleted" + sender.NetworkId);
-                foreach (var minion in Soilders)
+                foreach (var minion in Soilders.ToList())
                 {
                     if (minion.NetworkId == sender.NetworkId)
                     {
@@ -164,6 +166,9 @@ namespace DZDraven_Reloaded
         {
             //if(MyHero.Distance(sender.Position) < 500)
             //Game.PrintChat("obj: " + sender.Name);
+
+            if (sender is Obj_LampBulb)
+                return;
 
             if (sender.Name == "Azir_Base_P_Soldier_Ring.troy")
             {
@@ -192,9 +197,9 @@ namespace DZDraven_Reloaded
 
         private static void OnUpdate(EventArgs args)
         {
+            CheckAutoWindUp();
             if (CurrentMode == Mode.None || MenuGUI.IsChatOpen || CustomOrbwalkMode || MyHero.IsChannelingImportantSpell() || MyHero.HasBuff("katarinarsound", true))
                 return;
-            CheckAutoWindUp();
             var target = GetPossibleTarget();
             Orbwalk(Game.CursorPos, target);
         }
@@ -274,6 +279,9 @@ namespace DZDraven_Reloaded
         {
             var target = (Obj_AI_Base)mytarget;
 
+            if (MyHero.IsChannelingImportantSpell())
+                return;
+
             if (target != null && (CanAttack() || HaveCancled()) && IsAllowedToAttack())
             {
                 _disableNextAttack = false;
@@ -308,7 +316,7 @@ namespace DZDraven_Reloaded
         {
             var delay = Menu.Item("orb_Misc_Humanizer").GetValue<Slider>().Value;
 
-            if ((MyHero.ChampionName == "Katarina" || MyHero.ChampionName == "Velkoz") && delay < 400 && (R.IsReady() || MyHero.Spellbook.GetSpell(SpellSlot.R).State == SpellState.Surpressed) && MyHero.CountEnemysInRange(1000) > 0)
+            if ((MyHero.ChampionName == "Katarina" || MyHero.ChampionName == "Velkoz") && delay < 400 && (R.IsReady() || MyHero.Spellbook.GetSpell(SpellSlot.R).State == SpellState.Surpressed) && MyHero.CountEnemiesInRange(1000) > 0)
             {
                 delay = 400;
             }
@@ -367,7 +375,6 @@ namespace DZDraven_Reloaded
         public static Spell R = new Spell(SpellSlot.R);
         private static void OnProcessSpell(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs spell)
         {
-
             SpellSlot castedSlot = MyHero.GetSpellSlot(spell.SData.Name);
 
             if (castedSlot == SpellSlot.R && MyHero.ChampionName == "Katarina")
@@ -384,10 +391,10 @@ namespace DZDraven_Reloaded
             {
                 _lastAATick = Environment.TickCount - Game.Ping / 2; // need test todo
                 // ReSharper disable once CanBeReplacedWithTryCastAndCheckForNull
-                if (spell.Target is AttackableUnit)
+                if (spell.Target is Obj_AI_Base)
                 {
-                    FireOnTargetSwitch((AttackableUnit)spell.Target);
-                    _lastTarget = (AttackableUnit)spell.Target;
+                    FireOnTargetSwitch((Obj_AI_Base)spell.Target);
+                    _lastTarget = (Obj_AI_Base)spell.Target;
                 }
                 if (unit.IsMelee())
                     Utility.DelayAction.Add(
@@ -397,7 +404,10 @@ namespace DZDraven_Reloaded
             }
             else
             {
-                FireOnAttack(unit, (AttackableUnit)spell.Target);
+                if (spell.Target is Obj_AI_Base)
+                {
+                    FireOnAttack(unit, (Obj_AI_Base)spell.Target);
+                }
             }
         }
 
@@ -406,9 +416,10 @@ namespace DZDraven_Reloaded
             var unit = (Obj_AI_Base)target;
             var damagelist = new List<int> { 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 110, 120, 130, 140, 150, 160, 170 };
             var dmg = damagelist[MyHero.Level - 1] + (MyHero.BaseAbilityDamage * 0.6);
-            if (Soilders.Count(obj => obj.Position.Distance(unit.Position) < 390) == 2)
-                return MyHero.CalcDamage(unit, Damage.DamageType.Magical, dmg) +
-                       (MyHero.CalcDamage(unit, Damage.DamageType.Magical, dmg) * 0.25);
+
+            var count = Soilders.Count(obj => obj.Position.Distance(unit.Position) < 390);
+            if (count > 1)
+                return MyHero.CalcDamage(unit, Damage.DamageType.Magical, dmg) + ((MyHero.CalcDamage(unit, Damage.DamageType.Magical, dmg) * 0.25) * (count - 1));
             return MyHero.CalcDamage(unit, Damage.DamageType.Magical, dmg);
         }
 
@@ -445,7 +456,7 @@ namespace DZDraven_Reloaded
                     var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, 800, MinionTypes.All, MinionTeam.NotAlly);
                     foreach (var minion in from minion in minions.Where(minion => minion.IsValidTarget() && minion.Name != "Beacon" && InSoldierAttackRange(minion))
                                            let t = (int)(MyHero.AttackCastDelay * 1000) - 100 + Game.Ping / 2 + 1000 * (int)MyHero.Distance(minion) / (int)MyProjectileSpeed()
-                                           let predHealth = HealthPrediction.GetHealthPrediction(minion, t, FarmDelay())
+                                           let predHealth = HealthPrediction.GetHealthPrediction(minion, t, FarmDelay(Menu.Item("azir_Misc_Farmdelay").GetValue<Slider>().Value))
                                            where minion.Team != GameObjectTeam.Neutral && predHealth > 0 &&
                                                  predHealth <= GetAzirAaSandwarriorDamage(minion)
                                            select minion)
@@ -528,7 +539,7 @@ namespace DZDraven_Reloaded
                 var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, 800, MinionTypes.All, MinionTeam.NotAlly);
                 foreach (var minion in from minion in minions
                     .Where(minion => minion.IsValidTarget() && minion.Name != "Beacon" && InSoldierAttackRange(minion))
-                                       let predHealth = HealthPrediction.LaneClearHealthPrediction(minion, (int)((MyHero.AttackDelay * 1000) * LaneClearWaitTimeMod), FarmDelay())
+                                       let predHealth = HealthPrediction.LaneClearHealthPrediction(minion, (int)((MyHero.AttackDelay * 1000) * LaneClearWaitTimeMod), FarmDelay(Menu.Item("azir_Misc_Farmdelay").GetValue<Slider>().Value))
                                        where predHealth >=
                                              GetAzirAaSandwarriorDamage(minion) + MyHero.GetAutoAttackDamage(minion, true) ||
                                              Math.Abs(predHealth - minion.Health) < float.Epsilon
@@ -573,7 +584,7 @@ namespace DZDraven_Reloaded
                     minion.IsValidTarget() && minion.Team != GameObjectTeam.Neutral &&
                     InSoldierAttackRange(minion) &&
                     HealthPrediction.LaneClearHealthPrediction(
-                    minion, (int)((MyHero.AttackDelay * 1000) * LaneClearWaitTimeMod), FarmDelay()) <= GetAzirAaSandwarriorDamage(minion));
+                    minion, (int)((MyHero.AttackDelay * 1000) * LaneClearWaitTimeMod), FarmDelay(Menu.Item("azir_Misc_Farmdelay").GetValue<Slider>().Value)) <= GetAzirAaSandwarriorDamage(minion));
             }
 
             return ObjectManager.Get<Obj_AI_Minion>()
@@ -633,11 +644,12 @@ namespace DZDraven_Reloaded
 
         private static int FarmDelay(int offset = 0)
         {
-            var ret = offset;
-            return Menu.Item("orb_Misc_Farmdelay").GetValue<Slider>().Value + ret;
+            if (offset != 0)
+                return offset;
+            return Menu.Item("orb_Misc_Farmdelay").GetValue<Slider>().Value;
         }
 
-        private static AttackableUnit GetBestHeroTarget()
+        private static Obj_AI_Hero GetBestHeroTarget()
         {
             Obj_AI_Hero killableEnemy = null;
             var hitsToKill = double.MaxValue;
@@ -684,7 +696,7 @@ namespace DZDraven_Reloaded
 
         private static void CheckAutoWindUp()
         {
-            if (!Menu.Item("orb_Misc_AutoWindUp").GetValue<bool>())
+            if (!Menu.Item("orb_Misc_AutoWindUp").GetValue<KeyBind>().Active)
             {
                 _windup = GetCurrentWindupTime();
                 return;
