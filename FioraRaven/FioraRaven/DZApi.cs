@@ -1,63 +1,73 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Input;
 using LeagueSharp;
 using LeagueSharp.Common;
-using SharpDX;
+
 namespace FioraRaven
 {
-    class DZApi
+    internal class DZApi
     {
-        private Dictionary<String, String> dSpellsName = new Dictionary<String, String>();
-        private Dictionary<int,String> itemNames = new  Dictionary<int,String>();
-        public static Obj_AI_Base player = ObjectManager.Player;
+        public static Obj_AI_Base Player = ObjectManager.Player;
+        private readonly Dictionary<String, String> dSpellsName = new Dictionary<String, String>();
+        private readonly Dictionary<int, String> itemNames = new Dictionary<int, String>();
         private string[] dSpellsNames;
+
         public DZApi()
         {
-            fillDSpellList();
+            FillDSpellList();
         }
-        public Dictionary<String,String> getDanSpellsName()
+
+        public Dictionary<String, String> GetDanSpellsName()
         {
             return dSpellsName;
         }
-         public Dictionary<int,String> getItemNames()
+
+        public Dictionary<int, String> GetItemNames()
         {
             return itemNames;
         }
-        public void addSpell(String name,String DisplayName)
+
+        public void AddSpell(String name, String displayName)
         {
-            dSpellsName.Add(name, DisplayName);
+            dSpellsName.Add(name, displayName);
         }
-        public void fillDSpellList()
+
+        public void FillDSpellList()
         {
-            addSpell("CurseofTheSadMummy", "Amumu R");
-            addSpell("InfernalGuardian", "Annie Tibbers");
-            addSpell("BlindMonkRKick", "Lee Sin R");
-            addSpell("GalioIdolOfDurand", "Galio R");
-            addSpell("syndrar", "Syndra R");
-            addSpell("BusterShot", "Trist R");
-            addSpell("UFSlash", "Malphite R");
-            addSpell("VeigarPrimordialBurst", "Veigar R");
-            addSpell("ViR", "Vi R");
-            addSpell("AlZaharNetherGrasp", "Malzahar R");
+            AddSpell("CurseofTheSadMummy", "Amumu R");
+            AddSpell("InfernalGuardian", "Annie Tibbers");
+            AddSpell("BlindMonkRKick", "Lee Sin R");
+            AddSpell("GalioIdolOfDurand", "Galio R");
+            AddSpell("syndrar", "Syndra R");
+            AddSpell("BusterShot", "Trist R");
+            AddSpell("UFSlash", "Malphite R");
+            AddSpell("VeigarPrimordialBurst", "Veigar R");
+            AddSpell("ViR", "Vi R");
+            AddSpell("AlZaharNetherGrasp", "Malzahar R");
         }
-        public float getEnH(Obj_AI_Hero target)
+
+        public float GetEnH(Obj_AI_Hero target)
         {
-            float h = (target.Health / target.MaxHealth) * 100;
+            var h = (target.Health / target.MaxHealth) * 100;
+
             return h;
         }
-        public float getManaPer()
+
+        public float GetManaPer()
         {
-            float mana = (player.Mana / player.MaxMana) * 100;
+            var mana = (Player.Mana / Player.MaxMana) * 100;
+
             return mana;
         }
-        public float getPlHPer()
+
+        public float GetPlHPer()
         {
-            float h = (player.Health / player.MaxHealth) * 100;
+            var h = (Player.Health / Player.MaxHealth) * 100;
+
             return h;
         }
-        public void useItem(int id, Obj_AI_Hero target = null)
+
+        public void UseItem(int id, Obj_AI_Hero target = null)
         {
             if (Items.HasItem(id) && Items.CanUseItem(id))
             {
