@@ -14,7 +14,7 @@ namespace PennyJinx
         public class ScopeSprite
         {
             private static Render.Sprite _sprite;
-            public static Texture _texture;
+            public static Texture Texture;
             /*private Vector2 TextPos
             {
                 get
@@ -34,18 +34,16 @@ namespace PennyJinx
             //Constructor
             public ScopeSprite()
             {
-                _texture = Texture.FromMemory(
-                    Drawing.Direct3DDevice,
-                    (byte[])new ImageConverter().ConvertTo(Resources.scope, typeof(byte[])), 180, 180, 0,
-                    Usage.None, Format.A1, Pool.Managed, Filter.Default, Filter.Default, 0);
-               // _sprite = new Sprite(Drawing.Direct3DDevice);
+                Texture = Texture.FromMemory(
+                    Drawing.Direct3DDevice, (byte[]) new ImageConverter().ConvertTo(Resources.scope, typeof(byte[])),
+                    180, 180, 0, Usage.None, Format.A1, Pool.Managed, Filter.Default, Filter.Default, 0);
+                // _sprite = new Sprite(Drawing.Direct3DDevice);
 
-                
-                _sprite = new Render.Sprite(_texture, new Vector2(0, 0))
+
+                _sprite = new Render.Sprite(Texture, new Vector2(0, 0))
                 {
                     VisibleCondition = s => Condition,
-                    PositionUpdate =
-                        () => Pos,
+                    PositionUpdate = () => Pos,
                     Scale = new Vector2(0.65f, 0.65f)
                 };
                 _sprite.Add();
@@ -74,16 +72,18 @@ namespace PennyJinx
                 get
                 {
                     //return ObjectManager.Player;
-                    var hList = ObjectManager.Get<Obj_AI_Hero>()
-                        .Where(
-                            hero =>
-                                hero.IsValidTarget(PennyJinx.R.Range) &&
-                                PennyJinx.R.GetDamage(hero) >=
-                                HealthPrediction.GetHealthPrediction(
-                                    hero, (int)(ObjectManager.Player.Distance(hero) / 2000f) * 1000))
-                        .OrderBy(ph => ph.HealthPercentage()).ToList();
-                    
-                  /**  var hList = ObjectManager.Get<Obj_AI_Hero>()
+                    var hList =
+                        ObjectManager.Get<Obj_AI_Hero>()
+                            .Where(
+                                hero =>
+                                    hero.IsValidTarget(PennyJinx.R.Range) &&
+                                    PennyJinx.R.GetDamage(hero) >=
+                                    HealthPrediction.GetHealthPrediction(
+                                        hero, (int) (ObjectManager.Player.Distance(hero) / 2000f) * 1000))
+                            .OrderBy(ph => ph.HealthPercentage())
+                            .ToList();
+
+                    /**  var hList = ObjectManager.Get<Obj_AI_Hero>()
                        .Where(
                            hero =>
                                hero.IsValidTarget() )
@@ -99,35 +99,35 @@ namespace PennyJinx
                 {
                     return
                         new Vector2(
-                            Drawing.WorldToScreen(Hero.Position).X - Hero.BoundingRadius*2 +
-                            Hero.BoundingRadius/2.5f, Drawing.WorldToScreen(Hero.Position).Y - Hero.BoundingRadius*2);
+                            Drawing.WorldToScreen(Hero.Position).X - Hero.BoundingRadius * 2 +
+                            Hero.BoundingRadius / 2.5f, Drawing.WorldToScreen(Hero.Position).Y - Hero.BoundingRadius * 2);
                 }
             }
 
             private static bool Condition
             {
-             //   get { return (Hero != null && PennyJinx.IsMenuEnabled("SpriteDraw") && PennyJinx.R.IsReady()); }
+                //   get { return (Hero != null && PennyJinx.IsMenuEnabled("SpriteDraw") && PennyJinx.R.IsReady()); }
                 get { return Hero != null; }
             }
 
-            private void CurrentDomainOnDomainUnload(object sender, EventArgs e)
+            private static void CurrentDomainOnDomainUnload(object sender, EventArgs e)
             {
                 _sprite.Dispose();
             }
 
-            private void Drawing_OnPostReset(EventArgs args)
+            private static void Drawing_OnPostReset(EventArgs args)
             {
-                                _sprite.OnPostReset();
+                _sprite.OnPostReset();
                 //_sprite.OnResetDevice();
             }
 
-            private void Drawing_OnPreReset(EventArgs args)
+            private static void Drawing_OnPreReset(EventArgs args)
             {
                 _sprite.OnPreReset();
                 //_sprite.OnLostDevice();
             }
 
-            private void Drawing_OnEndScene(EventArgs args)
+            private static void Drawing_OnEndScene(EventArgs args)
             {
                 /***
                 if (Drawing.Direct3DDevice == null || Drawing.Direct3DDevice.IsDisposed)
@@ -149,16 +149,6 @@ namespace PennyJinx
                 }
                  * */
             }
-            /**
-            private void DrawSprite()
-            {
-                _sprite.Begin();
-                var h = Hero;
-                //Game.PrintChat("Ahllo");
-                _sprite.Draw(_texture,new ColorBGRA(255, 255, 255, 0f),null, new Vector3(-Pos.X,-Pos.Y,0));
-                _sprite.End();
-            }
-             * */
         }
     }
 }

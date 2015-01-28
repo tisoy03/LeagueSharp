@@ -211,7 +211,10 @@ namespace PennyJinx
             }
 
             var numBuffs = UnitBuffs(Player);
-            if (numBuffs >= PennyJinx.Menu.Item("QSSMinBuffs").GetValue<Slider>().Value) Cleanse();
+            if (numBuffs >= PennyJinx.Menu.Item("QSSMinBuffs").GetValue<Slider>().Value)
+            {
+                Cleanse();
+            }
         }
 
         private static bool WillSpellKillMe(QssSpell spell)
@@ -239,18 +242,17 @@ namespace PennyJinx
 
             var theDamage = GetByChampName(spell.ChampName).GetDamageSpell(Player, spells).CalculatedDamage;
             BuffInstance theBuff = null;
-            foreach (var buff in Player.Buffs)
+            foreach (var buff in Player.Buffs.Where(buff => buff.Name == spell.SpellBuff)) 
             {
-                if (buff.Name == spell.SpellBuff)
-                {
-                    theBuff = buff;
-                }
+                theBuff = buff;
             }
+
             if (theBuff != null)
             {
                 var endTime = theBuff.EndTime;
                 var difference = endTime - Environment.TickCount; //TODO Factor Player Regen
             }
+
             return theDamage >= (Player.Health);
         }
 
@@ -364,10 +366,12 @@ namespace PennyJinx
             {
                 PennyJinx.UseItem(3140, Player); //QSS
             }
+
             if (Items.HasItem(3139))
             {
                 PennyJinx.UseItem(3139, Player); //Mercurial
             }
+
             if (Items.HasItem(3137))
             {
                 PennyJinx.UseItem(3137, Player); //Dervish Blade
