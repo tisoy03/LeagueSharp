@@ -36,34 +36,35 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="clipper_library">
-      <HintPath>C:\Users\Daniel\Desktop\L# Loader\System\clipper_library.dll</HintPath>
+      <HintPath>..\..\..\LeagueSharp\System\clipper_library.dll</HintPath>
     </Reference>
     <Reference Include="LeagueSharp">
-      <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\LeagueSharp\System\LeagueSharp.dll</HintPath>
+      <HintPath>..\..\..\LeagueSharp\System\LeagueSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="LeagueSharp.AppDomainManager">
+      <HintPath>..\..\..\LeagueSharp\System\LeagueSharp.AppDomainManager.dll</HintPath>
     </Reference>
     <Reference Include="LeagueSharp.Common">
-      <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\LeagueSharp\System\LeagueSharp.Common.dll</HintPath>
+      <HintPath>..\..\..\LeagueSharp\System\LeagueSharp.Common.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX">
-      <HintPath>C:\Users\Daniel\Desktop\L# Loader\System\SharpDX.dll</HintPath>
+      <HintPath>..\..\..\LeagueSharp\System\SharpDX.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.Direct3D9">
-      <HintPath>C:\Users\Daniel\Desktop\L# Loader\System\SharpDX.Direct3D9.dll</HintPath>
+      <HintPath>..\..\..\LeagueSharp\System\SharpDX.Direct3D9.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.Toolkit">
-      <HintPath>C:\Users\Daniel\Desktop\L# Loader\System\SharpDX.Toolkit.dll</HintPath>
+      <HintPath>..\..\..\LeagueSharp\System\SharpDX.Toolkit.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.Toolkit.Graphics">
-      <HintPath>C:\Users\Daniel\Desktop\L# Loader\System\SharpDX.Toolkit.Graphics.dll</HintPath>
+      <HintPath>..\..\..\LeagueSharp\System\SharpDX.Toolkit.Graphics.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.XInput">
+      <HintPath>..\..\..\LeagueSharp\System\SharpDX.XInput.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />

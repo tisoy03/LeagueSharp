@@ -1,117 +1,127 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
-using System.Windows.Input;
 using LeagueSharp;
 using LeagueSharp.Common;
-
+using SharpDX;
 using Color = System.Drawing.Color;
 
 namespace DZDraven
 {
-    class Program
+    internal class Program
     {
-        public static String charName = "Draven"; //Not Draven,Draaaaaaaaaaven
-        public static List<Reticle> reticleList = new List<Reticle>();
-        public static List<Obj_AI_Turret> towerPos = new List<Obj_AI_Turret>();
+        public static String CharName = "Draven"; //Not Draven,Draaaaaaaaaaven
+        public static List<Reticle> ReticleList = new List<Reticle>();
+        public static List<Obj_AI_Turret> TowerPos = new List<Obj_AI_Turret>();
         public static Orbwalking.Orbwalker Orbwalker;
-        public static Obj_AI_Base player = ObjectManager.Player;
+        public static Obj_AI_Base Player = ObjectManager.Player;
         public static Spell Q, W, E, R;
-        public static Menu menu;
-        public static bool isCatching = false;
-        public static float autoRange = 550f;
-        static void Main(string[] args)
+        public static Menu Menu;
+        public static bool IsCatching;
+        public static float AutoRange = 550f;
+
+        private static void Main(string[] args)
         {
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
         }
 
-        static void Game_OnGameLoad(EventArgs args)
+        private static void Game_OnGameLoad(EventArgs args)
         {
-            if (player.BaseSkinName != charName) { return; }
+            if (Player.BaseSkinName != CharName)
+            {
+                return;
+            }
             Game.PrintChat("DZDraven is Outdated! Please use DZDraven Reloaded!");
             return;
-            menu = new Menu("DZDraven", "DZdrvenMenu", true);
-            menu.AddSubMenu(new Menu("Orbwalker", "Orbwalker1"));
-            Orbwalker = new Orbwalking.Orbwalker(menu.SubMenu("Orbwalker1"));
+
+            Menu = new Menu("DZDraven", "DZdrvenMenu", true);
+            Menu.AddSubMenu(new Menu("Orbwalker", "Orbwalker1"));
+            Orbwalker = new Orbwalking.Orbwalker(Menu.SubMenu("Orbwalker1"));
             var ts = new Menu("Target Selector", "TargetSelector");
-            SimpleTs.AddToMenu(ts);
-            menu.AddSubMenu(ts);
-            menu.AddSubMenu(new Menu("[Draven]Skill Q", "QMenu"));
+            TargetSelector.AddToMenu(ts);
+            Menu.AddSubMenu(ts);
+            Menu.AddSubMenu(new Menu("[Draven]Skill Q", "QMenu"));
             //Q Menu
-            
-            menu.SubMenu("QMenu").AddItem(new MenuItem("QC", "Use Q Combo").SetValue(true));
-            
-            menu.SubMenu("QMenu").AddItem(new MenuItem("QM", "Use Q Mixed").SetValue(false));
-            menu.SubMenu("QMenu").AddItem(new MenuItem("QLH", "Use Q LastHit").SetValue(false));
-            
-            menu.SubMenu("QMenu").AddItem(new MenuItem("QLC", "Use Q LaneClear").SetValue(false));
-            menu.SubMenu("QMenu").AddItem(new MenuItem("QKs", "Use Q Ks").SetValue(true));
-            menu.SubMenu("QMenu").AddItem(new MenuItem("MaxQNum", "Max n of Q").SetValue(new Slider(2, 1, 4)));
-            menu.SubMenu("QMenu").AddItem(new MenuItem("SafeZone", "BETA SafeZone").SetValue(new Slider(100, 0, 400)));
-            menu.SubMenu("QMenu").AddItem(new MenuItem("QRadius", "Catch Radius").SetValue(new Slider(600, 200, 800)));      
-            menu.SubMenu("QMenu").AddItem(new MenuItem("QManaC", "Min Q Mana in Combo").SetValue(new Slider(10, 1, 100)));
-            menu.SubMenu("QMenu").AddItem(new MenuItem("QManaM", "Min Q Mana in Mixed").SetValue(new Slider(10, 1, 100)));
+
+            Menu.SubMenu("QMenu").AddItem(new MenuItem("QC", "Use Q Combo").SetValue(true));
+
+            Menu.SubMenu("QMenu").AddItem(new MenuItem("QM", "Use Q Mixed").SetValue(false));
+            Menu.SubMenu("QMenu").AddItem(new MenuItem("QLH", "Use Q LastHit").SetValue(false));
+
+            Menu.SubMenu("QMenu").AddItem(new MenuItem("QLC", "Use Q LaneClear").SetValue(false));
+            Menu.SubMenu("QMenu").AddItem(new MenuItem("QKs", "Use Q Ks").SetValue(true));
+            Menu.SubMenu("QMenu").AddItem(new MenuItem("MaxQNum", "Max n of Q").SetValue(new Slider(2, 1, 4)));
+            Menu.SubMenu("QMenu").AddItem(new MenuItem("SafeZone", "BETA SafeZone").SetValue(new Slider(100, 0, 400)));
+            Menu.SubMenu("QMenu").AddItem(new MenuItem("QRadius", "Catch Radius").SetValue(new Slider(600, 200, 800)));
+            Menu.SubMenu("QMenu").AddItem(new MenuItem("QManaC", "Min Q Mana in Combo").SetValue(new Slider(10, 1)));
+            Menu.SubMenu("QMenu").AddItem(new MenuItem("QManaM", "Min Q Mana in Mixed").SetValue(new Slider(10, 1)));
             //menu.SubMenu("QMenu").AddItem(new MenuItem("UseAARet", "Use AA while orbwalking to reticle").SetValue(true));
-            menu.SubMenu("QMenu").AddItem(new MenuItem("QRefresh", "Refresh List (if bug)").SetValue(new KeyBind("Z".ToCharArray()[0], KeyBindType.Press)));
+            Menu.SubMenu("QMenu")
+                .AddItem(
+                    new MenuItem("QRefresh", "Refresh List (if bug)").SetValue(
+                        new KeyBind("Z".ToCharArray()[0], KeyBindType.Press)));
 
-            menu.AddSubMenu(new Menu("[Draven]Skill W", "WMenu"));
-            
+            Menu.AddSubMenu(new Menu("[Draven]Skill W", "WMenu"));
+
             //W Menu
-            menu.SubMenu("WMenu").AddItem(new MenuItem("WC", "Use W Combo").SetValue(true));
-            menu.SubMenu("WMenu").AddItem(new MenuItem("WM", "Use W Mixed").SetValue(true));
-            menu.SubMenu("WMenu").AddItem(new MenuItem("WLH", "Use W LastHit").SetValue(false));
-            menu.SubMenu("WMenu").AddItem(new MenuItem("WLC", "Use W LaneClear").SetValue(false));
-            menu.SubMenu("WMenu").AddItem(new MenuItem("WManaC", "Min W Mana in Combo").SetValue(new Slider(60, 1, 100)));
-            menu.SubMenu("WMenu").AddItem(new MenuItem("WManaM", "Min W Mana in Mixed").SetValue(new Slider(60, 1, 100)));
+            Menu.SubMenu("WMenu").AddItem(new MenuItem("WC", "Use W Combo").SetValue(true));
+            Menu.SubMenu("WMenu").AddItem(new MenuItem("WM", "Use W Mixed").SetValue(true));
+            Menu.SubMenu("WMenu").AddItem(new MenuItem("WLH", "Use W LastHit").SetValue(false));
+            Menu.SubMenu("WMenu").AddItem(new MenuItem("WLC", "Use W LaneClear").SetValue(false));
+            Menu.SubMenu("WMenu").AddItem(new MenuItem("WManaC", "Min W Mana in Combo").SetValue(new Slider(60, 1)));
+            Menu.SubMenu("WMenu").AddItem(new MenuItem("WManaM", "Min W Mana in Mixed").SetValue(new Slider(60, 1)));
 
 
-            menu.AddSubMenu(new Menu("[Draven]Skill E", "EMenu"));
+            Menu.AddSubMenu(new Menu("[Draven]Skill E", "EMenu"));
 
             //E Menu
-            menu.SubMenu("EMenu").AddItem(new MenuItem("EC", "Use E Combo").SetValue(true));
-            menu.SubMenu("EMenu").AddItem(new MenuItem("EM", "Use E Mixed").SetValue(false));
-            menu.SubMenu("EMenu").AddItem(new MenuItem("EKs", "Use E Ks").SetValue(true));
-            menu.SubMenu("EMenu").AddItem(new MenuItem("EGapCloser", "Use E AntiGapcloser").SetValue(true));
-            menu.SubMenu("EMenu").AddItem(new MenuItem("EInterrupt", "Use E Interrupt").SetValue(true));
-            menu.SubMenu("EMenu").AddItem(new MenuItem("EManaC", "Min E Mana in Combo").SetValue(new Slider(20, 1, 100)));
-            menu.SubMenu("EMenu").AddItem(new MenuItem("EManaM", "Min R Mana in Mixed").SetValue(new Slider(20, 1, 100)));
+            Menu.SubMenu("EMenu").AddItem(new MenuItem("EC", "Use E Combo").SetValue(true));
+            Menu.SubMenu("EMenu").AddItem(new MenuItem("EM", "Use E Mixed").SetValue(false));
+            Menu.SubMenu("EMenu").AddItem(new MenuItem("EKs", "Use E Ks").SetValue(true));
+            Menu.SubMenu("EMenu").AddItem(new MenuItem("EGapCloser", "Use E AntiGapcloser").SetValue(true));
+            Menu.SubMenu("EMenu").AddItem(new MenuItem("EInterrupt", "Use E Interrupt").SetValue(true));
+            Menu.SubMenu("EMenu").AddItem(new MenuItem("EManaC", "Min E Mana in Combo").SetValue(new Slider(20, 1)));
+            Menu.SubMenu("EMenu").AddItem(new MenuItem("EManaM", "Min R Mana in Mixed").SetValue(new Slider(20, 1)));
 
 
-            menu.AddSubMenu(new Menu("[Draven]Skill R (2000un)", "RMenu"));
+            Menu.AddSubMenu(new Menu("[Draven]Skill R (2000un)", "RMenu"));
 
             //R Menu
-            menu.SubMenu("RMenu").AddItem(new MenuItem("RC", "Use R Combo").SetValue(false));
-            menu.SubMenu("RMenu").AddItem(new MenuItem("RM", "Use R Mixed").SetValue(false));
-            menu.SubMenu("RMenu").AddItem(new MenuItem("RKs", "Use R Ks").SetValue(true));
+            Menu.SubMenu("RMenu").AddItem(new MenuItem("RC", "Use R Combo").SetValue(false));
+            Menu.SubMenu("RMenu").AddItem(new MenuItem("RM", "Use R Mixed").SetValue(false));
+            Menu.SubMenu("RMenu").AddItem(new MenuItem("RKs", "Use R Ks").SetValue(true));
             //menu.SubMenu("RMenu").AddItem(new MenuItem("ManualR", "Manual R Cast").SetValue(new KeyBind("T".ToCharArray()[0],KeyBindType.Press)));
-            menu.SubMenu("RMenu").AddItem(new MenuItem("RManaC", "Min R Mana in Combo").SetValue(new Slider(5, 1, 100)));
-            menu.SubMenu("RMenu").AddItem(new MenuItem("RManaM", "Min R Mana in Mixed").SetValue(new Slider(5, 1, 100)));
-            
+            Menu.SubMenu("RMenu").AddItem(new MenuItem("RManaC", "Min R Mana in Combo").SetValue(new Slider(5, 1)));
+            Menu.SubMenu("RMenu").AddItem(new MenuItem("RManaM", "Min R Mana in Mixed").SetValue(new Slider(5, 1)));
+
             //Axe Catcher
-            menu.AddSubMenu(new Menu("[Draven]Axe Catcher", "AxeCatcher"));
+            Menu.AddSubMenu(new Menu("[Draven]Axe Catcher", "AxeCatcher"));
 
-            menu.SubMenu("AxeCatcher").AddItem(new MenuItem("ACC", "AxeC Combo").SetValue(true));
-            menu.SubMenu("AxeCatcher").AddItem(new MenuItem("ACM", "AxeC Mixed").SetValue(true));
-            menu.SubMenu("AxeCatcher").AddItem(new MenuItem("ACLH", "Axe CLastHit").SetValue(true));
-            menu.SubMenu("AxeCatcher").AddItem(new MenuItem("ACLC", "AxeC LaneClear").SetValue(true));
+            Menu.SubMenu("AxeCatcher").AddItem(new MenuItem("ACC", "AxeC Combo").SetValue(true));
+            Menu.SubMenu("AxeCatcher").AddItem(new MenuItem("ACM", "AxeC Mixed").SetValue(true));
+            Menu.SubMenu("AxeCatcher").AddItem(new MenuItem("ACLH", "Axe CLastHit").SetValue(true));
+            Menu.SubMenu("AxeCatcher").AddItem(new MenuItem("ACLC", "AxeC LaneClear").SetValue(true));
 
-            menu.AddSubMenu(new Menu("[Draven]Items", "Items"));
+            Menu.AddSubMenu(new Menu("[Draven]Items", "Items"));
 
             //Items Menu
-            menu.SubMenu("Items").AddItem(new MenuItem("BOTRK", "Use BOTRK").SetValue(true));
-            menu.SubMenu("Items").AddItem(new MenuItem("Youmuu", "Use Youmuu").SetValue(true));
-            menu.SubMenu("Items").AddItem(new MenuItem("SOTD", "Use SOTD if Oneshot").SetValue(true));
+            Menu.SubMenu("Items").AddItem(new MenuItem("BOTRK", "Use BOTRK").SetValue(true));
+            Menu.SubMenu("Items").AddItem(new MenuItem("Youmuu", "Use Youmuu").SetValue(true));
+            Menu.SubMenu("Items").AddItem(new MenuItem("SOTD", "Use SOTD if Oneshot").SetValue(true));
 
 
-            menu.AddSubMenu(new Menu("[Draven]Drawing", "Drawing"));
+            Menu.AddSubMenu(new Menu("[Draven]Drawing", "Drawing"));
 
             //Drawings Menu
-            menu.SubMenu("Drawing").AddItem(new MenuItem("DrawCRange", "Draw CatchRange").SetValue(new Circle(true,  Color.FromArgb(80, 255, 0, 255))));
-            menu.SubMenu("Drawing").AddItem(new MenuItem("DrawRet", "Draw Reticles").SetValue(new Circle(true,Color.Yellow)));
-            
-            
-            menu.AddToMainMenu();
+            Menu.SubMenu("Drawing")
+                .AddItem(
+                    new MenuItem("DrawCRange", "Draw CatchRange").SetValue(
+                        new Circle(true, Color.FromArgb(80, 255, 0, 255))));
+            Menu.SubMenu("Drawing")
+                .AddItem(new MenuItem("DrawRet", "Draw Reticles").SetValue(new Circle(true, Color.Yellow)));
+
+
+            Menu.AddToMainMenu();
             Game.PrintChat("DZDraven 1.23 Loaded.");
             Q = new Spell(SpellSlot.Q);
             W = new Spell(SpellSlot.W);
@@ -119,360 +129,426 @@ namespace DZDraven
             R = new Spell(SpellSlot.R, 20000);
             E.SetSkillshot(250f, 130f, 1400f, false, SkillshotType.SkillshotLine);
             R.SetSkillshot(400f, 160f, 2000f, false, SkillshotType.SkillshotLine);
-            compileTowerArray();
+            CompileTowerArray();
             GameObject.OnCreate += OnCreateObject;
             GameObject.OnDelete += OnDeleteObject;
             AntiGapcloser.OnEnemyGapcloser += OnGapcloser;
             Interrupter.OnPossibleToInterrupt += OnInterruptCreate;
             Game.OnGameUpdate += Game_OnGameUpdate;
-            Orbwalking.AfterAttack += Orbwalking_AfterAttack;
+            Orbwalking.AfterAttack += OrbwalkingAfterAttack;
             Drawing.OnDraw += Drawing_OnDraw;
-            
         }
 
-        static void Drawing_OnDraw(EventArgs args)
+        private static void Drawing_OnDraw(EventArgs args)
         {
-            var QRadius = menu.Item("QRadius").GetValue<Slider>().Value;
-            var drawCatch = menu.Item("DrawCRange").GetValue<Circle>();
-            var drawRet = menu.Item("DrawRet").GetValue<Circle>();
-            if(drawCatch.Active)
+            var qRadius = Menu.Item("QRadius").GetValue<Slider>().Value;
+            var drawCatch = Menu.Item("DrawCRange").GetValue<Circle>();
+            var drawRet = Menu.Item("DrawRet").GetValue<Circle>();
+            if (drawCatch.Active)
             {
-                Drawing.DrawCircle(Game.CursorPos, QRadius, drawCatch.Color);
+                Drawing.DrawCircle(Game.CursorPos, qRadius, drawCatch.Color);
             }
-            if (drawRet.Active)
+
+            if (!drawRet.Active)
             {
-                foreach(Reticle r in reticleList)
-                {
-                    if(r.getObj().IsValid)
-                    {
-                        Drawing.DrawCircle(r.getPosition(), 100 , drawRet.Color);
-                    }
-                }
-                
+                return;
+            }
+
+            foreach (var r in ReticleList.Where(r => r.GetObj().IsValid))
+            {
+                Drawing.DrawCircle(r.GetPosition(), 100, drawRet.Color);
             }
         }
 
-        static void Orbwalking_AfterAttack(Obj_AI_Base unit, Obj_AI_Base target)
+        private static void OrbwalkingAfterAttack(AttackableUnit unit, AttackableUnit target)
         {
-            if (!unit.IsMe) { return; }
-            
-            var tar = (Obj_AI_Hero)target;
+            if (!unit.IsMe)
+            {
+                return;
+            }
+
+            var tar = (Obj_AI_Hero) target;
             switch (Orbwalker.ActiveMode)
             {
                 case Orbwalking.OrbwalkingMode.Combo:
-                    if (isEn("QC")) { CastQ(); }
-                    if (isEn("WC") && (ObjectManager.Player.Buffs.FirstOrDefault(
-                        buff => buff.Name == "dravenfurybuff" || buff.Name == "DravenFury") == null))
+                    if (IsEn("QC"))
                     {
-                        var WManaCombo = menu.Item("WManaC").GetValue<Slider>().Value;
-                        if (getManaPer() >= WManaCombo) { W.Cast(); }
+                        CastQ();
                     }
-                    //Botrk
-                    if (isEn("BOTRK"))
+
+                    if (IsEn("WC") &&
+                        (ObjectManager.Player.Buffs.FirstOrDefault(
+                            buff => buff.Name == "dravenfurybuff" || buff.Name == "DravenFury") == null))
                     {
-                        useItem(3153, (Obj_AI_Hero)target);
-                    }
-                    //Youmuu
-                    if (isEn("Youmuu"))
-                    {
-                        useItem(3142);
-                    }
-                    //SOTD
-                    if (isEn("SOTD"))
-                    {
-                        var hasIE = Items.HasItem(3031);
-                        var coeff = hasIE ? 2.5 : 2.0;
-                        if ((player.GetAutoAttackDamage(target) * coeff * 3 >= target.Health))
+                        var wManaCombo = Menu.Item("WManaC").GetValue<Slider>().Value;
+                        if (GetManaPer() >= wManaCombo)
                         {
-                            useItem(3131);
-                            Orbwalker.ForceTarget(target);
+                            W.Cast();
+                        }
+                    }
+
+                    //Botrk
+                    if (IsEn("BOTRK"))
+                    {
+                        UseItem(3153, (Obj_AI_Hero) target);
+                    }
+
+                    //Youmuu
+                    if (IsEn("Youmuu"))
+                    {
+                        UseItem(3142);
+                    }
+
+                    //SOTD
+                    if (IsEn("SOTD"))
+                    {
+                        var hasIe = Items.HasItem(3031);
+                        var coeff = hasIe ? 2.5 : 2.0;
+                        if ((Player.GetAutoAttackDamage(tar) * coeff * 3 >= target.Health))
+                        {
+                            UseItem(3131);
+                            Orbwalker.ForceTarget(tar);
                         }
                     }
                     break;
                 case Orbwalking.OrbwalkingMode.Mixed:
-                    if (isEn("QM")) { CastQ(); }
-                    if (isEn("WM") && (ObjectManager.Player.Buffs.FirstOrDefault(
-                        buff => buff.Name == "dravenfurybuff" || buff.Name == "DravenFury") == null))
+                    if (IsEn("QM"))
                     {
-                        var WManaMix = menu.Item("WManaM").GetValue<Slider>().Value;
-                        if (getManaPer() >= WManaMix) { W.Cast(); }
+                        CastQ();
                     }
-                   
+
+                    if (IsEn("WM") &&
+                        (ObjectManager.Player.Buffs.FirstOrDefault(
+                            buff => buff.Name == "dravenfurybuff" || buff.Name == "DravenFury") == null))
+                    {
+                        var wManaMix = Menu.Item("WManaM").GetValue<Slider>().Value;
+                        if (GetManaPer() >= wManaMix)
+                        {
+                            W.Cast();
+                        }
+                    }
                     break;
 
                 case Orbwalking.OrbwalkingMode.LastHit:
-                    if (isEn("QLH")) { CastQ(); }
-                    if (isEn("WLH") && (ObjectManager.Player.Buffs.FirstOrDefault(
-                        buff => buff.Name == "dravenfurybuff" || buff.Name == "DravenFury") == null)) { W.Cast(); }
-                    
+                    if (IsEn("QLH"))
+                    {
+                        CastQ();
+                    }
+
+                    if (IsEn("WLH") &&
+                        (ObjectManager.Player.Buffs.FirstOrDefault(
+                            buff => buff.Name == "dravenfurybuff" || buff.Name == "DravenFury") == null))
+                    {
+                        W.Cast();
+                    }
                     break;
 
                 case Orbwalking.OrbwalkingMode.LaneClear:
-                    if (isEn("WLC") && ( ObjectManager.Player.Buffs.FirstOrDefault(
-                        buff => buff.Name == "dravenfurybuff" || buff.Name == "DravenFury") == null)) { W.Cast(); }
-                    if (isEn("QLC")) { CastQ(); }
-                    
+                    if (IsEn("WLC") &&
+                        (ObjectManager.Player.Buffs.FirstOrDefault(
+                            buff => buff.Name == "dravenfurybuff" || buff.Name == "DravenFury") == null))
+                    {
+                        W.Cast();
+                    }
+
+                    if (IsEn("QLC"))
+                    {
+                        CastQ();
+                    }
                     break;
                 default:
                     return;
             }
         }
+
+/*
         private static bool PlayerInTurretRange()
         {
-            foreach(var val in towerPos)
+            foreach (var val in TowerPos.Where(val => val.Health == 0)) 
             {
-                if(val.Health == 0)
-                {
-                    towerPos.Remove(val);
-                }
+                TowerPos.Remove(val);
             }
-            foreach (var val in towerPos)
-            {
-                if(player.Distance(val)< 975f)
-                {
-                    return true;
-                }
-            }
-            return false;
+
+            return TowerPos.Any(val => Player.Distance(val) < 975f);
         }
+*/
+
         private static bool RetInTurretRange(Vector3 retPosition)
         {
-            foreach (var val in towerPos)
+            foreach (var val in TowerPos.Where(val => val.Health == 0))
             {
-                if (val.Health == 0)
-                {
-                    towerPos.Remove(val);
-                }
+                TowerPos.Remove(val);
             }
-            foreach (var val in towerPos)
-            {
-                if (Vector3.Distance(retPosition,val.Position) < 975f)
-                {
-                    return true;
-                }
-            }
-            return false;
+
+            return TowerPos.Any(val => Vector3.Distance(retPosition, val.Position) < 975f);
         }
-        private static void compileTowerArray()
+
+        private static void CompileTowerArray()
         {
-            foreach(var tower in ObjectManager.Get<Obj_AI_Turret>().Where(tower=>tower.IsEnemy))
+            foreach (var tower in ObjectManager.Get<Obj_AI_Turret>().Where(tower => tower.IsEnemy))
             {
-                towerPos.Add(tower);
+                TowerPos.Add(tower);
             }
         }
+
         private static bool IsZoneSafe(Vector3 v, float dist)
         {
-            foreach(var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.IsEnemy))
-            {
-                if(Vector3.Distance(enemy.Position,v)< dist && !enemy.IsDead && enemy!=null)
-                {
-                    return false;
-                }
-            }
-            return true;
+            return
+                ObjectManager.Get<Obj_AI_Hero>()
+                    .Where(enemy => enemy.IsEnemy)
+                    .All(enemy => !(Vector3.Distance(enemy.Position, v) < dist) || enemy.IsDead);
         }
-        private static Obj_AI_Hero ClosestHero(float range)
+
+/*
+        private static Obj_AI_Hero ClosestHero()
         {
-             Obj_AI_Hero clhero = null;
-            foreach(var hero in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsEnemy))
-            {
-                if(!hero.IsDead && hero.IsVisible && player.Distance(hero)<player.Distance(clhero))
-                {
-                    clhero = hero;
-                }
+             Obj_AI_Hero[] clhero = { null };
+            foreach (var hero in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsEnemy).Where(hero => !hero.IsDead && hero.IsVisible && Player.Distance(hero)<Player.Distance(clhero[0]))) {
+                clhero[0] = hero;
             }
-            return clhero;
+            return clhero[0];
         }
+*/
+
         private static void Game_OnGameUpdate(EventArgs args)
         {
-            var safeZone = menu.Item("SafeZone").GetValue<Slider>().Value;
-            var target = SimpleTs.GetTarget(550f, SimpleTs.DamageType.Physical);
-            var ETarget = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Physical);
-            var RTarget = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Physical);
-            //if (target == null) return;
-            
-                foreach(var hero in ObjectManager.Get<Obj_AI_Hero>().Where(hero=>hero.IsEnemy))
+            var safeZone = Menu.Item("SafeZone").GetValue<Slider>().Value;
+            var eTarget = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Physical);
+            var rTarget = TargetSelector.GetTarget(R.Range, TargetSelector.DamageType.Physical);
+
+            foreach (var hero in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsEnemy))
+            {
+                if (IsEn("EKs"))
                 {
-                    if (isEn("EKs"))
+                    if (E.GetHealthPrediction(hero) <= 0)
                     {
-                        var ePred = E.GetPrediction(hero);
-                        if (E.GetHealthPrediction(hero) <= 0)
-                        {
-                            E.Cast(hero);
-                            break;
-                        }
-                    }
-                    if(isEn("QKs"))
-                    {
-                        if(Q.GetDamage(hero)+player.GetAutoAttackDamage(hero)>=hero.Health)
-                        {
-                            if(GetQNumber()<1){Q.Cast();}
-                            Orbwalker.SetAttacks(true);
-                            Orbwalker.ForceTarget(hero);
-                            break;
-                        }
-                    }
-                    if (isEn("RKs"))
-                    {
-                        var RPred = R.GetPrediction(hero);
-                        if (R.GetHealthPrediction(hero)<=0 && player.Distance(hero)<=2000f)
-                        {
-                            R.Cast(hero);
-                            break;
-                        }
+                        E.Cast(hero);
+                        break;
                     }
                 }
-            if(menu.Item("QRefresh").GetValue<KeyBind>().Active)
-            {
-                reticleList.Clear();
+
+                if (IsEn("QKs"))
+                {
+                    if (Q.GetDamage(hero) + Player.GetAutoAttackDamage(hero) >= hero.Health)
+                    {
+                        if (GetQNumber() < 1)
+                        {
+                            Q.Cast();
+                        }
+                        Orbwalker.SetAttack(true);
+                        Orbwalker.ForceTarget(hero);
+                        break;
+                    }
+                }
+
+                if (IsEn("RKs"))
+                {
+                    if (!(R.GetHealthPrediction(hero) <= 0) || !(Player.Distance(hero) <= 2000f))
+                    {
+                        continue;
+                    }
+
+                    R.Cast(hero);
+                    break;
+                }
             }
+
+            if (Menu.Item("QRefresh").GetValue<KeyBind>().Active)
+            {
+                ReticleList.Clear();
+            }
+
             switch (Orbwalker.ActiveMode)
-            {  
+            {
                 case Orbwalking.OrbwalkingMode.Combo:
-                    
-                    if (isEn("EC")) { CastE(ETarget);}
-                    if (isEn("RC")) { CastR(RTarget); }
-                    if (isEn("ACC")) {  OrbWalkToReticle(safeZone, 100);  }
-                    
+
+                    if (IsEn("EC"))
+                    {
+                        CastE(eTarget);
+                    }
+
+                    if (IsEn("RC"))
+                    {
+                        CastR(rTarget);
+                    }
+
+                    if (IsEn("ACC"))
+                    {
+                        OrbWalkToReticle(safeZone, 100);
+                    }
                     break;
                 case Orbwalking.OrbwalkingMode.Mixed:
-                    if (isEn("EM")) { CastE(ETarget); }
-                    if (isEn("RM")) { CastR(RTarget); }
-                    if (isEn("ACM")) {OrbWalkToReticle(safeZone, 100);  }
+                    if (IsEn("EM"))
+                    {
+                        CastE(eTarget);
+                    }
+
+                    if (IsEn("RM"))
+                    {
+                        CastR(rTarget);
+                    }
+
+                    if (IsEn("ACM"))
+                    {
+                        OrbWalkToReticle(safeZone, 100);
+                    }
                     break;
                 case Orbwalking.OrbwalkingMode.LastHit:
-                    if (isEn("ACLH")) {  OrbWalkToReticle(safeZone, 100);  }
+                    if (IsEn("ACLH"))
+                    {
+                        OrbWalkToReticle(safeZone, 100);
+                    }
                     break;
                 case Orbwalking.OrbwalkingMode.LaneClear:
-                    if (isEn("ACLC")) { OrbWalkToReticle(safeZone, 100);  }
-                    break;
-                default:
+                    if (IsEn("ACLC"))
+                    {
+                        OrbWalkToReticle(safeZone, 100);
+                    }
                     break;
             }
         }
-        public static void useItem(int id, Obj_AI_Hero target = null)
+
+        public static void UseItem(int id, Obj_AI_Hero target = null)
         {
             if (Items.HasItem(id) && Items.CanUseItem(id))
             {
                 Items.UseItem(id, target);
             }
         }
+
         private static void OnCreateObject(GameObject sender, EventArgs args)
         {
-            if (!sender.Name.Contains("Q_reticle_self")) { return; }
-            reticleList.Add(new Reticle(sender, Game.Time, sender.Position,Game.Time + 1.20, sender.NetworkId));
+            if (!sender.Name.Contains("Q_reticle_self"))
+            {
+                return;
+            }
+
+            ReticleList.Add(new Reticle(sender, Game.Time, sender.Position, Game.Time + 1.20, sender.NetworkId));
         }
 
         private static void OnDeleteObject(GameObject sender, EventArgs args)
         {
-            if (!sender.Name.Contains("Q_reticle_self")) { return; }
-            foreach(Reticle ret in reticleList)
+            if (!sender.Name.Contains("Q_reticle_self"))
             {
-                if (player.ServerPosition.Distance(ret.getPosition()) <= 100 && ret.getNetworkId() == sender.NetworkId)
+                return;
+            }
+
+            foreach (var ret in ReticleList)
+            {
+                if (Player.ServerPosition.Distance(ret.GetPosition()) <= 100 && ret.GetNetworkId() == sender.NetworkId)
                 {
-                    isCatching = false;
+                    IsCatching = false;
                 }
-                if(ret.getNetworkId() == sender.NetworkId){reticleList.Remove(ret);}           
+
+                if (ret.GetNetworkId() == sender.NetworkId)
+                {
+                    ReticleList.Remove(ret);
+                }
             }
         }
 
         private static void OnGapcloser(ActiveGapcloser gapcloser)
         {
-            if (!isEn("EGapCloser")) { return; }
-            if (gapcloser.End.Distance(player.ServerPosition) <= 50f)
+            if (!IsEn("EGapCloser"))
             {
-                var EPred = E.GetPrediction(gapcloser.Sender);
-                if(EPred.Hitchance>=HitChance.Medium)
-                {
-                    E.Cast(EPred.CastPosition);
-                }
+                return;
+            }
+
+            if (!(gapcloser.End.Distance(Player.ServerPosition) <= 50f))
+            {
+                return;
+            }
+
+            var ePred = E.GetPrediction(gapcloser.Sender);
+            if (ePred.Hitchance >= HitChance.Medium)
+            {
+                E.Cast(ePred.CastPosition);
             }
         }
 
         private static void OnInterruptCreate(Obj_AI_Base unit, InterruptableSpell spell)
         {
-            if (!isEn("EInterrupt")) { return; }
-            var EPred = E.GetPrediction(unit);
-            if (EPred.Hitchance >= HitChance.Medium)
+            if (!IsEn("EInterrupt"))
             {
-                E.Cast(EPred.CastPosition);
+                return;
+            }
+
+            var ePred = E.GetPrediction(unit);
+            if (ePred.Hitchance >= HitChance.Medium)
+            {
+                E.Cast(ePred.CastPosition);
             }
         }
+
+/*
         private static bool IsInStandRange()
         {
-            return (Vector3.Distance(Game.CursorPos,player.Position)<220);
+            return (Vector3.Distance(Game.CursorPos,Player.Position)<220);
         }
-        /// <summary>
-        /// Orbwalker to catch the axes.
-        /// </summary>
-        /// <param name="SafeZone">Heroes safe zone,def 100</param>
-        /// <param name="RetSafeZone">Reticle safe zone, def 100</param>
-        private static void OrbWalkToReticle(int SafeZone,int RetSafeZone)
-        {
-            bool toggle = isEn("UseAARet");
-            var target = ClosestHero(900f);
-            Reticle ClosestRet = null;
-            var QRadius = menu.Item("QRadius").GetValue<Slider>().Value;
-            foreach(Reticle r in reticleList)
-            {
-                if (!r.getObj().IsValid) { reticleList.Remove(r); }
-            }
-            if(reticleList.Count >0)
-            {
+*/
 
-                float closestDist = float.MaxValue;
-                
-                foreach(Reticle r in reticleList)
-                {
-                        if(r.getPosition().Distance(Game.CursorPos)<=QRadius && player.Distance(r.getPosition())< closestDist)
-                        {
-                            if (IsZoneSafe(r.getPosition(), RetSafeZone) && IsZoneSafe(player.Position,SafeZone) )
-                            {
-                                ClosestRet = r;
-                                closestDist = player.Distance(r.getPosition());
-                            }
-                        }
-                }
-            }
-            
-            if(ClosestRet!=null && !RetInTurretRange(ClosestRet.getPosition()))
-            {
-                float myHitbox = 65;
-                float QDist = Vector2.Distance(ClosestRet.getPosition().To2D(), player.ServerPosition.To2D())-myHitbox;
-                float QDist1 = player.GetPath(ClosestRet.getPosition()).ToList().To2D().PathLength();
-                bool CanReachRet = ( QDist1 / player.MoveSpeed+Game.Time)<(ClosestRet.getEndTime());
-                bool CanReachRetWBonus  = ( QDist1 / (player.MoveSpeed+(player.MoveSpeed*(getMoveSpeedBonusW()/100))) + Game.Time)<(ClosestRet.getEndTime());
-                bool WNeeded = false;
-                if (CanReachRetWBonus && !CanReachRet)
-                {
-                    W.Cast();
-                    WNeeded = true;
-                    
-                }
-                if((CanReachRet || WNeeded))
-                {
-                    WNeeded = false;
-                    
-                    if (player.Distance(ClosestRet.getPosition()) >= 100)
-                    {
-                        if (ClosestRet.getPosition() != Game.CursorPos)
-                        {
-                            Orbwalker.SetOrbwalkingPoint(ClosestRet.getPosition());
-                        }
-                        else
-                        {
-                            Orbwalker.SetOrbwalkingPoint(Game.CursorPos);
-                        }
-                    }
-                    
-                    Console.WriteLine("Orbwalking to " + ClosestRet.getPosition().ToString());
-                }
-                
-            }
-        }
-        public static int getMoveSpeedBonusW()
+        /// <summary>
+        ///     Orbwalker to catch the axes.
+        /// </summary>
+        /// <param name="safeZone">Heroes safe zone,def 100</param>
+        /// <param name="retSafeZone">Reticle safe zone, def 100</param>
+        private static void OrbWalkToReticle(int safeZone, int retSafeZone)
         {
-            switch(W.Level)
+            Reticle closestRet = null;
+            var qRadius = Menu.Item("QRadius").GetValue<Slider>().Value;
+            foreach (var r in ReticleList.Where(r => !r.GetObj().IsValid))
+            {
+                ReticleList.Remove(r);
+            }
+
+            if (ReticleList.Count > 0)
+            {
+                float[] closestDist = { float.MaxValue };
+
+                foreach (var r in
+                    ReticleList.Where(
+                        r =>
+                            r.GetPosition().Distance(Game.CursorPos) <= qRadius &&
+                            Player.Distance(r.GetPosition()) < closestDist[0])
+                        .Where(r => IsZoneSafe(r.GetPosition(), retSafeZone) && IsZoneSafe(Player.Position, safeZone)))
+                {
+                    closestRet = r;
+                    closestDist[0] = Player.Distance(r.GetPosition());
+                }
+            }
+
+            if (closestRet == null || RetInTurretRange(closestRet.GetPosition()))
+            {
+                return;
+            }
+
+            var qDist1 = Player.GetPath(closestRet.GetPosition()).ToList().To2D().PathLength();
+            var canReachRet = (qDist1 / Player.MoveSpeed + Game.Time) < (closestRet.GetEndTime());
+            var canReachRetWBonus = (qDist1 / (Player.MoveSpeed + (Player.MoveSpeed * (GetMoveSpeedBonusW() / 100))) +
+                                     Game.Time) < (closestRet.GetEndTime());
+            var wNeeded = false;
+            if (canReachRetWBonus && !canReachRet)
+            {
+                W.Cast();
+                wNeeded = true;
+            }
+            if ((!canReachRet && !wNeeded))
+            {
+                return;
+            }
+
+            if (Player.Distance(closestRet.GetPosition()) >= 100)
+            {
+                Orbwalker.SetOrbwalkingPoint(
+                    closestRet.GetPosition() != Game.CursorPos ? closestRet.GetPosition() : Game.CursorPos);
+            }
+
+            Console.WriteLine("Orbwalking to " + closestRet.GetPosition());
+        }
+
+        public static int GetMoveSpeedBonusW()
+        {
+            switch (W.Level)
             {
                 case 1:
                     return 40;
@@ -488,78 +564,99 @@ namespace DZDraven
                     return 0;
             }
         }
+
         public static void CastE(Obj_AI_Base unit)
         {
-            var EPrediction = E.GetPrediction(unit);
             switch (Orbwalker.ActiveMode)
             {
                 case Orbwalking.OrbwalkingMode.Combo:
-                    var EManaCombo = menu.Item("EManaC").GetValue<Slider>().Value;
-                    if ((getManaPer() >= EManaCombo) ) { E.Cast(unit); }
+                    var eManaCombo = Menu.Item("EManaC").GetValue<Slider>().Value;
+                    if ((GetManaPer() >= eManaCombo))
+                    {
+                        E.Cast(unit);
+                    }
                     break;
                 case Orbwalking.OrbwalkingMode.Mixed:
-                    var EManaMix = menu.Item("EManaM").GetValue<Slider>().Value;
-                    if ((getManaPer() >= EManaMix) ) { E.Cast(unit); }
-                    break;
-                default:
+                    var eManaMix = Menu.Item("EManaM").GetValue<Slider>().Value;
+                    if ((GetManaPer() >= eManaMix))
+                    {
+                        E.Cast(unit);
+                    }
                     break;
             }
         }
+
         public static void CastR(Obj_AI_Base unit)
         {
-            var RPrediction = R.GetPrediction(unit);
             switch (Orbwalker.ActiveMode)
             {
                 case Orbwalking.OrbwalkingMode.Combo:
-                    var RManaCombo = menu.Item("RManaC").GetValue<Slider>().Value;
-                    if ((getManaPer() >= RManaCombo) && player.Distance(unit) < 2000f) { R.Cast(unit); }
+                    var rManaCombo = Menu.Item("RManaC").GetValue<Slider>().Value;
+                    if ((GetManaPer() >= rManaCombo) && Player.Distance(unit) < 2000f)
+                    {
+                        R.Cast(unit);
+                    }
                     break;
                 case Orbwalking.OrbwalkingMode.Mixed:
-                    var RManaMix = menu.Item("RManaM").GetValue<Slider>().Value;
-                    if ((getManaPer() >= RManaMix) &&  player.Distance(unit) < 2000f) { R.Cast(unit); }
-                    break;
-                default:
-                    
+                    var rManaMix = Menu.Item("RManaM").GetValue<Slider>().Value;
+                    if ((GetManaPer() >= rManaMix) && Player.Distance(unit) < 2000f)
+                    {
+                        R.Cast(unit);
+                    }
                     break;
             }
         }
+
         public static void CastQ()
         {
             var qNumberOnPlayer = GetQNumber();
-            if (reticleList.Count + 1 > menu.Item("MaxQNum").GetValue<Slider>().Value) { return; }
-            if (qNumberOnPlayer > 2) { return; }
+            if (ReticleList.Count + 1 > Menu.Item("MaxQNum").GetValue<Slider>().Value)
+            {
+                return;
+            }
+
+            if (qNumberOnPlayer > 2)
+            {
+                return;
+            }
+
             switch (Orbwalker.ActiveMode)
             {
                 case Orbwalking.OrbwalkingMode.Combo:
-                    var QManaCombo = menu.Item("QManaC").GetValue<Slider>().Value;
-                    if (getManaPer() >= QManaCombo) { Q.Cast(); }
+                    var qManaCombo = Menu.Item("QManaC").GetValue<Slider>().Value;
+                    if (GetManaPer() >= qManaCombo)
+                    {
+                        Q.Cast();
+                    }
                     break;
                 case Orbwalking.OrbwalkingMode.Mixed:
-                    var QManaMix = menu.Item("QManaM").GetValue<Slider>().Value;
-                    if (getManaPer() >= QManaMix) { Q.Cast(); }
+                    var qManaMix = Menu.Item("QManaM").GetValue<Slider>().Value;
+                    if (GetManaPer() >= qManaMix)
+                    {
+                        Q.Cast();
+                    }
                     break;
                 default:
                     Q.Cast();
                     break;
             }
         }
+
         public static int GetQNumber()
         {
             var buff = ObjectManager.Player.Buffs.FirstOrDefault(buff1 => buff1.Name.Equals("dravenspinningattack"));
+
             return buff != null ? buff.Count : 0;
         }
-        static bool isEn(String opt)
+
+        private static bool IsEn(String opt)
         {
-            return menu.Item(opt).GetValue<bool>();
+            return Menu.Item(opt).GetValue<bool>();
         }
-        public static float getManaPer()
+
+        public static float GetManaPer()
         {
-            float mana = (player.Mana / player.MaxMana) * 100;
-            return mana;
-        }
-        static bool isEnK(String opt)
-        {
-            return menu.Item(opt).GetValue<KeyBind>().Active;
+            return (Player.Mana / Player.MaxMana) * 100;
         }
     }
 }

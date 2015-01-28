@@ -1,51 +1,54 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Input;
-using LeagueSharp;
+﻿using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
 
 namespace DZDraven
 {
-    class Reticle
+    internal class Reticle
     {
-        private GameObject obj;
-        private double CreationTime;
-        private double EndTime;
-        private int NetworkId;
-        private Vector3 posi;
-        public Reticle(GameObject retObject,double CreatT,Vector3 position,double EndT,int NId)
+        private readonly double _creationTime;
+        private readonly double _endTime;
+        private readonly int _networkId;
+        private readonly GameObject obj;
+        private readonly Vector3 posi;
+
+        public Reticle(GameObject retObject, double creatT, Vector3 position, double endT, int nId)
         {
-            this.obj = retObject;
-            this.CreationTime = CreatT;
-            this.EndTime = EndT;
-            this.NetworkId = NId;
-            this.posi = position;
+            obj = retObject;
+            _creationTime = creatT;
+            _endTime = endT;
+            _networkId = nId;
+            posi = position;
         }
-        public GameObject getObj()
+
+        public GameObject GetObj()
         {
-            return this.obj;
+            return obj;
         }
-        public Vector3 getPosition()
+
+        public Vector3 GetPosition()
         {
-            return this.posi;
+            return posi;
         }
-        public double getCreationTime()
+
+        public double GetCreationTime()
         {
-            return this.CreationTime;
+            return _creationTime;
         }
-        public double getEndTime()
+
+        public double GetEndTime()
         {
-            return this.EndTime;
+            return _endTime;
         }
-        public int getNetworkId()
+
+        public int GetNetworkId()
         {
-            return this.NetworkId;
+            return _networkId;
         }
+
         public float DistanceToPlayer()
         {
-            return ObjectManager.Player.Distance(this.getPosition());
+            return ObjectManager.Player.Distance(GetPosition());
         }
     }
 }
