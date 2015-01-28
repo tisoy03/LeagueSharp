@@ -1,34 +1,36 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using LeagueSharp;
 using LeagueSharp.Common;
+
 namespace VayneHunterRework
 {
-    class Cleanser
+    internal class Cleanser
     {
-        public static List<QSSSpell> qssSpells = new List<QSSSpell>();
+        public static List<QssSpell> QssSpells = new List<QssSpell>();
         public static bool DeathMarkCreated;
         public static Obj_AI_Hero Player = ObjectManager.Player;
-        public static void CreateQSSSpellMenu()
+
+        public static void CreateQssSpellMenu()
         {
-            foreach (var hero in ObjectManager.Get<Obj_AI_Hero>().Where(he => he.IsEnemy))
+            foreach (var spell in
+                ObjectManager.Get<Obj_AI_Hero>()
+                    .Where(he => he.IsEnemy)
+                    .SelectMany(hero => QssSpells.Where(spell => spell.ChampName == hero.ChampionName)))
             {
-                foreach (var spell in qssSpells.Where(spell => spell.ChampName == hero.ChampionName))
-                {
-                    VayneHunterRework.Menu.SubMenu("QSSSpell")
-                        .AddItem(new MenuItem("en" + spell.SpellBuff, spell.SpellName+" always ?").SetValue(spell.isEnabled));
-                    VayneHunterRework.Menu.SubMenu("QSSSpell")
-                        .AddItem(new MenuItem("onlyK" + spell.SpellBuff, spell.SpellName + " if killed by it?").SetValue(spell.onlyKill));
-                    VayneHunterRework.Menu.SubMenu("QSSSpell").AddItem(new MenuItem("Spacer" + spell.SpellBuff, " "));
-                }//
+                VayneHunterRework.Menu.SubMenu("QSSSpell")
+                    .AddItem(
+                        new MenuItem("en" + spell.SpellBuff, spell.SpellName + " always ?").SetValue(spell.IsEnabled));
+                VayneHunterRework.Menu.SubMenu("QSSSpell")
+                    .AddItem(
+                        new MenuItem("onlyK" + spell.SpellBuff, spell.SpellName + " if killed by it?").SetValue(
+                            spell.OnlyKill));
+                VayneHunterRework.Menu.SubMenu("QSSSpell").AddItem(new MenuItem("Spacer" + spell.SpellBuff, " "));
             }
-            
         }
 
-        public static void CreateTypeQSSMenu()
+        public static void CreateTypeQssMenu()
         {
             VayneHunterRework.Menu.SubMenu("QSST").AddItem(new MenuItem("stun", "Stuns").SetValue(true));
             VayneHunterRework.Menu.SubMenu("QSST").AddItem(new MenuItem("charm", "Charms").SetValue(true));
@@ -43,183 +45,362 @@ namespace VayneHunterRework
             VayneHunterRework.Menu.SubMenu("QSST").AddItem(new MenuItem("poison", "Poisons").SetValue(false));
         }
 
-        public static void CreateQSSSpellList()
+        public static void CreateQssSpellList()
         {
             /**Danger Level 5 Spells*/
-            qssSpells.Add(new QSSSpell { ChampName = "Warwick",  isEnabled = true, SpellBuff = "InfiniteDuress", SpellName = "Warwick R", onlyKill = false });
-            qssSpells.Add(new QSSSpell { ChampName = "Zed",  isEnabled = true, SpellBuff = "zedulttargetmark", SpellName = "Zed R", onlyKill = true });
-            qssSpells.Add(new QSSSpell { ChampName = "Rammus",  isEnabled = true, SpellBuff = "PuncturingTaunt", SpellName = "Rammus E", onlyKill = false });
+            QssSpells.Add(
+                new QssSpell
+                {
+                    ChampName = "Warwick",
+                    IsEnabled = true,
+                    SpellBuff = "InfiniteDuress",
+                    SpellName = "Warwick R",
+                    OnlyKill = false
+                });
+            QssSpells.Add(
+                new QssSpell
+                {
+                    ChampName = "Zed",
+                    IsEnabled = true,
+                    SpellBuff = "zedulttargetmark",
+                    SpellName = "Zed R",
+                    OnlyKill = true
+                });
+            QssSpells.Add(
+                new QssSpell
+                {
+                    ChampName = "Rammus",
+                    IsEnabled = true,
+                    SpellBuff = "PuncturingTaunt",
+                    SpellName = "Rammus E",
+                    OnlyKill = false
+                });
             /** Danger Level 4 Spells*/
-            qssSpells.Add(new QSSSpell { ChampName = "Skarner",  isEnabled = true, SpellBuff = "SkarnerImpale", SpellName = "Skaner R", onlyKill = false });
-            qssSpells.Add(new QSSSpell { ChampName = "Fizz",  isEnabled = true, SpellBuff = "FizzMarinerDoom", SpellName = "Fizz R", onlyKill = false });
-            qssSpells.Add(new QSSSpell { ChampName = "Galio",  isEnabled = true, SpellBuff = "GalioIdolOfDurand", SpellName = "Galio R", onlyKill = false });
-            qssSpells.Add(new QSSSpell { ChampName = "Malzahar",  isEnabled = true, SpellBuff = "AlZaharNetherGrasp", SpellName = "Malz R", onlyKill = false });
+            QssSpells.Add(
+                new QssSpell
+                {
+                    ChampName = "Skarner",
+                    IsEnabled = true,
+                    SpellBuff = "SkarnerImpale",
+                    SpellName = "Skaner R",
+                    OnlyKill = false
+                });
+            QssSpells.Add(
+                new QssSpell
+                {
+                    ChampName = "Fizz",
+                    IsEnabled = true,
+                    SpellBuff = "FizzMarinerDoom",
+                    SpellName = "Fizz R",
+                    OnlyKill = false
+                });
+            QssSpells.Add(
+                new QssSpell
+                {
+                    ChampName = "Galio",
+                    IsEnabled = true,
+                    SpellBuff = "GalioIdolOfDurand",
+                    SpellName = "Galio R",
+                    OnlyKill = false
+                });
+            QssSpells.Add(
+                new QssSpell
+                {
+                    ChampName = "Malzahar",
+                    IsEnabled = true,
+                    SpellBuff = "AlZaharNetherGrasp",
+                    SpellName = "Malz R",
+                    OnlyKill = false
+                });
             /** Danger Level 3 Spells*/
-            qssSpells.Add(new QSSSpell { ChampName = "Zilean", isEnabled = false, SpellBuff = "timebombenemybuff", SpellName = "Zilean Q", onlyKill = true });
-            qssSpells.Add(new QSSSpell { ChampName = "Vladimir",  isEnabled = false, SpellBuff = "VladimirHemoplague", SpellName = "Vlad R", onlyKill = true });
-            qssSpells.Add(new QSSSpell { ChampName = "Mordekaiser", isEnabled = true, SpellBuff = "MordekaiserChildrenOfTheGrave", SpellName = "Morde R", onlyKill = true });
+            QssSpells.Add(
+                new QssSpell
+                {
+                    ChampName = "Zilean",
+                    IsEnabled = false,
+                    SpellBuff = "timebombenemybuff",
+                    SpellName = "Zilean Q",
+                    OnlyKill = true
+                });
+            QssSpells.Add(
+                new QssSpell
+                {
+                    ChampName = "Vladimir",
+                    IsEnabled = false,
+                    SpellBuff = "VladimirHemoplague",
+                    SpellName = "Vlad R",
+                    OnlyKill = true
+                });
+            QssSpells.Add(
+                new QssSpell
+                {
+                    ChampName = "Mordekaiser",
+                    IsEnabled = true,
+                    SpellBuff = "MordekaiserChildrenOfTheGrave",
+                    SpellName = "Morde R",
+                    OnlyKill = true
+                });
             /** Danger Level 2 Spells*/
-            qssSpells.Add(new QSSSpell { ChampName = "Poppy", isEnabled = true, SpellBuff = "PoppyDiplomaticImmunity", SpellName = "Poppy R", onlyKill =false});
+            QssSpells.Add(
+                new QssSpell
+                {
+                    ChampName = "Poppy",
+                    IsEnabled = true,
+                    SpellBuff = "PoppyDiplomaticImmunity",
+                    SpellName = "Poppy R",
+                    OnlyKill = false
+                });
         }
 
-        internal static void cleanUselessSpells()
+        internal static void CleanUselessSpells()
         {
-            List<String> nameList = new List<String>();
-            foreach (var h in ObjectManager.Get<Obj_AI_Hero>().Where(h => h.IsEnemy))
+            var nameList = ObjectManager.Get<Obj_AI_Hero>().Where(h => h.IsEnemy).Select(h => h.ChampionName).ToList();
+            foreach (var spell in QssSpells.Where(spell => !nameList.Contains(spell.ChampName)))
             {
-                nameList.Add(h.ChampionName);
-            }
-            foreach (var spell in qssSpells)
-            {
-                if (!nameList.Contains(spell.ChampName)) qssSpells.Remove(spell);
+                QssSpells.Remove(spell);
             }
         }
-        internal static void cleanserBySpell()
+
+        internal static void CleanserBySpell()
         {
-            var hasIT = Items.HasItem(3139) || Items.HasItem(3140) || Items.HasItem(3137);
-            if (!VayneHunterRework.isMenuEnabled("UseQSS") || !hasIT) return;
-            var ccList = (from spell in qssSpells where Player.HasBuff(spell.SpellBuff) select new CC { buffName = spell.SpellBuff, willKillMe = willSpellKillMe(spell) }).ToList();
+            var hasIt = Items.HasItem(3139) || Items.HasItem(3140) || Items.HasItem(3137);
+            if (!VayneHunterRework.IsMenuEnabled("UseQSS") || !hasIt)
+            {
+                return;
+            }
+
+            var ccList = (from spell in QssSpells
+                where Player.HasBuff(spell.SpellBuff)
+                select new CC { BuffName = spell.SpellBuff, WillKillMe = WillSpellKillMe(spell) }).ToList();
             foreach (var cc in ccList)
             {
-                if (VayneHunterRework.isMenuEnabled("en" + cc.buffName))
+                if (VayneHunterRework.IsMenuEnabled("en" + cc.BuffName))
                 {
-                    Console.WriteLine("Should Cleanse. " + cc.buffName + " cause it is a spell");
-                    if (cc.buffName == "zedulttargetmark")
+                    Console.WriteLine("Should Cleanse. " + cc.BuffName + " cause it is a spell");
+                    if (cc.BuffName == "zedulttargetmark")
                     {
-                        Utility.DelayAction.Add(500, () => Cleanse());
+                        Utility.DelayAction.Add(500, Cleanse);
                     }
                     else
                     {
                         Cleanse();
                     }
                 }
-                if (VayneHunterRework.isMenuEnabled("onlyK" + cc.buffName) && cc.willKillMe)
+                if (!VayneHunterRework.IsMenuEnabled("onlyK" + cc.BuffName) || !cc.WillKillMe)
                 {
-                    Console.WriteLine("Should Cleanse. " + cc.buffName +" cause it will kill me");
-                    Cleanse();
+                    continue;
                 }
+
+                Console.WriteLine("Should Cleanse. " + cc.BuffName + " cause it will kill me");
+                Cleanse();
             }
         }
 
-        internal static void enableCheck()
+        internal static void EnableCheck()
         {
-            foreach (var spell in qssSpells)
+            foreach (var spell in QssSpells)
             {
-                if (VayneHunterRework.isMenuEnabled("en" + spell.SpellBuff))
+                if (VayneHunterRework.IsMenuEnabled("en" + spell.SpellBuff))
                 {
                     VayneHunterRework.Menu.Item("onlyK" + spell.SpellBuff).SetValue(false);
                 }
-                if (VayneHunterRework.isMenuEnabled("onlyK" + spell.SpellBuff))
+
+                if (VayneHunterRework.IsMenuEnabled("onlyK" + spell.SpellBuff))
                 {
                     VayneHunterRework.Menu.Item("en" + spell.SpellBuff).SetValue(false);
-                } 
-            }
-        }
-        internal static void cleanserByBuffType()
-        {
-            var hasIT = Items.HasItem(3139) || Items.HasItem(3140) || Items.HasItem(3137);
-            if (!VayneHunterRework.isMenuEnabled("UseQSS") || !hasIT) return;
-            int numBuffs = UnitBuffs(Player);
-            if (numBuffs >= VayneHunterRework.Menu.Item("QSSMinBuffs").GetValue<Slider>().Value) Cleanse();
-        }
-
-        static bool willSpellKillMe(QSSSpell spell)
-        {
-            SpellSlot Spells = SpellSlot.R;
-            if (spell.SpellName.Contains(spell.ChampName+" R")) Spells = SpellSlot.R;
-            if (spell.SpellName.Contains(spell.ChampName+" Q")) Spells = SpellSlot.Q;
-            if (spell.SpellName.Contains(spell.ChampName+" W")) Spells = SpellSlot.W;
-            if (spell.SpellName.Contains(spell.ChampName+" E")) Spells = SpellSlot.E;
-            var TheDamage = getByChampName(spell.ChampName).GetDamageSpell(Player, Spells).CalculatedDamage;
-            BuffInstance theBuff = null;
-            foreach (var Buff in Player.Buffs)
-            {
-                if (Buff.Name == spell.SpellBuff)
-                {
-                    theBuff = Buff;
                 }
             }
-            var EndTime = theBuff.EndTime;
-            var difference = EndTime - Environment.TickCount; //TODO Factor Player Regen
-            if (TheDamage >= (Player.Health))
-            {
-                return true;
-            }
-            return false;
         }
+
+        internal static void CleanserByBuffType()
+        {
+            var hasIt = Items.HasItem(3139) || Items.HasItem(3140) || Items.HasItem(3137);
+            if (!VayneHunterRework.IsMenuEnabled("UseQSS") || !hasIt)
+            {
+                return;
+            }
+
+            var numBuffs = UnitBuffs(Player);
+            if (numBuffs >= VayneHunterRework.Menu.Item("QSSMinBuffs").GetValue<Slider>().Value)
+            {
+                Cleanse();
+            }
+        }
+
+        private static bool WillSpellKillMe(QssSpell spell)
+        {
+            var spells = SpellSlot.R;
+            if (spell.SpellName.Contains(spell.ChampName + " R"))
+            {
+                spells = SpellSlot.R;
+            }
+
+            if (spell.SpellName.Contains(spell.ChampName + " Q"))
+            {
+                spells = SpellSlot.Q;
+            }
+
+            if (spell.SpellName.Contains(spell.ChampName + " W"))
+            {
+                spells = SpellSlot.W;
+            }
+
+            if (spell.SpellName.Contains(spell.ChampName + " E"))
+            {
+                spells = SpellSlot.E;
+            }
+
+            var theDamage = GetByChampName(spell.ChampName).GetDamageSpell(Player, spells).CalculatedDamage;
+            BuffInstance theBuff = null;
+            foreach (var buff in Player.Buffs.Where(buff => buff.Name == spell.SpellBuff))
+            {
+                theBuff = buff;
+            }
+
+            if (theBuff == null)
+            {
+                return theDamage >= (Player.Health);
+            }
+
+            var endTime = theBuff.EndTime;
+            var difference = endTime - Environment.TickCount; //TODO Factor Player Regen
+
+            return theDamage >= (Player.Health);
+        }
+
         internal static void SaveMyAss()
         {
-            if (DeathMarkCreated &&
-                Player.HasBuff(getSpellByName("Zed R").SpellBuff, true) && getSpellByName("Zed R").onlyKill)
+            if (DeathMarkCreated && Player.HasBuff(GetSpellByName("Zed R").SpellBuff, true) &&
+                GetSpellByName("Zed R").OnlyKill)
             {
-                Utility.DelayAction.Add(200,() => Cleanse());
+                Utility.DelayAction.Add(200, Cleanse);
             }
         }
 
-        static int UnitBuffs(Obj_AI_Hero unit)
+        private static int UnitBuffs(Obj_AI_Hero unit)
         {
             //Taken from 'Oracle Activator'. Thanks Kurisuu ^.^
-            int cc = 0;
+            var cc = 0;
             if (VayneHunterRework.Menu.Item("slow").GetValue<bool>())
+            {
                 if (unit.HasBuffOfType(BuffType.Slow))
+                {
                     cc += 1;
+                }
+            }
 
             if (VayneHunterRework.Menu.Item("blind").GetValue<bool>())
+            {
                 if (unit.HasBuffOfType(BuffType.Blind))
+                {
                     cc += 1;
+                }
+            }
 
             if (VayneHunterRework.Menu.Item("charm").GetValue<bool>())
+            {
                 if (unit.HasBuffOfType(BuffType.Charm))
+                {
                     cc += 1;
+                }
+            }
 
             if (VayneHunterRework.Menu.Item("fear").GetValue<bool>())
+            {
                 if (unit.HasBuffOfType(BuffType.Fear))
+                {
                     cc += 1;
+                }
+            }
 
             if (VayneHunterRework.Menu.Item("snare").GetValue<bool>())
+            {
                 if (unit.HasBuffOfType(BuffType.Snare))
+                {
                     cc += 1;
+                }
+            }
 
             if (VayneHunterRework.Menu.Item("taunt").GetValue<bool>())
+            {
                 if (unit.HasBuffOfType(BuffType.Taunt))
+                {
                     cc += 1;
+                }
+            }
 
             if (VayneHunterRework.Menu.Item("supression").GetValue<bool>())
+            {
                 if (unit.HasBuffOfType(BuffType.Suppression))
+                {
                     cc += 1;
+                }
+            }
 
             if (VayneHunterRework.Menu.Item("stun").GetValue<bool>())
+            {
                 if (unit.HasBuffOfType(BuffType.Stun))
+                {
                     cc += 1;
+                }
+            }
 
             if (VayneHunterRework.Menu.Item("polymorph").GetValue<bool>())
+            {
                 if (unit.HasBuffOfType(BuffType.Polymorph))
+                {
                     cc += 1;
+                }
+            }
 
             if (VayneHunterRework.Menu.Item("silence").GetValue<bool>())
+            {
                 if (unit.HasBuffOfType(BuffType.Silence))
+                {
                     cc += 1;
+                }
+            }
 
             if (VayneHunterRework.Menu.Item("poison").GetValue<bool>())
+            {
                 if (unit.HasBuffOfType(BuffType.Poison))
+                {
                     cc += 1;
+                }
+            }
 
-            return cc; 
+            return cc;
         }
+
         internal static void Cleanse()
         {
-            if(Items.HasItem(3140))VayneHunterRework.UseItem(3140, Player); //QSS
-            if (Items.HasItem(3139)) VayneHunterRework.UseItem(3139, Player); //Mercurial
-            if (Items.HasItem(3137)) VayneHunterRework.UseItem(3137, Player); //Dervish Blade
-        }
-        public static void OnCreateObj(GameObject sender, EventArgs args)
-        {
-            if (sender.Name == "Zed_Base_R_buf_tell.troy" && sender.IsEnemy)
+            if (Items.HasItem(3140))
             {
-                DeathMarkCreated = true;
-                SaveMyAss();
+                VayneHunterRework.UseItem(3140, Player); //QSS
+            }
+
+            if (Items.HasItem(3139))
+            {
+                VayneHunterRework.UseItem(3139, Player); //Mercurial
+            }
+
+            if (Items.HasItem(3137))
+            {
+                VayneHunterRework.UseItem(3137, Player); //Dervish Blade
             }
         }
+
+        public static void OnCreateObj(GameObject sender, EventArgs args)
+        {
+            if (sender.Name != "Zed_Base_R_buf_tell.troy" || !sender.IsEnemy)
+            {
+                return;
+            }
+
+            DeathMarkCreated = true;
+            SaveMyAss();
+        }
+
         public static void OnDeleteObj(GameObject sender, EventArgs args)
         {
             if (sender.Name == "Zed_Base_R_buf_tell.troy" && sender.IsEnemy)
@@ -227,28 +408,30 @@ namespace VayneHunterRework
                 DeathMarkCreated = false;
             }
         }
-        static QSSSpell getSpellByName(String Name)
+
+        private static QssSpell GetSpellByName(String name)
         {
-            return qssSpells.Find(spell => spell.SpellName == Name);
+            return QssSpells.Find(spell => spell.SpellName == name);
         }
 
-        static Obj_AI_Hero getByChampName(String Name)
+        private static Obj_AI_Hero GetByChampName(String name)
         {
-            return ObjectManager.Get<Obj_AI_Hero>().First(h => h.ChampionName == Name && h.IsEnemy);
+            return ObjectManager.Get<Obj_AI_Hero>().First(h => h.ChampionName == name && h.IsEnemy);
         }
-
     }
-    internal class QSSSpell
+
+    internal class QssSpell
     {
         public String ChampName { get; set; }
         public String SpellName { get; set; }
         public String SpellBuff { get; set; }
-        public bool isEnabled { get; set; }
-        public bool onlyKill { get; set; }
+        public bool IsEnabled { get; set; }
+        public bool OnlyKill { get; set; }
     }
+
     internal class CC
     {
-        public String buffName { get; set; }
-        public bool willKillMe { get; set; }
+        public String BuffName { get; set; }
+        public bool WillKillMe { get; set; }
     }
 }
