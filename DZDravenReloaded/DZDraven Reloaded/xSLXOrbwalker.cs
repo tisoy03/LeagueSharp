@@ -1,8 +1,8 @@
-﻿using LeagueSharp;
-using LeagueSharp.Common;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using LeagueSharp;
+using LeagueSharp.Common;
 using SharpDX;
 using Color = System.Drawing.Color;
 
@@ -11,28 +11,13 @@ namespace DZDraven_Reloaded
     // ReSharper disable once InconsistentNaming
     public class xSLxOrbwalker
     {
-
-        private static readonly string[] AttackResets = { "dariusnoxiantacticsonh", "fioraflurry", "garenq", "hecarimrapidslash", "jaxempowertwo", "jaycehypercharge", "leonashieldofdaybreak", "monkeykingdoubleattack", "mordekaisermaceofspades", "nasusq", "nautiluspiercinggaze", "netherblade", "parley", "poppydevastatingblow", "powerfist", "renektonpreexecute", "rengarq", "shyvanadoubleattack", "sivirw", "takedown", "talonnoxiandiplomacy", "trundletrollsmash", "vaynetumble", "vie", "volibearq", "xenzhaocombotarget", "yorickspectral" };
-        private static readonly string[] NoAttacks = { "jarvanivcataclysmattack", "monkeykingdoubleattack", "shyvanadoubleattack", "shyvanadoubleattackdragon", "zyragraspingplantattack", "zyragraspingplantattack2", "zyragraspingplantattackfire", "zyragraspingplantattack2fire" };
-        private static readonly string[] Attacks = { "caitlynheadshotmissile", "frostarrow", "garenslash2", "kennenmegaproc", "masteryidoublestrike", "quinnwenhanced", "renektonexecute", "renektonsuperexecute", "rengarnewpassivebuffdash", "trundleq", "xenzhaothrust", "viktorqbuff", "xenzhaothrust2", "xenzhaothrust3" };
-
-
-        public static Menu Menu;
-        public static Obj_AI_Hero MyHero = ObjectManager.Player;
-        public static AttackableUnit ForcedTarget = null;
-        public static IEnumerable<Obj_AI_Hero> AllEnemys = ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsEnemy);
-        public static IEnumerable<Obj_AI_Hero> AllAllys = ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsAlly);
-        public static bool CustomOrbwalkMode;
+        public delegate void AfterAttackEvenH(AttackableUnit unit, AttackableUnit target);
 
         public delegate void BeforeAttackEvenH(BeforeAttackEventArgs args);
-        public delegate void OnTargetChangeH(AttackableUnit oldTarget, AttackableUnit newTarget);
-        public delegate void AfterAttackEvenH(AttackableUnit unit, AttackableUnit target);
+
         public delegate void OnAttackEvenH(AttackableUnit unit, AttackableUnit target);
 
-        public static event BeforeAttackEvenH BeforeAttack;
-        public static event OnTargetChangeH OnTargetChange;
-        public static event AfterAttackEvenH AfterAttack;
-        public static event OnAttackEvenH OnAttack;
+        public delegate void OnTargetChangeH(AttackableUnit oldTarget, AttackableUnit newTarget);
 
         public enum Mode
         {
@@ -42,20 +27,58 @@ namespace DZDraven_Reloaded
             LaneFreeze,
             Lasthit,
             Flee,
-            None,
+            None
         }
 
+        private const float LaneClearWaitTimeMod = 2f;
+
+        private static readonly string[] AttackResets =
+        {
+            "dariusnoxiantacticsonh", "fioraflurry", "garenq",
+            "hecarimrapidslash", "jaxempowertwo", "jaycehypercharge", "leonashieldofdaybreak", "monkeykingdoubleattack",
+            "mordekaisermaceofspades", "nasusq", "nautiluspiercinggaze", "netherblade", "parley", "poppydevastatingblow",
+            "powerfist", "renektonpreexecute", "rengarq", "shyvanadoubleattack", "sivirw", "takedown",
+            "talonnoxiandiplomacy", "trundletrollsmash", "vaynetumble", "vie", "volibearq", "xenzhaocombotarget",
+            "yorickspectral"
+        };
+
+        private static readonly string[] NoAttacks =
+        {
+            "jarvanivcataclysmattack", "monkeykingdoubleattack",
+            "shyvanadoubleattack", "shyvanadoubleattackdragon", "zyragraspingplantattack", "zyragraspingplantattack2",
+            "zyragraspingplantattackfire", "zyragraspingplantattack2fire"
+        };
+
+        private static readonly string[] Attacks =
+        {
+            "caitlynheadshotmissile", "frostarrow", "garenslash2",
+            "kennenmegaproc", "masteryidoublestrike", "quinnwenhanced", "renektonexecute", "renektonsuperexecute",
+            "rengarnewpassivebuffdash", "trundleq", "xenzhaothrust", "viktorqbuff", "xenzhaothrust2", "xenzhaothrust3"
+        };
+
+        public static Menu Menu;
+        public static Obj_AI_Hero MyHero = ObjectManager.Player;
+        public static AttackableUnit ForcedTarget;
+        public static IEnumerable<Obj_AI_Hero> AllEnemys = ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsEnemy);
+        public static IEnumerable<Obj_AI_Hero> AllAllys = ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsAlly);
+        public static bool CustomOrbwalkMode;
         private static bool _drawing = true;
         private static bool _attack = true;
         private static bool _movement = true;
         private static bool _disableNextAttack;
-        private const float LaneClearWaitTimeMod = 2f;
-        private static int _lastAATick;
+        private static int _lastAaTick;
         private static AttackableUnit _lastTarget;
         private static Spell _movementPrediction;
         private static int _lastMovement;
         private static int _windup;
-        private static int lastRealAttack;
+        private static int _lastRealAttack;
+        public static readonly List<GameObject> Soilders = new List<GameObject>();
+        public static Spell R = new Spell(SpellSlot.R);
+        public static event BeforeAttackEvenH BeforeAttack;
+        public static event OnTargetChangeH OnTargetChange;
+        public static event AfterAttackEvenH AfterAttack;
+        public static event OnAttackEvenH OnAttack;
+
         public static void AddToMenu(Menu menu)
         {
             _movementPrediction = new Spell(SpellSlot.Unknown, GetAutoAttackRange());
@@ -64,24 +87,39 @@ namespace DZDraven_Reloaded
             Menu = menu;
 
             var menuDrawing = new Menu("Drawing", "orb_Draw");
-            menuDrawing.AddItem(new MenuItem("orb_Draw_AARange", "AA Circle").SetValue(new Circle(true, Color.FloralWhite)));
-            menuDrawing.AddItem(new MenuItem("orb_Draw_AARange_Enemy", "AA Circle Enemy").SetValue(new Circle(true, Color.Pink)));
-            menuDrawing.AddItem(new MenuItem("orb_Draw_Holdzone", "Holdzone").SetValue(new Circle(true, Color.FloralWhite)));
-            menuDrawing.AddItem(new MenuItem("orb_Draw_MinionHPBar", "Minion HPBar").SetValue(new Circle(true, Color.Black)));
-            menuDrawing.AddItem(new MenuItem("orb_Draw_MinionHPBar_thickness", "^ HPBar Thickness").SetValue(new Slider(1, 1, 3)));
-            menuDrawing.AddItem(new MenuItem("orb_Draw_hitbox", "Show HitBoxes").SetValue(new Circle(true, Color.FloralWhite)));
-            menuDrawing.AddItem(new MenuItem("orb_Draw_Lasthit", "Minion Lasthit").SetValue(new Circle(true, Color.Lime)));
-            menuDrawing.AddItem(new MenuItem("orb_Draw_nearKill", "Minion nearKill").SetValue(new Circle(true, Color.Gold)));
+            menuDrawing.AddItem(
+                new MenuItem("orb_Draw_AARange", "AA Circle").SetValue(new Circle(true, Color.FloralWhite)));
+            menuDrawing.AddItem(
+                new MenuItem("orb_Draw_AARange_Enemy", "AA Circle Enemy").SetValue(new Circle(true, Color.Pink)));
+            menuDrawing.AddItem(
+                new MenuItem("orb_Draw_Holdzone", "Holdzone").SetValue(new Circle(true, Color.FloralWhite)));
+            menuDrawing.AddItem(
+                new MenuItem("orb_Draw_MinionHPBar", "Minion HPBar").SetValue(new Circle(true, Color.Black)));
+            menuDrawing.AddItem(
+                new MenuItem("orb_Draw_MinionHPBar_thickness", "^ HPBar Thickness").SetValue(new Slider(1, 1, 3)));
+            menuDrawing.AddItem(
+                new MenuItem("orb_Draw_hitbox", "Show HitBoxes").SetValue(new Circle(true, Color.FloralWhite)));
+            menuDrawing.AddItem(
+                new MenuItem("orb_Draw_Lasthit", "Minion Lasthit").SetValue(new Circle(true, Color.Lime)));
+            menuDrawing.AddItem(
+                new MenuItem("orb_Draw_nearKill", "Minion nearKill").SetValue(new Circle(true, Color.Gold)));
             menu.AddSubMenu(menuDrawing);
 
             var menuMisc = new Menu("Misc", "orb_Misc");
             menuMisc.AddItem(new MenuItem("orb_Misc_Holdzone", "Hold Position").SetValue(new Slider(50, 0, 200)));
             menuMisc.AddItem(new MenuItem("orb_Misc_Farmdelay", "Farm Delay").SetValue(new Slider(0, 0, 300)));
             if (MyHero.ChampionName == "Azir")
-                menuMisc.AddItem(new MenuItem("azir_Misc_Farmdelay", "Soilder Farm Delay").SetValue(new Slider(0, 0, 300)));
+            {
+                menuMisc.AddItem(
+                    new MenuItem("azir_Misc_Farmdelay", "Soilder Farm Delay").SetValue(new Slider(0, 0, 300)));
+            }
             menuMisc.AddItem(new MenuItem("orb_Misc_ExtraWindUp", "Extra Winduptime").SetValue(new Slider(80, 200, 0)));
-            menuMisc.AddItem(new MenuItem("orb_Misc_AutoWindUp", "Autoset Windup").SetValue(new KeyBind("O".ToCharArray()[0], KeyBindType.Press)));
-            menuMisc.AddItem(new MenuItem("orb_Misc_Priority_Unit", "Priority Unit").SetValue(new StringList(new[] { "Minion", "Hero" })));
+            menuMisc.AddItem(
+                new MenuItem("orb_Misc_AutoWindUp", "Autoset Windup").SetValue(
+                    new KeyBind("O".ToCharArray()[0], KeyBindType.Press)));
+            menuMisc.AddItem(
+                new MenuItem("orb_Misc_Priority_Unit", "Priority Unit").SetValue(
+                    new StringList(new[] { "Minion", "Hero" })));
             menuMisc.AddItem(new MenuItem("orb_Misc_Humanizer", "Humanizer Delays").SetValue(new Slider(80, 50, 500)));
             menuMisc.AddItem(new MenuItem("orb_Misc_AllMovementDisabled", "Disable All Movement").SetValue(false));
             menuMisc.AddItem(new MenuItem("orb_Misc_AllAttackDisabled", "Disable All Attacks").SetValue(false));
@@ -101,32 +139,37 @@ namespace DZDraven_Reloaded
                 menuModes.AddSubMenu(modeCombo);
 
                 var modeHarass = new Menu("Harass", "orb_Modes_Harass");
-                modeHarass.AddItem(new MenuItem("Harass_Key", "Key").SetValue(new KeyBind("C".ToCharArray()[0], KeyBindType.Press)));
+                modeHarass.AddItem(
+                    new MenuItem("Harass_Key", "Key").SetValue(new KeyBind("C".ToCharArray()[0], KeyBindType.Press)));
                 modeHarass.AddItem(new MenuItem("Harass_move", "Movement").SetValue(true));
                 modeHarass.AddItem(new MenuItem("Harass_attack", "Attack").SetValue(true));
                 modeHarass.AddItem(new MenuItem("Harass_Lasthit", "Lasthit Minions").SetValue(true));
                 menuModes.AddSubMenu(modeHarass);
 
                 var modeLaneClear = new Menu("LaneClear", "orb_Modes_LaneClear");
-                modeLaneClear.AddItem(new MenuItem("LaneClear_Key", "Key").SetValue(new KeyBind("V".ToCharArray()[0], KeyBindType.Press)));
+                modeLaneClear.AddItem(
+                    new MenuItem("LaneClear_Key", "Key").SetValue(new KeyBind("V".ToCharArray()[0], KeyBindType.Press)));
                 modeLaneClear.AddItem(new MenuItem("LaneClear_move", "Movement").SetValue(true));
                 modeLaneClear.AddItem(new MenuItem("LaneClear_attack", "Attack").SetValue(true));
                 menuModes.AddSubMenu(modeLaneClear);
 
                 var modeLaneFreeze = new Menu("LaneFreeze", "orb_Modes_LaneFreeze");
-                modeLaneFreeze.AddItem(new MenuItem("LaneFreeze_Key", "Key").SetValue(new KeyBind("Z".ToCharArray()[0], KeyBindType.Press)));
+                modeLaneFreeze.AddItem(
+                    new MenuItem("LaneFreeze_Key", "Key").SetValue(new KeyBind("Z".ToCharArray()[0], KeyBindType.Press)));
                 modeLaneFreeze.AddItem(new MenuItem("LaneFreeze_move", "Movement").SetValue(true));
                 modeLaneFreeze.AddItem(new MenuItem("LaneFreeze_attack", "Attack").SetValue(true));
                 menuModes.AddSubMenu(modeLaneFreeze);
 
                 var modeLasthit = new Menu("LastHit", "orb_Modes_LastHit");
-                modeLasthit.AddItem(new MenuItem("LastHit_Key", "Key").SetValue(new KeyBind("X".ToCharArray()[0], KeyBindType.Press)));
+                modeLasthit.AddItem(
+                    new MenuItem("LastHit_Key", "Key").SetValue(new KeyBind("X".ToCharArray()[0], KeyBindType.Press)));
                 modeLasthit.AddItem(new MenuItem("LastHit_move", "Movement").SetValue(true));
                 modeLasthit.AddItem(new MenuItem("LastHit_attack", "Attack").SetValue(true));
                 menuModes.AddSubMenu(modeLasthit);
 
                 var modeFlee = new Menu("Flee", "orb_Modes_Flee");
-                modeFlee.AddItem(new MenuItem("Flee_Key", "Key").SetValue(new KeyBind("A".ToCharArray()[0], KeyBindType.Press)));
+                modeFlee.AddItem(
+                    new MenuItem("Flee_Key", "Key").SetValue(new KeyBind("A".ToCharArray()[0], KeyBindType.Press)));
                 menuModes.AddSubMenu(modeFlee);
             }
             menu.AddSubMenu(menuModes);
@@ -140,26 +183,22 @@ namespace DZDraven_Reloaded
             GameObject.OnDelete += OnDelete;
         }
 
-        public static readonly List<GameObject> Soilders = new List<GameObject>();
-
         private static void OnDelete(GameObject sender, EventArgs args)
         {
             //if(MyHero.Distance(sender.Position) < 500)
             //Game.PrintChat("obj: " + sender.Name);
 
-            if (sender.Name == "Azir_Base_P_Soldier_Ring.troy" && Soilders.Count > 0)
+            if (sender.Name != "Azir_Base_P_Soldier_Ring.troy" || Soilders.Count <= 0)
             {
-                //Game.PrintChat("Solider Deleted" + sender.NetworkId);
-                foreach (var minion in Soilders.ToList())
-                {
-                    if (minion.NetworkId == sender.NetworkId)
-                    {
-                        Soilders.Remove(minion);
-                        //Game.PrintChat("" + Soilders.Count);
-                    }
-                }
+                return;
             }
 
+            //Game.PrintChat("Solider Deleted" + sender.NetworkId);
+            foreach (var minion in Soilders.ToList().Where(minion => minion.NetworkId == sender.NetworkId))
+            {
+                Soilders.Remove(minion);
+                //Game.PrintChat("" + Soilders.Count);
+            }
         }
 
         private static void Obj_SpellMissile_OnCreate(GameObject sender, EventArgs args)
@@ -168,7 +207,9 @@ namespace DZDraven_Reloaded
             //Game.PrintChat("obj: " + sender.Name);
 
             if (sender is Obj_LampBulb)
+            {
                 return;
+            }
 
             if (sender.Name == "Azir_Base_P_Soldier_Ring.troy")
             {
@@ -180,26 +221,40 @@ namespace DZDraven_Reloaded
 
             if (sender.IsMe)
             {
-                var obj = (Obj_AI_Hero)sender;
+                var obj = (Obj_AI_Hero) sender;
                 if (obj.IsMelee())
+                {
                     return;
+                }
             }
             if (!(sender is Obj_SpellMissile) || !sender.IsValid)
-                return;
-            var missile = (Obj_SpellMissile)sender;
-            if (missile.SpellCaster is Obj_AI_Hero && missile.SpellCaster.IsValid && IsAutoAttack(missile.SData.Name))
             {
-                FireAfterAttack(missile.SpellCaster, _lastTarget);
-                if (sender.IsMe)
-                    lastRealAttack = Environment.TickCount;
+                return;
+            }
+
+            var missile = (Obj_SpellMissile) sender;
+            if (!(missile.SpellCaster is Obj_AI_Hero) || !missile.SpellCaster.IsValid ||
+                !IsAutoAttack(missile.SData.Name))
+            {
+                return;
+            }
+
+            FireAfterAttack(missile.SpellCaster, _lastTarget);
+            if (sender.IsMe)
+            {
+                _lastRealAttack = Environment.TickCount;
             }
         }
 
         private static void OnUpdate(EventArgs args)
         {
             CheckAutoWindUp();
-            if (CurrentMode == Mode.None || MenuGUI.IsChatOpen || CustomOrbwalkMode || MyHero.IsChannelingImportantSpell() || MyHero.HasBuff("katarinarsound", true))
+            if (CurrentMode == Mode.None || MenuGUI.IsChatOpen || CustomOrbwalkMode ||
+                MyHero.IsChannelingImportantSpell() || MyHero.HasBuff("katarinarsound", true))
+            {
                 return;
+            }
+
             var target = GetPossibleTarget();
             Orbwalk(Game.CursorPos, target);
         }
@@ -207,11 +262,14 @@ namespace DZDraven_Reloaded
         private static void OnDraw(EventArgs args)
         {
             if (!_drawing)
+            {
                 return;
+            }
 
             if (Menu.Item("orb_Draw_AARange").GetValue<Circle>().Active)
             {
-                Render.Circle.DrawCircle(MyHero.Position, GetAutoAttackRange(), Menu.Item("orb_Draw_AARange").GetValue<Circle>().Color);
+                Render.Circle.DrawCircle(
+                    MyHero.Position, GetAutoAttackRange(), Menu.Item("orb_Draw_AARange").GetValue<Circle>().Color);
             }
 
             if (Menu.Item("orb_Draw_AARange_Enemy").GetValue<Circle>().Active ||
@@ -220,9 +278,17 @@ namespace DZDraven_Reloaded
                 foreach (var enemy in AllEnemys.Where(enemy => enemy.IsValidTarget(1500)))
                 {
                     if (Menu.Item("orb_Draw_AARange_Enemy").GetValue<Circle>().Active)
-                        Render.Circle.DrawCircle(enemy.Position, GetAutoAttackRange(enemy, MyHero), Menu.Item("orb_Draw_AARange_Enemy").GetValue<Circle>().Color);
+                    {
+                        Render.Circle.DrawCircle(
+                            enemy.Position, GetAutoAttackRange(enemy, MyHero),
+                            Menu.Item("orb_Draw_AARange_Enemy").GetValue<Circle>().Color);
+                    }
+
                     if (Menu.Item("orb_Draw_hitbox").GetValue<Circle>().Active)
-                        Render.Circle.DrawCircle(enemy.Position, enemy.BoundingRadius, Menu.Item("orb_Draw_hitbox").GetValue<Circle>().Color);
+                    {
+                        Render.Circle.DrawCircle(
+                            enemy.Position, enemy.BoundingRadius, Menu.Item("orb_Draw_hitbox").GetValue<Circle>().Color);
+                    }
                 }
             }
 
@@ -230,57 +296,76 @@ namespace DZDraven_Reloaded
             {
                 foreach (var enemy in AllEnemys.Where(enemy => enemy.IsValidTarget(1500)))
                 {
-                    Render.Circle.DrawCircle(enemy.Position, GetAutoAttackRange(enemy, MyHero), Menu.Item("orb_Draw_AARange_Enemy").GetValue<Circle>().Color);
-
+                    Render.Circle.DrawCircle(
+                        enemy.Position, GetAutoAttackRange(enemy, MyHero),
+                        Menu.Item("orb_Draw_AARange_Enemy").GetValue<Circle>().Color);
                 }
             }
 
             if (Menu.Item("orb_Draw_Holdzone").GetValue<Circle>().Active)
             {
-                Render.Circle.DrawCircle(MyHero.Position, Menu.Item("orb_Misc_Holdzone").GetValue<Slider>().Value, Menu.Item("orb_Draw_Holdzone").GetValue<Circle>().Color);
+                Render.Circle.DrawCircle(
+                    MyHero.Position, Menu.Item("orb_Misc_Holdzone").GetValue<Slider>().Value,
+                    Menu.Item("orb_Draw_Holdzone").GetValue<Circle>().Color);
             }
 
-            if (Menu.Item("orb_Draw_MinionHPBar").GetValue<Circle>().Active ||
-                Menu.Item("orb_Draw_Lasthit").GetValue<Circle>().Active ||
-                Menu.Item("orb_Draw_nearKill").GetValue<Circle>().Active)
+            if (!Menu.Item("orb_Draw_MinionHPBar").GetValue<Circle>().Active &&
+                !Menu.Item("orb_Draw_Lasthit").GetValue<Circle>().Active &&
+                !Menu.Item("orb_Draw_nearKill").GetValue<Circle>().Active)
             {
-                var minionList = MinionManager.GetMinions(MyHero.Position, GetAutoAttackRange() + 500, MinionTypes.All, MinionTeam.Enemy, MinionOrderTypes.MaxHealth);
-                foreach (var minion in minionList.Where(minion => minion.IsValidTarget(GetAutoAttackRange() + 500)))
+                return;
+            }
+
+            var minionList = MinionManager.GetMinions(
+                MyHero.Position, GetAutoAttackRange() + 500, MinionTypes.All, MinionTeam.Enemy,
+                MinionOrderTypes.MaxHealth);
+            foreach (var minion in minionList.Where(minion => minion.IsValidTarget(GetAutoAttackRange() + 500)))
+            {
+                var attackToKill = Math.Ceiling(minion.MaxHealth / MyHero.GetAutoAttackDamage(minion, true));
+                var hpBarPosition = minion.HPBarPosition;
+                var barWidth = minion.IsMelee() ? 75 : 80;
+                if (minion.HasBuff("turretshield", true))
                 {
-                    var attackToKill = Math.Ceiling(minion.MaxHealth / MyHero.GetAutoAttackDamage(minion, true));
-                    var hpBarPosition = minion.HPBarPosition;
-                    var barWidth = minion.IsMelee() ? 75 : 80;
-                    if (minion.HasBuff("turretshield", true))
-                        barWidth = 70;
-                    var barDistance = (float)(barWidth / attackToKill);
-                    if (Menu.Item("orb_Draw_MinionHPBar").GetValue<Circle>().Active)
+                    barWidth = 70;
+                }
+
+                var barDistance = (float) (barWidth / attackToKill);
+                if (Menu.Item("orb_Draw_MinionHPBar").GetValue<Circle>().Active)
+                {
+                    for (var i = 1; i < attackToKill; i++)
                     {
-                        for (var i = 1; i < attackToKill; i++)
-                        {
-                            var startposition = hpBarPosition.X + 45 + barDistance * i;
-                            Drawing.DrawLine(
-                                new Vector2(startposition, hpBarPosition.Y + 18),
-                                new Vector2(startposition, hpBarPosition.Y + 23),
-                                Menu.Item("orb_Draw_MinionHPBar_thickness").GetValue<Slider>().Value,
-                                Menu.Item("orb_Draw_MinionHPBar").GetValue<Circle>().Color);
-                        }
+                        var startposition = hpBarPosition.X + 45 + barDistance * i;
+                        Drawing.DrawLine(
+                            new Vector2(startposition, hpBarPosition.Y + 18),
+                            new Vector2(startposition, hpBarPosition.Y + 23),
+                            Menu.Item("orb_Draw_MinionHPBar_thickness").GetValue<Slider>().Value,
+                            Menu.Item("orb_Draw_MinionHPBar").GetValue<Circle>().Color);
                     }
-                    if (Menu.Item("orb_Draw_Lasthit").GetValue<Circle>().Active &&
-                        minion.Health <= MyHero.GetAutoAttackDamage(minion, true))
-                        Render.Circle.DrawCircle(minion.Position, minion.BoundingRadius, Menu.Item("orb_Draw_Lasthit").GetValue<Circle>().Color);
-                    else if (Menu.Item("orb_Draw_nearKill").GetValue<Circle>().Active &&
-                             minion.Health <= MyHero.GetAutoAttackDamage(minion, true) * 2)
-                        Render.Circle.DrawCircle(minion.Position, minion.BoundingRadius, Menu.Item("orb_Draw_nearKill").GetValue<Circle>().Color);
+                }
+                if (Menu.Item("orb_Draw_Lasthit").GetValue<Circle>().Active &&
+                    minion.Health <= MyHero.GetAutoAttackDamage(minion, true))
+                {
+                    Render.Circle.DrawCircle(
+                        minion.Position, minion.BoundingRadius, Menu.Item("orb_Draw_Lasthit").GetValue<Circle>().Color);
+                }
+                else if (Menu.Item("orb_Draw_nearKill").GetValue<Circle>().Active &&
+                         minion.Health <= MyHero.GetAutoAttackDamage(minion, true) * 2)
+                {
+                    Render.Circle.DrawCircle(
+                        minion.Position, minion.BoundingRadius,
+                        Menu.Item("orb_Draw_nearKill").GetValue<Circle>().Color);
                 }
             }
         }
 
         public static void Orbwalk(Vector3 goalPosition, AttackableUnit mytarget)
         {
-            var target = (Obj_AI_Base)mytarget;
+            var target = (Obj_AI_Base) mytarget;
 
             if (MyHero.IsChannelingImportantSpell())
+            {
                 return;
+            }
 
             if (target != null && (CanAttack() || HaveCancled()) && IsAllowedToAttack())
             {
@@ -291,14 +376,18 @@ namespace DZDraven_Reloaded
                     if (CurrentMode != Mode.Harass || !target.IsMinion || Menu.Item("Harass_Lasthit").GetValue<bool>())
                     {
                         MyHero.IssueOrder(GameObjectOrder.AttackUnit, target);
-                        _lastAATick = Environment.TickCount + Game.Ping / 2;
+                        _lastAaTick = Environment.TickCount + Game.Ping / 2;
                     }
                 }
             }
             if (!CanMove() || !IsAllowedToMove())
+            {
                 return;
+            }
+
             if (MyHero.IsMelee() && target != null && target.Distance(MyHero) < GetAutoAttackRange(MyHero, target) &&
-                Menu.Item("orb_Melee_Prediction").GetValue<bool>() && target is Obj_AI_Hero && Game.CursorPos.Distance(target.Position) < 300)
+                Menu.Item("orb_Melee_Prediction").GetValue<bool>() && target is Obj_AI_Hero &&
+                Game.CursorPos.Distance(target.Position) < 300)
             {
                 _movementPrediction.Delay = MyHero.BasicAttack.SpellCastTime;
                 _movementPrediction.Speed = MyHero.BasicAttack.MissileSpeed;
@@ -306,76 +395,119 @@ namespace DZDraven_Reloaded
                 R.LastCastAttemptT = 0;
             }
             else
+            {
                 MoveTo(goalPosition);
+            }
 
             R.LastCastAttemptT = 0;
         }
-
 
         private static void MoveTo(Vector3 position)
         {
             var delay = Menu.Item("orb_Misc_Humanizer").GetValue<Slider>().Value;
 
-            if ((MyHero.ChampionName == "Katarina" || MyHero.ChampionName == "Velkoz") && delay < 400 && (R.IsReady() || MyHero.Spellbook.GetSpell(SpellSlot.R).State == SpellState.Surpressed) && MyHero.CountEnemiesInRange(1000) > 0)
+            if ((MyHero.ChampionName == "Katarina" || MyHero.ChampionName == "Velkoz") && delay < 400 &&
+                (R.IsReady() || MyHero.Spellbook.GetSpell(SpellSlot.R).State == SpellState.Surpressed) &&
+                MyHero.CountEnemiesInRange(1000) > 0)
             {
                 delay = 400;
             }
+
             if (Environment.TickCount - _lastMovement < delay)
+            {
                 return;
+            }
+
             _lastMovement = Environment.TickCount;
 
             var holdAreaRadius = Menu.Item("orb_Misc_Holdzone").GetValue<Slider>().Value;
             if (MyHero.ServerPosition.Distance(position) < holdAreaRadius)
             {
                 if (MyHero.Path.Count() > 1)
+                {
                     MyHero.IssueOrder(GameObjectOrder.HoldPosition, MyHero.Position);
+                }
+
                 return;
             }
             var point = MyHero.ServerPosition +
-            300 * (position.To2D() - MyHero.ServerPosition.To2D()).Normalized().To3D();
+                        300 * (position.To2D() - MyHero.ServerPosition.To2D()).Normalized().To3D();
             MyHero.IssueOrder(GameObjectOrder.MoveTo, point);
-
         }
 
         private static bool IsAllowedToMove()
         {
             if (!_movement)
+            {
                 return false;
+            }
+
             if (Menu.Item("orb_Misc_AllMovementDisabled").GetValue<bool>())
+            {
                 return false;
+            }
+
             if (CurrentMode == Mode.Combo && !Menu.Item("Combo_move").GetValue<bool>())
+            {
                 return false;
+            }
+
             if (CurrentMode == Mode.Harass && !Menu.Item("Harass_move").GetValue<bool>())
+            {
                 return false;
+            }
+
             if (CurrentMode == Mode.LaneClear && !Menu.Item("LaneClear_move").GetValue<bool>())
+            {
                 return false;
+            }
+
             if (CurrentMode == Mode.LaneFreeze && !Menu.Item("LaneFreeze_move").GetValue<bool>())
+            {
                 return false;
+            }
+
             return CurrentMode != Mode.Lasthit || Menu.Item("LastHit_move").GetValue<bool>();
         }
 
         private static bool IsAllowedToAttack()
         {
             if (!_attack)
+            {
                 return false;
-            if (Menu.Item("orb_Misc_AllAttackDisabled").GetValue<bool>())
-                return false;
-            if (CurrentMode == Mode.Combo && !Menu.Item("Combo_attack").GetValue<bool>())
-                return false;
-            if (CurrentMode == Mode.Harass && !Menu.Item("Harass_attack").GetValue<bool>())
-                return false;
-            if (CurrentMode == Mode.LaneClear && !Menu.Item("LaneClear_attack").GetValue<bool>())
-                return false;
-            if (CurrentMode == Mode.LaneFreeze && !Menu.Item("LaneFreeze_attack").GetValue<bool>())
-                return false;
-            return CurrentMode != Mode.Lasthit || Menu.Item("LastHit_attack").GetValue<bool>();
+            }
 
+            if (Menu.Item("orb_Misc_AllAttackDisabled").GetValue<bool>())
+            {
+                return false;
+            }
+
+            if (CurrentMode == Mode.Combo && !Menu.Item("Combo_attack").GetValue<bool>())
+            {
+                return false;
+            }
+
+            if (CurrentMode == Mode.Harass && !Menu.Item("Harass_attack").GetValue<bool>())
+            {
+                return false;
+            }
+
+            if (CurrentMode == Mode.LaneClear && !Menu.Item("LaneClear_attack").GetValue<bool>())
+            {
+                return false;
+            }
+
+            if (CurrentMode == Mode.LaneFreeze && !Menu.Item("LaneFreeze_attack").GetValue<bool>())
+            {
+                return false;
+            }
+
+            return CurrentMode != Mode.Lasthit || Menu.Item("LastHit_attack").GetValue<bool>();
         }
 
-        public static Spell R = new Spell(SpellSlot.R);
         private static void OnProcessSpell(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs spell)
         {
-            SpellSlot castedSlot = MyHero.GetSpellSlot(spell.SData.Name);
+            var castedSlot = MyHero.GetSpellSlot(spell.SData.Name);
 
             if (castedSlot == SpellSlot.R && MyHero.ChampionName == "Katarina")
             {
@@ -383,43 +515,75 @@ namespace DZDraven_Reloaded
             }
 
             if (IsAutoAttackReset(spell.SData.Name) && unit.IsMe)
+            {
                 Utility.DelayAction.Add(100, ResetAutoAttackTimer);
+            }
 
             if (!IsAutoAttack(spell.SData.Name))
+            {
                 return;
+            }
+
             if (unit.IsMe)
             {
-                _lastAATick = Environment.TickCount - Game.Ping / 2; // need test todo
+                _lastAaTick = Environment.TickCount - Game.Ping / 2; // need test todo
                 // ReSharper disable once CanBeReplacedWithTryCastAndCheckForNull
                 if (spell.Target is Obj_AI_Base)
                 {
-                    FireOnTargetSwitch((Obj_AI_Base)spell.Target);
-                    _lastTarget = (Obj_AI_Base)spell.Target;
+                    FireOnTargetSwitch((Obj_AI_Base) spell.Target);
+                    _lastTarget = (Obj_AI_Base) spell.Target;
                 }
                 if (unit.IsMelee())
+                {
                     Utility.DelayAction.Add(
-                        (int)(unit.AttackCastDelay * 1000 + Game.Ping * 0.5) + 50, () => FireAfterAttack(unit, _lastTarget));
+                        (int) (unit.AttackCastDelay * 1000 + Game.Ping * 0.5) + 50,
+                        () => FireAfterAttack(unit, _lastTarget));
+                }
 
                 FireOnAttack(unit, _lastTarget);
             }
             else
             {
-                if (spell.Target is Obj_AI_Base)
+                var @base = spell.Target as Obj_AI_Base;
+                if (@base != null)
                 {
-                    FireOnAttack(unit, (Obj_AI_Base)spell.Target);
+                    FireOnAttack(unit, @base);
                 }
             }
         }
 
         public static double GetAzirAaSandwarriorDamage(AttackableUnit target)
         {
-            var unit = (Obj_AI_Base)target;
-            var damagelist = new List<int> { 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 110, 120, 130, 140, 150, 160, 170 };
+            var unit = (Obj_AI_Base) target;
+            var damagelist = new List<int>
+            {
+                50,
+                55,
+                60,
+                65,
+                70,
+                75,
+                80,
+                85,
+                90,
+                95,
+                100,
+                110,
+                120,
+                130,
+                140,
+                150,
+                160,
+                170
+            };
             var dmg = damagelist[MyHero.Level - 1] + (MyHero.BaseAbilityDamage * 0.6);
 
             var count = Soilders.Count(obj => obj.Position.Distance(unit.Position) < 390);
             if (count > 1)
-                return MyHero.CalcDamage(unit, Damage.DamageType.Magical, dmg) + ((MyHero.CalcDamage(unit, Damage.DamageType.Magical, dmg) * 0.25) * (count - 1));
+            {
+                return MyHero.CalcDamage(unit, Damage.DamageType.Magical, dmg) +
+                       ((MyHero.CalcDamage(unit, Damage.DamageType.Magical, dmg) * 0.25) * (count - 1));
+            }
             return MyHero.CalcDamage(unit, Damage.DamageType.Magical, dmg);
         }
 
@@ -433,7 +597,10 @@ namespace DZDraven_Reloaded
             if (ForcedTarget != null)
             {
                 if (InAutoAttackRange(ForcedTarget))
+                {
                     return ForcedTarget;
+                }
+
                 ForcedTarget = null;
             }
 
@@ -445,51 +612,76 @@ namespace DZDraven_Reloaded
             {
                 tempTarget = GetBestHeroTarget();
                 if (tempTarget != null)
+                {
                     return tempTarget;
+                }
             }
 
             //last hit
-            if (CurrentMode == Mode.Harass || CurrentMode == Mode.Lasthit || CurrentMode == Mode.LaneClear || CurrentMode == Mode.LaneFreeze)
+            if (CurrentMode == Mode.Harass || CurrentMode == Mode.Lasthit || CurrentMode == Mode.LaneClear ||
+                CurrentMode == Mode.LaneFreeze)
             {
                 if (MyHero.ChampionName == "Azir" && Soilders.Count > 0)
                 {
-                    var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, 800, MinionTypes.All, MinionTeam.NotAlly);
-                    foreach (var minion in from minion in minions.Where(minion => minion.IsValidTarget() && minion.Name != "Beacon" && InSoldierAttackRange(minion))
-                                           let t = (int)(MyHero.AttackCastDelay * 1000) - 100 + Game.Ping / 2 + 1000 * (int)MyHero.Distance(minion) / (int)MyProjectileSpeed()
-                                           let predHealth = HealthPrediction.GetHealthPrediction(minion, t, FarmDelay(Menu.Item("azir_Misc_Farmdelay").GetValue<Slider>().Value))
-                                           where minion.Team != GameObjectTeam.Neutral && predHealth > 0 &&
-                                                 predHealth <= GetAzirAaSandwarriorDamage(minion)
-                                           select minion)
+                    var minions = MinionManager.GetMinions(
+                        ObjectManager.Player.ServerPosition, 800, MinionTypes.All, MinionTeam.NotAlly);
+                    foreach (
+                        var minion in
+                            from minion in
+                                minions.Where(
+                                    minion =>
+                                        minion.IsValidTarget() && minion.Name != "Beacon" &&
+                                        InSoldierAttackRange(minion))
+                            let t =
+                                (int) (MyHero.AttackCastDelay * 1000) - 100 + Game.Ping / 2 +
+                                1000 * (int) MyHero.Distance(minion) / (int) MyProjectileSpeed()
+                            let predHealth =
+                                HealthPrediction.GetHealthPrediction(
+                                    minion, t, FarmDelay(Menu.Item("azir_Misc_Farmdelay").GetValue<Slider>().Value))
+                            where
+                                minion.Team != GameObjectTeam.Neutral && predHealth > 0 &&
+                                predHealth <= GetAzirAaSandwarriorDamage(minion)
+                            select minion)
+                    {
                         return minion;
+                    }
                 }
 
-                foreach (
-                    var minion in
-                        from minion in
-                            ObjectManager.Get<Obj_AI_Minion>().Where(minion => minion.IsValidTarget() && minion.Name != "Beacon" && InAutoAttackRange(minion))
-                        let t = (int)(MyHero.AttackCastDelay * 1000) - 100 + Game.Ping / 2 +
-                                1000 * (int)MyHero.Distance(minion) / (int)MyProjectileSpeed()
-                        let predHealth = HealthPrediction.GetHealthPrediction(minion, t, FarmDelay())
-                        where minion.Team != GameObjectTeam.Neutral && predHealth > 0 &&
-                              predHealth <= MyHero.GetAutoAttackDamage(minion, true)
-                        select minion)
+                foreach (var minion in
+                    from minion in
+                        ObjectManager.Get<Obj_AI_Minion>()
+                            .Where(
+                                minion => minion.IsValidTarget() && minion.Name != "Beacon" && InAutoAttackRange(minion))
+                    let t =
+                        (int) (MyHero.AttackCastDelay * 1000) - 100 + Game.Ping / 2 +
+                        1000 * (int) MyHero.Distance(minion) / (int) MyProjectileSpeed()
+                    let predHealth = HealthPrediction.GetHealthPrediction(minion, t, FarmDelay())
+                    where
+                        minion.Team != GameObjectTeam.Neutral && predHealth > 0 &&
+                        predHealth <= MyHero.GetAutoAttackDamage(minion, true)
+                    select minion)
+                {
                     return minion;
+                }
             }
 
             if (CurrentMode != Mode.Lasthit)
             {
                 tempTarget = GetBestHeroTarget();
                 if (tempTarget != null)
+                {
                     return tempTarget;
+                }
             }
 
             if (CurrentMode == Mode.Harass || CurrentMode == Mode.LaneClear || CurrentMode == Mode.LaneFreeze)
             {
-
-                foreach (
-                    var turret in
-                        ObjectManager.Get<Obj_AI_Turret>().Where(turret => turret.IsValidTarget(GetAutoAttackRange(MyHero, turret))))
+                foreach (var turret in
+                    ObjectManager.Get<Obj_AI_Turret>()
+                        .Where(turret => turret.IsValidTarget(GetAutoAttackRange(MyHero, turret))))
+                {
                     return turret;
+                }
             }
 
             //jungle
@@ -500,29 +692,48 @@ namespace DZDraven_Reloaded
                 {
                     maxhealth = new float[] { 0 };
                     var maxhealth1 = maxhealth;
-                    var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, 800, MinionTypes.All, MinionTeam.Neutral);
-                    foreach (
-                        var minion in
-                            minions
-                                .Where(minion => InSoldierAttackRange(minion) && minion.Name != "Beacon" && minion.IsValidTarget())
-                                .Where(minion => minion.MaxHealth >= maxhealth1[0] || Math.Abs(maxhealth1[0] - float.MaxValue) < float.Epsilon))
+                    var minions = MinionManager.GetMinions(
+                        ObjectManager.Player.ServerPosition, 800, MinionTypes.All, MinionTeam.Neutral);
+                    foreach (var minion in
+                        minions.Where(
+                            minion => InSoldierAttackRange(minion) && minion.Name != "Beacon" && minion.IsValidTarget())
+                            .Where(
+                                minion =>
+                                    minion.MaxHealth >= maxhealth1[0] ||
+                                    Math.Abs(maxhealth1[0] - float.MaxValue) < float.Epsilon))
                     {
                         tempTarget = minion;
                         maxhealth[0] = minion.MaxHealth;
                     }
+
                     if (tempTarget != null)
+                    {
                         return tempTarget;
+                    }
                 }
 
                 maxhealth = new float[] { 0 };
                 var maxhealth2 = maxhealth;
-                foreach (var minion in ObjectManager.Get<Obj_AI_Minion>().Where(minion => minion.IsValidTarget(GetAutoAttackRange(MyHero, minion)) && minion.Name != "Beacon" && minion.Team == GameObjectTeam.Neutral).Where(minion => minion.MaxHealth >= maxhealth2[0] || Math.Abs(maxhealth2[0] - float.MaxValue) < float.Epsilon))
+                foreach (
+                    var minion in
+                        ObjectManager.Get<Obj_AI_Minion>()
+                            .Where(
+                                minion =>
+                                    minion.IsValidTarget(GetAutoAttackRange(MyHero, minion)) && minion.Name != "Beacon" &&
+                                    minion.Team == GameObjectTeam.Neutral)
+                            .Where(
+                                minion =>
+                                    minion.MaxHealth >= maxhealth2[0] ||
+                                    Math.Abs(maxhealth2[0] - float.MaxValue) < float.Epsilon))
                 {
                     tempTarget = minion;
                     maxhealth[0] = minion.MaxHealth;
                 }
+
                 if (tempTarget != null)
+                {
                     return tempTarget;
+                }
             }
 
             //LANE CLEAR
@@ -535,76 +746,89 @@ namespace DZDraven_Reloaded
             if (MyHero.ChampionName == "Azir" && Soilders.Count > 0)
             {
                 maxhealth = new float[] { 0 };
-                float[] maxhealth1 = maxhealth;
-                var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, 800, MinionTypes.All, MinionTeam.NotAlly);
-                foreach (var minion in from minion in minions
-                    .Where(minion => minion.IsValidTarget() && minion.Name != "Beacon" && InSoldierAttackRange(minion))
-                                       let predHealth = HealthPrediction.LaneClearHealthPrediction(minion, (int)((MyHero.AttackDelay * 1000) * LaneClearWaitTimeMod), FarmDelay(Menu.Item("azir_Misc_Farmdelay").GetValue<Slider>().Value))
-                                       where predHealth >=
-                                             GetAzirAaSandwarriorDamage(minion) + MyHero.GetAutoAttackDamage(minion, true) ||
-                                             Math.Abs(predHealth - minion.Health) < float.Epsilon
-                                       where minion.Health >= maxhealth1[0] || Math.Abs(maxhealth1[0] - float.MaxValue) < float.Epsilon
-                                       select minion)
+                var maxhealth1 = maxhealth;
+                var minions = MinionManager.GetMinions(
+                    ObjectManager.Player.ServerPosition, 800, MinionTypes.All, MinionTeam.NotAlly);
+                foreach (
+                    var minion in
+                        from minion in
+                            minions.Where(
+                                minion =>
+                                    minion.IsValidTarget() && minion.Name != "Beacon" && InSoldierAttackRange(minion))
+                        let predHealth =
+                            HealthPrediction.LaneClearHealthPrediction(
+                                minion, (int) ((MyHero.AttackDelay * 1000) * LaneClearWaitTimeMod),
+                                FarmDelay(Menu.Item("azir_Misc_Farmdelay").GetValue<Slider>().Value))
+                        where
+                            predHealth >= GetAzirAaSandwarriorDamage(minion) + MyHero.GetAutoAttackDamage(minion, true) ||
+                            Math.Abs(predHealth - minion.Health) < float.Epsilon
+                        where minion.Health >= maxhealth1[0] || Math.Abs(maxhealth1[0] - float.MaxValue) < float.Epsilon
+                        select minion)
                 {
                     tempTarget = minion;
                     maxhealth[0] = minion.MaxHealth;
                 }
-                if (tempTarget != null)
-                    return tempTarget;
+                return tempTarget;
             }
-            else
+            maxhealth = new float[] { 0 };
+            foreach (
+                var minion in
+                    from minion in
+                        ObjectManager.Get<Obj_AI_Minion>()
+                            .Where(
+                                minion =>
+                                    minion.IsValidTarget(GetAutoAttackRange(MyHero, minion)) && minion.Name != "Beacon")
+                    let predHealth =
+                        HealthPrediction.LaneClearHealthPrediction(
+                            minion, (int) ((MyHero.AttackDelay * 1000) * LaneClearWaitTimeMod), FarmDelay())
+                    where
+                        predHealth >= 2 * MyHero.GetAutoAttackDamage(minion, true) ||
+                        Math.Abs(predHealth - minion.Health) < float.Epsilon
+                    where minion.Health >= maxhealth[0] || Math.Abs(maxhealth[0] - float.MaxValue) < float.Epsilon
+                    select minion)
             {
-                maxhealth = new float[] { 0 };
-                foreach (var minion in from minion in ObjectManager.Get<Obj_AI_Minion>()
-                    .Where(minion => minion.IsValidTarget(GetAutoAttackRange(MyHero, minion)) && minion.Name != "Beacon")
-                                       let predHealth = HealthPrediction.LaneClearHealthPrediction(minion, (int)((MyHero.AttackDelay * 1000) * LaneClearWaitTimeMod), FarmDelay())
-                                       where predHealth >=
-                                             2 * MyHero.GetAutoAttackDamage(minion, true) ||
-                                             Math.Abs(predHealth - minion.Health) < float.Epsilon
-                                       where minion.Health >= maxhealth[0] || Math.Abs(maxhealth[0] - float.MaxValue) < float.Epsilon
-                                       select minion)
-                {
-                    tempTarget = minion;
-                    maxhealth[0] = minion.MaxHealth;
-                }
-                if (tempTarget != null)
-                    return tempTarget;
+                tempTarget = minion;
+                maxhealth[0] = minion.MaxHealth;
             }
 
-            return null;
+            return tempTarget;
         }
 
         private static bool ShouldWait()
         {
             if (MyHero.ChampionName == "Azir" && Soilders.Count > 0)
             {
-                return ObjectManager.Get<Obj_AI_Minion>()
-                    .Any(
-                    minion =>
-                    minion.IsValidTarget() && minion.Team != GameObjectTeam.Neutral &&
-                    InSoldierAttackRange(minion) &&
-                    HealthPrediction.LaneClearHealthPrediction(
-                    minion, (int)((MyHero.AttackDelay * 1000) * LaneClearWaitTimeMod), FarmDelay(Menu.Item("azir_Misc_Farmdelay").GetValue<Slider>().Value)) <= GetAzirAaSandwarriorDamage(minion));
+                return
+                    ObjectManager.Get<Obj_AI_Minion>()
+                        .Any(
+                            minion =>
+                                minion.IsValidTarget() && minion.Team != GameObjectTeam.Neutral &&
+                                InSoldierAttackRange(minion) &&
+                                HealthPrediction.LaneClearHealthPrediction(
+                                    minion, (int) ((MyHero.AttackDelay * 1000) * LaneClearWaitTimeMod),
+                                    FarmDelay(Menu.Item("azir_Misc_Farmdelay").GetValue<Slider>().Value)) <=
+                                GetAzirAaSandwarriorDamage(minion));
             }
 
-            return ObjectManager.Get<Obj_AI_Minion>()
-            .Any(
-            minion =>
-            minion.IsValidTarget() && minion.Team != GameObjectTeam.Neutral &&
-            InAutoAttackRange(minion) &&
-            HealthPrediction.LaneClearHealthPrediction(
-            minion, (int)((MyHero.AttackDelay * 1000) * LaneClearWaitTimeMod), FarmDelay()) <= MyHero.GetAutoAttackDamage(minion));
+            return
+                ObjectManager.Get<Obj_AI_Minion>()
+                    .Any(
+                        minion =>
+                            minion.IsValidTarget() && minion.Team != GameObjectTeam.Neutral && InAutoAttackRange(minion) &&
+                            HealthPrediction.LaneClearHealthPrediction(
+                                minion, (int) ((MyHero.AttackDelay * 1000) * LaneClearWaitTimeMod), FarmDelay()) <=
+                            MyHero.GetAutoAttackDamage(minion));
         }
 
         public static bool IsAutoAttack(string name)
         {
             return (name.ToLower().Contains("attack") && !NoAttacks.Contains(name.ToLower())) ||
-            Attacks.Contains(name.ToLower());
+                   Attacks.Contains(name.ToLower());
         }
 
         public static void ResetAutoAttackTimer()
         {
-            _lastAATick = 0;
+            _lastAaTick = 0;
         }
 
         public static bool IsAutoAttackReset(string name)
@@ -612,28 +836,39 @@ namespace DZDraven_Reloaded
             return AttackResets.Contains(name.ToLower());
         }
 
-        public static float GetNextAATime()
+        public static float GetNextAaTime()
         {
-            return (_lastAATick + MyHero.AttackDelay * 1000) - (Environment.TickCount + Game.Ping / 2 + 25);
+            return (_lastAaTick + MyHero.AttackDelay * 1000) - (Environment.TickCount + Game.Ping / 2 + 25);
         }
+
         public static bool CanAttack()
         {
-            if (_lastAATick <= Environment.TickCount)
-                return Environment.TickCount + Game.Ping / 2 + 25 >= _lastAATick + MyHero.AttackDelay * 1000 && _attack;
+            if (_lastAaTick <= Environment.TickCount)
+            {
+                return Environment.TickCount + Game.Ping / 2 + 25 >= _lastAaTick + MyHero.AttackDelay * 1000 && _attack;
+            }
+
             return false;
         }
 
         private static bool HaveCancled()
         {
-            if (_lastAATick - Environment.TickCount > MyHero.AttackCastDelay * 1000 + 25)
-                return lastRealAttack < _lastAATick;
+            if (_lastAaTick - Environment.TickCount > MyHero.AttackCastDelay * 1000 + 25)
+            {
+                return _lastRealAttack < _lastAaTick;
+            }
+
             return false;
         }
 
         public static bool CanMove()
         {
-            if (_lastAATick <= Environment.TickCount)
-                return Environment.TickCount + Game.Ping / 2 >= _lastAATick + MyHero.AttackCastDelay * 1000 + _windup && _movement;
+            if (_lastAaTick <= Environment.TickCount)
+            {
+                return Environment.TickCount + Game.Ping / 2 >= _lastAaTick + MyHero.AttackCastDelay * 1000 + _windup &&
+                       _movement;
+            }
+
             return false;
         }
 
@@ -644,9 +879,7 @@ namespace DZDraven_Reloaded
 
         private static int FarmDelay(int offset = 0)
         {
-            if (offset != 0)
-                return offset;
-            return Menu.Item("orb_Misc_Farmdelay").GetValue<Slider>().Value;
+            return offset != 0 ? offset : Menu.Item("orb_Misc_Farmdelay").GetValue<Slider>().Value;
         }
 
         private static Obj_AI_Hero GetBestHeroTarget()
@@ -658,30 +891,52 @@ namespace DZDraven_Reloaded
                 foreach (var enemy in AllEnemys.Where(hero => hero.IsValidTarget() && InSoldierAttackRange(hero)))
                 {
                     var killHits = CountKillhitsAzirSoldier(enemy);
-                    if (killableEnemy != null && (!(killHits < hitsToKill) || enemy.HasBuffOfType(BuffType.Invulnerability)))
+                    if (killableEnemy != null &&
+                        (!(killHits < hitsToKill) || enemy.HasBuffOfType(BuffType.Invulnerability)))
+                    {
                         continue;
+                    }
+
                     killableEnemy = enemy;
                     hitsToKill = killHits;
                 }
                 if (hitsToKill <= 4)
+                {
                     return killableEnemy;
+                }
+
                 Obj_AI_Hero[] mostdmgenemy = { null };
-                foreach (var enemy in AllEnemys.Where(hero => hero.IsValidTarget() && InSoldierAttackRange(hero)).Where(enemy => mostdmgenemy[0] == null || GetAzirAaSandwarriorDamage(enemy) > GetAzirAaSandwarriorDamage(mostdmgenemy[0])))
+                foreach (
+                    var enemy in
+                        AllEnemys.Where(hero => hero.IsValidTarget() && InSoldierAttackRange(hero))
+                            .Where(
+                                enemy =>
+                                    mostdmgenemy[0] == null ||
+                                    GetAzirAaSandwarriorDamage(enemy) > GetAzirAaSandwarriorDamage(mostdmgenemy[0])))
                 {
                     mostdmgenemy[0] = enemy;
                 }
+
                 if (mostdmgenemy[0] != null)
+                {
                     return mostdmgenemy[0];
+                }
             }
             foreach (var enemy in AllEnemys.Where(hero => hero.IsValidTarget() && InAutoAttackRange(hero)))
             {
                 var killHits = CountKillhits(enemy);
                 if (killableEnemy != null && (!(killHits < hitsToKill) || enemy.HasBuffOfType(BuffType.Invulnerability)))
+                {
                     continue;
+                }
+
                 hitsToKill = killHits;
                 killableEnemy = enemy;
             }
-            return hitsToKill <= 3 ? killableEnemy : TargetSelector.GetTarget(GetAutoAttackRange(), TargetSelector.DamageType.Physical);
+
+            return hitsToKill <= 3
+                ? killableEnemy
+                : TargetSelector.GetTarget(GetAutoAttackRange(), TargetSelector.DamageType.Physical);
         }
 
         public static double CountKillhits(Obj_AI_Base enemy)
@@ -703,15 +958,26 @@ namespace DZDraven_Reloaded
             }
             var additional = 0;
             if (Game.Ping >= 100)
+            {
                 additional = Game.Ping / 100 * 5;
+            }
             else if (Game.Ping > 40 && Game.Ping < 100)
+            {
                 additional = Game.Ping / 100 * 10;
+            }
             else if (Game.Ping <= 40)
+            {
                 additional = +20;
+            }
+
             var windUp = Game.Ping + additional;
             if (windUp < 40)
+            {
                 windUp = 40;
-            Menu.Item("orb_Misc_ExtraWindUp").SetValue(windUp < 200 ? new Slider(windUp, 200, 0) : new Slider(200, 200, 0));
+            }
+
+            Menu.Item("orb_Misc_ExtraWindUp")
+                .SetValue(windUp < 200 ? new Slider(windUp, 200, 0) : new Slider(200, 200, 0));
             _windup = windUp;
         }
 
@@ -733,17 +999,26 @@ namespace DZDraven_Reloaded
         public static float GetAutoAttackRange(Obj_AI_Base source = null, AttackableUnit target = null)
         {
             if (source == null)
+            {
                 source = MyHero;
+            }
+
             var ret = source.AttackRange + MyHero.BoundingRadius;
             if (target != null)
+            {
                 ret += target.BoundingRadius;
+            }
+
             return ret;
         }
 
         public static bool InAutoAttackRange(AttackableUnit target)
         {
             if (target == null)
+            {
                 return false;
+            }
+
             var myRange = GetAutoAttackRange(MyHero, target);
             return target.IsValidTarget(myRange);
         }
@@ -753,15 +1028,30 @@ namespace DZDraven_Reloaded
             get
             {
                 if (Menu.Item("Combo_Key").GetValue<KeyBind>().Active)
+                {
                     return Mode.Combo;
+                }
+
                 if (Menu.Item("Harass_Key").GetValue<KeyBind>().Active)
+                {
                     return Mode.Harass;
+                }
+
                 if (Menu.Item("LaneClear_Key").GetValue<KeyBind>().Active)
+                {
                     return Mode.LaneClear;
+                }
+
                 if (Menu.Item("LaneFreeze_Key").GetValue<KeyBind>().Active)
+                {
                     return Mode.LaneFreeze;
+                }
+
                 if (Menu.Item("LastHit_Key").GetValue<KeyBind>().Active)
+                {
                     return Mode.Lasthit;
+                }
+
                 return Menu.Item("Flee_Key").GetValue<KeyBind>().Active ? Mode.Flee : Mode.None;
             }
         }
@@ -788,15 +1078,13 @@ namespace DZDraven_Reloaded
 
         public class BeforeAttackEventArgs
         {
+            private bool _process = true;
             public AttackableUnit Target;
             public AttackableUnit Unit = ObjectManager.Player;
-            private bool _process = true;
+
             public bool Process
             {
-                get
-                {
-                    return _process;
-                }
+                get { return _process; }
                 set
                 {
                     _disableNextAttack = !value;
@@ -804,14 +1092,12 @@ namespace DZDraven_Reloaded
                 }
             }
         }
+
         private static void FireBeforeAttack(AttackableUnit target)
         {
             if (BeforeAttack != null)
             {
-                BeforeAttack(new BeforeAttackEventArgs
-                {
-                    Target = target
-                });
+                BeforeAttack(new BeforeAttackEventArgs { Target = target });
             }
             else
             {
