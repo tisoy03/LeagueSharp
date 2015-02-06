@@ -28,6 +28,10 @@ namespace VayneHunter_Reborn
 
         void OnLoad(EventArgs args)
         {
+            if (ObjectManager.Player.ChampionName != "Vayne")
+            {
+                return;
+            }
             Menu = new Menu("VayneHunter Reborn","VHR",true);
             var owMenu = new Menu("VHR Orbwalker", "dz191.vhr.orbwalker");
             Orbwalker = new Orbwalking.Orbwalker(owMenu);
