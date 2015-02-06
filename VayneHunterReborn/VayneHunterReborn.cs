@@ -181,6 +181,19 @@ namespace VayneHunter_Reborn
             }
             #endregion
 
+            #region Low Life Peel
+
+            if (MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.lowlifepeel") &&ObjectManager.Player.HealthPercentage() <= 20)
+            {
+                var meleeEnemies = ObjectManager.Player.GetEnemiesInRange(350f).FindAll(m => m.IsMelee());
+                if (meleeEnemies.Any())
+                {
+                    var mostDangerous = meleeEnemies.OrderByDescending(m => m.GetAutoAttackDamage(ObjectManager.Player)).First();
+                    _spells[SpellSlot.E].Cast(mostDangerous);
+                }
+            }
+            #endregion
+
         }
 
         private void Combo()
