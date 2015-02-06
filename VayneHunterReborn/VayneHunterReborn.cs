@@ -23,11 +23,10 @@ namespace VayneHunter_Reborn
         };
         public VayneHunterReborn()
         {
-            Console.Clear();
-            OnLoad();
+            CustomEvents.Game.OnGameLoad += OnLoad;
         }
 
-        void OnLoad()
+        void OnLoad(EventArgs args)
         {
             Menu = new Menu("VayneHunter Reborn","VHR",true);
             var owMenu = new Menu("VHR Orbwalker", "dz191.vhr.orbwalker");
@@ -94,6 +93,7 @@ namespace VayneHunter_Reborn
             Game.PrintChat("<b><font color='#FF0000'>[VH]</font></b><font color='#FFFFFF'> Reborn loaded! Version: 4.0 </font>");
             SetUpEvents();
             SetUpSkills();
+            Console.Clear();
         }
 
         void SetUpSkills()

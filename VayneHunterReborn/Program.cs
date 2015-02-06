@@ -12,10 +12,7 @@ namespace VayneHunter_Reborn
     {
         static void Main(string[] args)
         {
-            CustomEvents.Game.OnGameLoad += delegate
-            {
-                new VayneHunterReborn();
-            };
+            new VayneHunterReborn();
         }
     }
 }
