@@ -41,6 +41,7 @@ namespace VayneHunter_Reborn
             var comboMenu = new Menu("[VHR] Combo", "dz191.vhr.combo");
             comboMenu.AddModeMenu(Mode.Combo,new []{SpellSlot.Q,SpellSlot.E,SpellSlot.R},new []{true,true,false});
             comboMenu.AddManaManager(Mode.Combo, new[] { SpellSlot.Q, SpellSlot.E, SpellSlot.R }, new[] { 25,20,20 });
+            comboMenu.AddItem(new MenuItem("dz191.vhr.combo.r.minenemies", "Min R Enemies").SetValue(new Slider(2, 1, 5)));
             Menu.AddSubMenu(comboMenu);
             var harassMenu = new Menu("[VHR] Harass", "dz191.vhr.harass");
             harassMenu.AddModeMenu(Mode.Harrass, new[] { SpellSlot.Q, SpellSlot.E }, new[] { true, true });
@@ -350,6 +351,10 @@ namespace VayneHunter_Reborn
                         break;
                     }
                 }
+            }
+            if (_spells[SpellSlot.R].IsEnabledAndReady(Mode.Combo) &&ObjectManager.Player.CountEnemiesInRange(550f) >= MenuHelper.getSliderValue("dz191.vhr.combo.r.minenemies"))
+            {
+                _spells[SpellSlot.R].Cast();
             }
             CastTumble(myPosition,target);
         }
