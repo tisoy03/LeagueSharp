@@ -115,7 +115,6 @@ namespace VayneHunter_Reborn
         }
         void Game_OnGameUpdate(EventArgs args)
         {
-            Game.PrintChat("Kappa" + MenuHelper.getSliderValue("dz191.vhr.combo.r.minenemies"));
             switch (Orbwalker.ActiveMode)
             {
                 case Orbwalking.OrbwalkingMode.Combo:
