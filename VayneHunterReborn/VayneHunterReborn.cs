@@ -179,9 +179,22 @@ namespace VayneHunter_Reborn
             #endregion
 
             #region WallTumble
+
             if (Menu.Item("dz191.vhr.misc.tumble.walltumble").GetValue<KeyBind>().Active)
             {
-                WallTumble();
+                Vector2 MidWallQPos = new Vector2(6707.485f, 8802.744f);
+                Vector2 drakeWallQPos = new Vector2(11514, 4462);
+                Vector2 baseWallQPos = new Vector2(12171.35f, 10381.68f);
+
+                if (ObjectManager.Player.Distance(baseWallQPos) < ObjectManager.Player.Distance(drakeWallQPos) && ObjectManager.Player.Distance(baseWallQPos) < ObjectManager.Player.Distance(MidWallQPos))
+                {
+                    WallTumble2();
+                }
+                else
+                {
+                    WallTumble();
+                }
+    
             }
             #endregion
 
@@ -477,9 +490,10 @@ namespace VayneHunter_Reborn
         {
             Vector2 midWallQPos = new Vector2(6707.485f, 8802.744f);
             Vector2 drakeWallQPos = new Vector2(11514, 4462);
+            Vector2 baseWallQPos = new Vector2(12171.35f, 10381.68f);
+
             if (Player.Distance(midWallQPos) >= Player.Distance(drakeWallQPos))
             {
-
                 if (Player.Position.X < 12000 || Player.Position.X > 12070 || Player.Position.Y < 4800 ||
                     Player.Position.Y > 4872)
                 {
@@ -505,6 +519,24 @@ namespace VayneHunter_Reborn
                 }
             }
         }
+
+        void WallTumble2()
+        {
+            Vector2 baseWallQPos = new Vector2(12171.35f, 10381.68f);
+
+            if (Player.Position.X < 11905 || Player.Position.X > 11985 || Player.Position.Y < 9990 ||
+                Player.Position.Y > 10050)
+            {
+                Helpers.MoveToLimited(new Vector2(11935, 10010).To3D());
+            }
+            else
+            {
+                Helpers.MoveToLimited(new Vector2(11935, 10010).To3D());
+                _spells[SpellSlot.Q].Cast(baseWallQPos, true);
+            }
+
+        }
+
 
         #endregion
 
