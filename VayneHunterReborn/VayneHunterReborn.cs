@@ -140,7 +140,7 @@ namespace VayneHunter_Reborn
                 Obj_AI_Hero target;
                 if (CondemnCheck(ObjectManager.Player.ServerPosition, out target))
                 {
-                    if (target.IsValidTarget(_spells[SpellSlot.E].Range))
+                    if (target.IsValidTarget(_spells[SpellSlot.E].Range) && (target is Obj_AI_Hero))
                     {
                         _spells[SpellSlot.E].Cast(target);
                     }
@@ -171,7 +171,7 @@ namespace VayneHunter_Reborn
             if (MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.eks"))
             {
                 var target = HeroManager.Enemies.Find(en => en.IsValidTarget(_spells[SpellSlot.E].Range) && en.Has2WStacks());
-                if (target != null && target.Health + 20 <=(_spells[SpellSlot.E].GetDamage(target) + _spells[SpellSlot.W].GetDamage(target)))
+                if (target != null && target.Health + 20 <=(_spells[SpellSlot.E].GetDamage(target) + _spells[SpellSlot.W].GetDamage(target)) && (target is Obj_AI_Hero))
                 {
                     _spells[SpellSlot.E].Cast(target);
                 }
@@ -206,7 +206,10 @@ namespace VayneHunter_Reborn
                 if (meleeEnemies.Any())
                 {
                     var mostDangerous = meleeEnemies.OrderByDescending(m => m.GetAutoAttackDamage(ObjectManager.Player)).First();
-                    _spells[SpellSlot.E].Cast(mostDangerous);
+                    if (mostDangerous is Obj_AI_Hero)
+                    {
+                        _spells[SpellSlot.E].Cast(mostDangerous);
+                    }
                 }
             }
             #endregion
@@ -220,7 +223,7 @@ namespace VayneHunter_Reborn
                 Obj_AI_Hero target;
                 if (CondemnCheck(ObjectManager.Player.ServerPosition,out target))
                 {
-                    if (target.IsValidTarget(_spells[SpellSlot.E].Range))
+                    if (target.IsValidTarget(_spells[SpellSlot.E].Range) && (target is Obj_AI_Hero))
                     {
                         _spells[SpellSlot.E].Cast(target);
                     }
@@ -233,7 +236,7 @@ namespace VayneHunter_Reborn
             if (_spells[SpellSlot.E].IsEnabledAndReady(Mode.Harrass))
             {
                 var possibleTarget = HeroManager.Enemies.Find(enemy => enemy.IsValidTarget(_spells[SpellSlot.E].Range) && enemy.Has2WStacks());
-                if (possibleTarget != null && MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.ethird"))
+                if (possibleTarget != null && MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.ethird") && (possibleTarget is Obj_AI_Hero))
                 {
                     _spells[SpellSlot.E].Cast(possibleTarget);
                 }
@@ -241,7 +244,7 @@ namespace VayneHunter_Reborn
                 Obj_AI_Hero target;
                 if (CondemnCheck(ObjectManager.Player.ServerPosition, out target))
                 {
-                    if (target.IsValidTarget(_spells[SpellSlot.E].Range))
+                    if (target.IsValidTarget(_spells[SpellSlot.E].Range) && (target is Obj_AI_Hero))
                     {
                         _spells[SpellSlot.E].Cast(target);
                     }
@@ -276,7 +279,7 @@ namespace VayneHunter_Reborn
             }
             var tg = (Obj_AI_Base) target;
             if (MenuHelper.getKeybindValue("dz191.vhr.misc.condemn.enextauto") &&
-                _spells[SpellSlot.E].CanCast(tg))
+                _spells[SpellSlot.E].CanCast(tg) && (tg is Obj_AI_Hero))
             {
                 _spells[SpellSlot.E].Cast(tg);
                 Menu.Item("dz191.vhr.misc.condemn.enextauto").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Toggle));
@@ -344,7 +347,7 @@ namespace VayneHunter_Reborn
         {
             if (MenuHelper.isMenuEnabled("dz191.vhr.misc.general.antigp"))
             {
-                if (gapcloser.Sender.IsValidTarget(_spells[SpellSlot.E].Range) && gapcloser.End.Distance(ObjectManager.Player.ServerPosition) <= 375f)
+                if (gapcloser.Sender.IsValidTarget(_spells[SpellSlot.E].Range) && gapcloser.End.Distance(ObjectManager.Player.ServerPosition) <= 375f && (gapcloser.Sender is Obj_AI_Hero))
                 {
                     _spells[SpellSlot.E].Cast(gapcloser.Sender);
                 }
@@ -355,7 +358,7 @@ namespace VayneHunter_Reborn
         {
             if (MenuHelper.isMenuEnabled("dz191.vhr.misc.general.interrupt"))
             {
-                if (args.DangerLevel == Interrupter2.DangerLevel.High && sender.IsValidTarget(_spells[SpellSlot.E].Range))
+                if (args.DangerLevel == Interrupter2.DangerLevel.High && sender.IsValidTarget(_spells[SpellSlot.E].Range) && (sender is Obj_AI_Hero))
                 {
                     _spells[SpellSlot.E].Cast(sender);
                 }
