@@ -21,21 +21,24 @@ namespace VayneHunter_Reborn.Utility
                 Id=3144,
                 Name = "Bilgewater Cutlass",
                 Range = 600f,
-                Class = ItemClass.Offensive
+                Class = ItemClass.Offensive,
+                Mode = ItemMode.Targeted
             },
             new DzItem
             {
                 Id= 3153,
                 Name = "Blade of the Ruined King",
                 Range = 600f,
-                Class = ItemClass.Offensive
+                Class = ItemClass.Offensive,
+                Mode = ItemMode.Targeted
             },
             new DzItem
             {
                 Id= 3142,
                 Name = "Youmuu",
                 Range = float.MaxValue,
-                Class = ItemClass.Offensive
+                Class = ItemClass.Offensive,
+                Mode = ItemMode.NoTarget
             }
         };
 
@@ -93,8 +96,10 @@ namespace VayneHunter_Reborn.Utility
             foreach (var item in offensiveItems)
             {
                 var selectedTarget = Hud.SelectedUnit as Obj_AI_Base ?? TargetSelector.GetTarget(item.Range, TargetSelector.DamageType.True);
-                if (!selectedTarget.IsValidTarget())
+                if (!selectedTarget.IsValidTarget() && item.Mode != ItemMode.NoTarget)
+                {
                     return;
+                }
                 if (MenuHelper.isMenuEnabled("dz191.vhr.activator." + item.Id + ".always"))
                 {
                     UseItem(selectedTarget, item);
@@ -129,6 +134,9 @@ namespace VayneHunter_Reborn.Utility
             {
                 case ItemMode.Targeted:
                     Items.UseItem(item.Id, target);
+                    break;
+                case ItemMode.NoTarget:
+                    Items.UseItem(item.Id, ObjectManager.Player);
                     break;
                 case ItemMode.Skillshot:
                     var customPred = Prediction.GetPrediction(item.CustomInput);
@@ -190,7 +198,7 @@ namespace VayneHunter_Reborn.Utility
 
     enum ItemMode
     {
-        Targeted, Skillshot
+        Targeted, Skillshot, NoTarget
     }
 
     enum ItemClass
