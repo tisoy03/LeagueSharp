@@ -33,11 +33,11 @@ namespace VayneHunter_Reborn
                 return;
             }
             Menu = new Menu("VayneHunter Reborn","VHR",true);
-            var owMenu = new Menu("VHR Orbwalker", "dz191.vhr.orbwalker");
+            var owMenu = new Menu("[VHR] Orbwalker", "dz191.vhr.orbwalker");
             Orbwalker = new Orbwalking.Orbwalker(owMenu);
             Menu.AddSubMenu(owMenu);
 
-            var tgMenu = new Menu("VHR Target Selector", "dz191.vhr.targetselector");
+            var tgMenu = new Menu("[VHR] Target Selector", "dz191.vhr.targetselector");
             TargetSelector.AddToMenu(tgMenu);
             Menu.AddSubMenu(tgMenu);
 
