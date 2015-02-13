@@ -446,7 +446,7 @@ namespace VayneHunter_Reborn
             {
                 case 0:
                     //VHReborn Condemn Code
-                    foreach (var target in HeroManager.Enemies.Where(h => h.IsValidTarget(_spells[SpellSlot.E].Range)))
+                    foreach (var target in HeroManager.Enemies.Where(h => h.IsValidTarget(_spells[SpellSlot.E].Range) && !h.HasBuffOfType(BuffType.SpellShield) && !h.HasBuffOfType(BuffType.SpellImmunity)))
                     {
                         var pushDistance = MenuHelper.getSliderValue("dz191.vhr.misc.condemn.pushdistance");
                         var targetPosition = _spells[SpellSlot.E].GetPrediction(target).UnitPosition;
