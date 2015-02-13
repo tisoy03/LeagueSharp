@@ -154,8 +154,8 @@ namespace VayneHunter_Reborn
                 var target = HeroManager.Enemies.Find(en => en.IsValidTarget(ObjectManager.Player.AttackRange) && en.Has2WStacks());
                 if (target != null)
                 {
-                    Orbwalker.ForceTarget(target);
-                    Hud.SelectedUnit = target;
+                   // Orbwalker.ForceTarget(target);
+                  //  Hud.SelectedUnit = target;
                 }
             }
             #endregion
@@ -347,6 +347,7 @@ namespace VayneHunter_Reborn
         {
             if (MenuHelper.isMenuEnabled("dz191.vhr.misc.general.antigp"))
             {
+               
                 if (gapcloser.Sender.IsValidTarget(_spells[SpellSlot.E].Range) && gapcloser.End.Distance(ObjectManager.Player.ServerPosition) <= 375f && (gapcloser.Sender is Obj_AI_Hero))
                 {
                     _spells[SpellSlot.E].Cast(gapcloser.Sender);
