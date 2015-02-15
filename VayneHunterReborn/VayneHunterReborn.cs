@@ -371,7 +371,7 @@ namespace VayneHunter_Reborn
         private void CastQ(Obj_AI_Base target)
         {
             var myPosition = Game.CursorPos;
-            if (MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.smartq"))
+            if (MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.smartq") && _spells[SpellSlot.E].IsReady()) 
             {
                 const int currentStep = 35;
                 var direction = ObjectManager.Player.Direction.To2D().Perpendicular();
@@ -457,7 +457,7 @@ namespace VayneHunter_Reborn
                             var extendedPosition = targetPosition.Extend(fromPosition, -(i * target.BoundingRadius));
                             var extendedPosition2 = targetPosition.Extend(fromPosition, -(i * target.BoundingRadius + target.BoundingRadius/4));
                             var extendedPosition3 = targetPosition.Extend(fromPosition, -(i * target.BoundingRadius - target.BoundingRadius/4));
-                            var underTurret = MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.condemnturret") && (finalPosition.UnderTurret(false) || Helpers.IsFountain(finalPosition));
+                            var underTurret = MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.condemnturret") && (Helpers.UnderAllyTurret(finalPosition) || Helpers.IsFountain(finalPosition));
                             var j4Flag = MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.condemnflag") && (Helpers.IsJ4FlagThere(extendedPosition, target) || Helpers.IsJ4FlagThere(extendedPosition2, target) || Helpers.IsJ4FlagThere(extendedPosition3, target));
                             if (extendedPosition.IsWall() || extendedPosition2.IsWall() || extendedPosition3.IsWall() || underTurret || j4Flag || finalPosition.IsWall())
                             {

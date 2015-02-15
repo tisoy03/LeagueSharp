@@ -66,6 +66,11 @@ namespace VayneHunter_Reborn.Utility
         {
             return HeroManager.Enemies.Where(hero => hero.IsValidTarget(range, true, position) && hero.HealthPercentage() <= 15).ToList();
         }
+
+        public static bool UnderAllyTurret(Vector3 Position)
+        {
+            return ObjectManager.Get<Obj_AI_Turret>().Any(t => t.IsAlly && !t.IsDead);
+        }
         #endregion
     }
 }
