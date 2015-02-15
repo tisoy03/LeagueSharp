@@ -94,7 +94,7 @@ namespace VayneHunter_Reborn
             Menu.AddSubMenu(drawMenu);
 
             Menu.AddToMainMenu();
-            Game.PrintChat("<b><font color='#FF0000'>[VH]</font></b><font color='#FFFFFF'> Reborn loaded! Version: 4.0 </font>");
+            Game.PrintChat("<b><font color='#FF0000'>[VH]</font></b><font color='#FFFFFF'> Reborn loaded! Version: 4.4 </font>");
             SetUpEvents();
             SetUpSkills();
             Console.Clear();
