@@ -94,7 +94,7 @@ namespace VayneHunter_Reborn
             Menu.AddSubMenu(drawMenu);
 
             Menu.AddToMainMenu();
-            Game.PrintChat("<b><font color='#FF0000'>[VH]</font></b><font color='#FFFFFF'> Reborn loaded! Version: 4.4 </font>");
+            Game.PrintChat("<b><font color='#FF0000'>[VH]</font></b><font color='#FFFFFF'> Reborn loaded! Version: 4.6 </font>");
             SetUpEvents();
             SetUpSkills();
             Console.Clear();
@@ -102,7 +102,7 @@ namespace VayneHunter_Reborn
 
         void SetUpSkills()
         {
-            _spells[SpellSlot.E].SetTargetted(0.25f,2200f);
+            _spells[SpellSlot.E].SetTargetted(0.25f,1600f);
         }
 
         void SetUpEvents()
@@ -226,6 +226,7 @@ namespace VayneHunter_Reborn
                     if (target.IsValidTarget(_spells[SpellSlot.E].Range) && (target is Obj_AI_Hero))
                     {
                         _spells[SpellSlot.E].Cast(target);
+                       //Notifications.AddNotification(new Notification("Condemned " + target.ChampionName, 1000));
                     }
                 }
             }
@@ -437,7 +438,7 @@ namespace VayneHunter_Reborn
 
         bool CondemnCheck(Vector3 fromPosition, out Obj_AI_Hero tg)
         {
-            if (fromPosition.UnderTurret(true) && MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.noeturret"))
+            if (fromPosition.UnderTurret(true) && MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.noeturret") || !_spells[SpellSlot.E].IsReady())
             {
                 tg = null;
                 return false;
