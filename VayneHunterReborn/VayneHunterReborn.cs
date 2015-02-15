@@ -452,7 +452,7 @@ namespace VayneHunter_Reborn
                         var targetPosition = _spells[SpellSlot.E].GetPrediction(target).UnitPosition;
                         var finalPosition = targetPosition.Extend(fromPosition, -pushDistance);
                         var numberOfChecks = Math.Ceiling(pushDistance / target.BoundingRadius);
-                        for (var i = 0; i < numberOfChecks; i++)
+                        for (var i = 1; i <= numberOfChecks; i++)
                         {
                             var extendedPosition = targetPosition.Extend(fromPosition, -(i * target.BoundingRadius));
                             var extendedPosition2 = targetPosition.Extend(fromPosition, -(i * target.BoundingRadius + target.BoundingRadius/4));
