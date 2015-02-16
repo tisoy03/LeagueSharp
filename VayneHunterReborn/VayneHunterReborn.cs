@@ -22,7 +22,7 @@ namespace VayneHunter_Reborn
             { SpellSlot.E, new Spell(SpellSlot.E, 550f) },
             { SpellSlot.R, new Spell(SpellSlot.R) }
         };
-        private static Notification condemnNotification = new Notification("Condemned: ",1350);
+        private static Notification condemnNotification = new Notification("Condemned: ",2350);
         public VayneHunterReborn()
         {
             CustomEvents.Game.OnGameLoad += OnLoad;
