@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
@@ -21,6 +22,7 @@ namespace VayneHunter_Reborn
             { SpellSlot.E, new Spell(SpellSlot.E, 550f) },
             { SpellSlot.R, new Spell(SpellSlot.R) }
         };
+        private static Notification condemnNotification = new Notification("Condemned: ",1350);
         public VayneHunterReborn()
         {
             CustomEvents.Game.OnGameLoad += OnLoad;
@@ -67,14 +69,14 @@ namespace VayneHunter_Reborn
             {
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.enextauto", "E Next Auto").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Toggle)));
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.condemnmethod", "Condemn Method").SetValue(new StringList(new []{"VH Reborn","Marksman/Gosu"})));
-                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.pushdistance", "E Push Dist").SetValue(new Slider(425, 400, 500)));
+                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.pushdistance", "E Push Dist").SetValue(new Slider(370, 350, 500)));
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.condemnturret", "Try to Condemn to turret").SetValue(false));
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.condemnflag", "Condemn to J4 flag").SetValue(true));
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.autoe", "Auto E").SetValue(false));
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.eks", "Smart E Ks").SetValue(true));
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.ethird", "E 3rd proc in Harass").SetValue(false));
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.noeturret", "No E Under enemy turret").SetValue(true));
-                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.lowlifepeel", "Peel with E when low").SetValue(true));
+                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.lowlifepeel", "Peel with E when low").SetValue(false));
             }
             var miscGeneralSubMenu = new Menu("Misc - General", "dz191.vhr.misc.general");
             {
@@ -94,7 +96,7 @@ namespace VayneHunter_Reborn
             Menu.AddSubMenu(drawMenu);
 
             Menu.AddToMainMenu();
-            Game.PrintChat("<b><font color='#FF0000'>[VH]</font></b><font color='#FFFFFF'> Reborn loaded! Version: 4.6 </font>");
+            Game.PrintChat("<b><font color='#FF0000'>[VH]</font></b><font color='#FFFFFF'> Vayne Hunter Reborn loaded! Version: {0} </font>",Assembly.GetExecutingAssembly().GetName().Version);
             SetUpEvents();
             SetUpSkills();
             Console.Clear();
@@ -450,18 +452,23 @@ namespace VayneHunter_Reborn
                     foreach (var target in HeroManager.Enemies.Where(h => h.IsValidTarget(_spells[SpellSlot.E].Range) && !h.HasBuffOfType(BuffType.SpellShield) && !h.HasBuffOfType(BuffType.SpellImmunity)))
                     {
                         var pushDistance = MenuHelper.getSliderValue("dz191.vhr.misc.condemn.pushdistance");
-                        var targetPosition = _spells[SpellSlot.E].GetPrediction(target).UnitPosition;
+                        //var targetPosition = _spells[SpellSlot.E].GetPrediction(target).UnitPosition;
+                        var myDelay = (int)Math.Ceiling(fromPosition.Distance(target.ServerPosition) / _spells[SpellSlot.E].Speed * 1000 +50);
+                       // var targetPosition = Prediction.GetPrediction(target, myDelay).UnitPosition;
+                        var targetPosition = target.ServerPosition;
                         var finalPosition = targetPosition.Extend(fromPosition, -pushDistance);
-                        var numberOfChecks = Math.Ceiling(pushDistance / target.BoundingRadius);
+                        var numberOfChecks = Math.Ceiling(pushDistance / 65f);
                         for (var i = 1; i <= numberOfChecks; i++)
                         {
-                            var extendedPosition = targetPosition.Extend(fromPosition, -(i * target.BoundingRadius));
-                            var extendedPosition2 = targetPosition.Extend(fromPosition, -(i * target.BoundingRadius + target.BoundingRadius/4));
-                            var extendedPosition3 = targetPosition.Extend(fromPosition, -(i * target.BoundingRadius - target.BoundingRadius/4));
+                            var extendedPosition = targetPosition.Extend(fromPosition, -(i * 65));
+                            var extendedPosition2 = targetPosition.Extend(fromPosition, -(i * 65 + 65/4));
+                            var extendedPosition3 = targetPosition.Extend(fromPosition, -(i * 65 - 65/4));
                             var underTurret = MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.condemnturret") && (Helpers.UnderAllyTurret(finalPosition) || Helpers.IsFountain(finalPosition));
                             var j4Flag = MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.condemnflag") && (Helpers.IsJ4FlagThere(extendedPosition, target) || Helpers.IsJ4FlagThere(extendedPosition2, target) || Helpers.IsJ4FlagThere(extendedPosition3, target));
                             if (extendedPosition.IsWall() || extendedPosition2.IsWall() || extendedPosition3.IsWall() || underTurret || j4Flag || finalPosition.IsWall())
                             {
+                                condemnNotification.Text = "Condemned " + target.BaseSkinName;
+                                Notifications.AddNotification(condemnNotification);
                                 tg = target;
                                 return true;
                             }
