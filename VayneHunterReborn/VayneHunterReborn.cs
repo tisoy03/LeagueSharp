@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
@@ -15,14 +16,16 @@ namespace VayneHunter_Reborn
         public static Menu Menu;
         public static Obj_AI_Hero Player = ObjectManager.Player;
         public static Orbwalking.Orbwalker Orbwalker;
+        private static Vector3 predictedPosition;
+        private static Vector3 predictedEndPosition;
         private readonly Dictionary<SpellSlot, Spell> _spells = new Dictionary<SpellSlot, Spell>
         {
             { SpellSlot.Q, new Spell(SpellSlot.Q) },
             { SpellSlot.W, new Spell(SpellSlot.W) },
-            { SpellSlot.E, new Spell(SpellSlot.E, 550f) },
+            { SpellSlot.E, new Spell(SpellSlot.E, 590f) },
             { SpellSlot.R, new Spell(SpellSlot.R) }
         };
-        private static Notification condemnNotification = new Notification("Condemned: ",2350);
+        private static Notification condemnNotification = new Notification("Condemned: ",5500);
         public VayneHunterReborn()
         {
             CustomEvents.Game.OnGameLoad += OnLoad;
@@ -104,7 +107,7 @@ namespace VayneHunter_Reborn
 
         void SetUpSkills()
         {
-            _spells[SpellSlot.E].SetTargetted(0.25f,1600f);
+            _spells[SpellSlot.E].SetTargetted(0.35f,2200f);
         }
 
         void SetUpEvents()
@@ -223,7 +226,7 @@ namespace VayneHunter_Reborn
             if (_spells[SpellSlot.E].IsEnabledAndReady(Mode.Combo))
             {
                 Obj_AI_Hero target;
-                if (CondemnCheck(ObjectManager.Player.ServerPosition,out target))
+                if (CondemnCheck(ObjectManager.Player.ServerPosition, out target))
                 {
                     if (target.IsValidTarget(_spells[SpellSlot.E].Range) && (target is Obj_AI_Hero))
                     {
@@ -344,6 +347,8 @@ namespace VayneHunter_Reborn
                     Render.Circle.DrawCircle(drakeWallQPos.To3D2(), 65f, Color.AliceBlue);
                 }
             }
+           // Render.Circle.DrawCircle(predictedEndPosition, 65, drawE.Color);
+           // Render.Circle.DrawCircle(predictedPosition, 65, Color.LightBlue);
         }
 
         void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
@@ -373,6 +378,10 @@ namespace VayneHunter_Reborn
         #region Tumble Region
         private void CastQ(Obj_AI_Base target)
         {
+            if (Environment.TickCount - _spells[SpellSlot.E].LastCastAttemptT <= 265)
+            {
+                return;
+            }
             var myPosition = Game.CursorPos;
             if (MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.smartq") && _spells[SpellSlot.E].IsReady()) 
             {
@@ -452,22 +461,28 @@ namespace VayneHunter_Reborn
                     foreach (var target in HeroManager.Enemies.Where(h => h.IsValidTarget(_spells[SpellSlot.E].Range) && !h.HasBuffOfType(BuffType.SpellShield) && !h.HasBuffOfType(BuffType.SpellImmunity)))
                     {
                         var pushDistance = MenuHelper.getSliderValue("dz191.vhr.misc.condemn.pushdistance");
-                        //var targetPosition = _spells[SpellSlot.E].GetPrediction(target).UnitPosition;
+                        var targetPosition = _spells[SpellSlot.E].GetPrediction(target).UnitPosition;
                         var myDelay = (int)Math.Ceiling(fromPosition.Distance(target.ServerPosition) / _spells[SpellSlot.E].Speed * 1000 +50);
-                       // var targetPosition = Prediction.GetPrediction(target, myDelay).UnitPosition;
-                        var targetPosition = target.ServerPosition;
+                        // var targetPosition = Prediction.GetPrediction(target, myDelay).UnitPosition;
+                        //var targetPosition = target.Position;
                         var finalPosition = targetPosition.Extend(fromPosition, -pushDistance);
-                        var numberOfChecks = Math.Ceiling(pushDistance / 65f);
-                        for (var i = 1; i <= numberOfChecks; i++)
+                        var numberOfChecks = (float)Math.Ceiling(pushDistance / 30f);
+                        for (var i = 1; i <= 30; i++)
                         {
-                            var extendedPosition = targetPosition.Extend(fromPosition, -(i * 65));
-                            var extendedPosition2 = targetPosition.Extend(fromPosition, -(i * 65 + 65/4));
-                            var extendedPosition3 = targetPosition.Extend(fromPosition, -(i * 65 - 65/4));
+                            //var extendedPosition = targetPosition.Extend(fromPosition, -(i * 30));
+                            var v3 = (targetPosition - fromPosition).Normalized();
+                            var extendedPosition = targetPosition + v3 * (numberOfChecks * i); 
+                            //var extendedPosition2 = targetPosition.Extend(fromPosition, -(i * target.BoundingRadius + target.BoundingRadius/4));
+                            //var extendedPosition3 = targetPosition.Extend(fromPosition, -(i * target.BoundingRadius - target.BoundingRadius / 4));
                             var underTurret = MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.condemnturret") && (Helpers.UnderAllyTurret(finalPosition) || Helpers.IsFountain(finalPosition));
-                            var j4Flag = MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.condemnflag") && (Helpers.IsJ4FlagThere(extendedPosition, target) || Helpers.IsJ4FlagThere(extendedPosition2, target) || Helpers.IsJ4FlagThere(extendedPosition3, target));
-                            if (extendedPosition.IsWall() || extendedPosition2.IsWall() || extendedPosition3.IsWall() || underTurret || j4Flag || finalPosition.IsWall())
+                            var j4Flag = MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.condemnflag") && (Helpers.IsJ4FlagThere(extendedPosition, target));
+
+                            if (extendedPosition.IsWall() || j4Flag || underTurret)
                             {
-                                condemnNotification.Text = "Condemned " + target.BaseSkinName;
+                                condemnNotification.Text = "Condemned " + target.ChampionName;
+                                //Game.PrintChat("Condemned " + target.ChampionName +" His BBox is "+ target.BoundingRadius +" "+ extendedPosition.IsWall() +" "+ j4Flag +" "+ underTurret);
+                                predictedEndPosition = extendedPosition;
+                                predictedPosition = targetPosition;
                                 Notifications.AddNotification(condemnNotification);
                                 tg = target;
                                 return true;
