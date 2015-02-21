@@ -40,43 +40,34 @@ namespace PennyJinx
 
             SetUpMenu();
             SetUpSpells();
-            Game.PrintChat("<font color='#7A6EFF'>PennyJinx</font> v 1.0.1.9 <font color='#FFFFFF'>Loaded!</font>");
-
+            Game.PrintChat("<font color='#7A6EFF'>PennyJinx</font> v 1.0.2.2 <font color='#FFFFFF'>Loaded!</font>");
 
             Drawing.OnDraw += Drawing_OnDraw;
             Game.OnGameUpdate += Game_OnGameUpdate;
-            Orbwalking.AfterAttack += Orbwalking_AfterAttack;
-            Orbwalking.BeforeAttack += Orbwalking_BeforeAttack;
-            Interrupter.OnPossibleToInterrupt += Interrupter_OnPossibleToInterrupt;
+            Orbwalking.BeforeAttack += OrbwalkingBeforeAttack;
+            Interrupter2.OnInterruptableTarget += Interrupter_OnInterruptable;
             AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
-            GameObject.OnCreate += Cleanser.OnCreateObj;
-            GameObject.OnDelete += Cleanser.OnDeleteObj;
-           //new SpriteManager.ScopeSprite();
+        }
+
+        private void Interrupter_OnInterruptable(Obj_AI_Hero sender, Interrupter2.InterruptableTargetEventArgs args)
+        {
+            if (sender.IsValidTarget() && IsMenuEnabled("Interrupter") && E.IsReady())
+            {
+                E.CastIfHitchanceEquals(sender, CustomHitChance, Packets());
+            }
         }
 
         private static void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
         {
-            var sender = (Obj_AI_Hero) gapcloser.Sender;
-            if (!sender.IsValidTarget() || !IsMenuEnabled("AntiGP") || !E.IsReady())
+            var sender = gapcloser.Sender;
+            if (sender.IsValidTarget() && IsMenuEnabled("AntiGP") && E.IsReady())
             {
-                return;
+                E.Cast(gapcloser.End, Packets());
             }
 
-            E.Cast(gapcloser.End, Packets());
         }
 
-        private static void Interrupter_OnPossibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
-        {
-            var sender = (Obj_AI_Hero) unit;
-            if (!sender.IsValidTarget() || !IsMenuEnabled("Interrupter") || !E.IsReady())
-            {
-                return;
-            }
-
-            E.CastIfHitchanceEquals(sender, CustomHitChance, Packets());
-        }
-
-        private static void Orbwalking_BeforeAttack(Orbwalking.BeforeAttackEventArgs args)
+        private static void OrbwalkingBeforeAttack(Orbwalking.BeforeAttackEventArgs args)
         {
             var target = args.Target;
             if (!target.IsValidTarget())
@@ -93,22 +84,6 @@ namespace PennyJinx
 
             var t2 = (Obj_AI_Minion) target;
             QSwitchLc(t2);
-        }
-
-        private static void Orbwalking_AfterAttack(AttackableUnit unit, AttackableUnit target)
-        {
-            if (!unit.IsMe)
-            {
-                return;
-            }
-
-            if (!(target is Obj_AI_Hero))
-            {
-                return;
-            }
-
-            var tar = (Obj_AI_Hero) target;
-            UseItems(tar);
         }
 
         private void Game_OnGameUpdate(EventArgs args)
@@ -135,10 +110,6 @@ namespace PennyJinx
                     WUsageFarm();
                     break;
             }
-            if (Menu.Item("ThreshLantern").GetValue<KeyBind>().Active)
-            {
-                TakeLantern();
-            }
 
             UseSpellOnTeleport(E);
             AutoPot();
@@ -160,68 +131,27 @@ namespace PennyJinx
                 : 525f + ObjectManager.Player.BoundingRadius + 65f + GetFishboneRange() + 20f;
             if (drawQ.Active)
             {
-                Utility.DrawCircle(Player.Position, qRange, drawQ.Color);
+                Render.Circle.DrawCircle(Player.Position, qRange, drawQ.Color);
             }
 
             if (drawW.Active)
             {
-                Utility.DrawCircle(Player.Position, W.Range, drawW.Color);
+                Render.Circle.DrawCircle(Player.Position, W.Range, drawW.Color);
             }
 
             if (drawE.Active)
             {
-                Utility.DrawCircle(Player.Position, E.Range, drawE.Color);
+                Render.Circle.DrawCircle(Player.Position, E.Range, drawE.Color);
             }
 
             if (drawR.Active)
             {
-                Utility.DrawCircle(Player.Position, R.Range, drawR.Color);
+                Render.Circle.DrawCircle(Player.Position, R.Range, drawR.Color);
             }
         }
 
         #endregion
 
-        #region Items
-
-        private static void UseItems(Obj_AI_Hero tar)
-        {
-            var ownH = GetPerValue(false);
-            if ((Menu.Item("BotrkC").GetValue<bool>() && _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo) &&
-                (Menu.Item("OwnHPercBotrk").GetValue<Slider>().Value <= ownH) &&
-                ((Menu.Item("EnHPercBotrk").GetValue<Slider>().Value <= tar.HealthPercentage())))
-            {
-                UseItem(3153, tar);
-            }
-
-            if ((Menu.Item("BotrkH").GetValue<bool>() && _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Mixed) &&
-                (Menu.Item("OwnHPercBotrk").GetValue<Slider>().Value <= ownH) &&
-                ((Menu.Item("EnHPercBotrk").GetValue<Slider>().Value <= tar.HealthPercentage())))
-            {
-                UseItem(3153, tar);
-            }
-
-            if (Menu.Item("YoumuuC").GetValue<bool>() && _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
-            {
-                UseItem(3142);
-            }
-
-            if (Menu.Item("YoumuuH").GetValue<bool>() && _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Mixed)
-            {
-                UseItem(3142);
-            }
-
-            if (Menu.Item("BilgeC").GetValue<bool>() && _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
-            {
-                UseItem(3144, tar);
-            }
-
-            if (Menu.Item("BilgeH").GetValue<bool>() && _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Mixed)
-            {
-                UseItem(3144, tar);
-            }
-        }
-
-        #endregion
 
         #region Various
 
@@ -835,9 +765,13 @@ namespace PennyJinx
             return Menu.Item(opt).GetValue<bool>();
         }
 
-        private static int GetSliderValue(String opt)
+        public static int GetSliderValue(String opt)
         {
             return Menu.Item(opt).GetValue<Slider>().Value;
+        }
+        public static bool GetKeyBindValue(String opt)
+        {
+            return Menu.Item(opt).GetValue<KeyBind>().Active;
         }
 
         private static float GetPerValue(bool mana)
@@ -880,7 +814,6 @@ namespace PennyJinx
 
         private static void SetUpMenu()
         {
-            Cleanser.CreateQssSpellList();
 
             Menu = new Menu("PennyJinx", "PJinx", true);
 
@@ -947,15 +880,8 @@ namespace PennyJinx
                 miscMenu.AddItem(new MenuItem("EOnTP", "E On Teleport Location").SetValue(true));
                 miscMenu.AddItem(new MenuItem("Interrupter", "Use Interrupter").SetValue(true));
                 miscMenu.AddItem(new MenuItem("SwitchQNoEn", "Switch to Minigun when no enemies").SetValue(true));
-                miscMenu.AddItem(
-                    new MenuItem("C_Hit", "Hitchance").SetValue(
-                        new StringList(new[] {"Low", "Medium", "High", "Very High"}, 2)));
-                miscMenu.AddItem(
-                    new MenuItem("ManualR", "Manual R").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
-                miscMenu
-                    .AddItem(
-                        new MenuItem("ThreshLantern", "Grab Thresh Lantern").SetValue(new KeyBind("S".ToCharArray()[0],
-                            KeyBindType.Press)));
+                miscMenu.AddItem(new MenuItem("C_Hit", "Hitchance").SetValue(new StringList(new[] {"Low", "Medium", "High", "Very High"}, 2)));
+                miscMenu.AddItem(new MenuItem("ManualR", "Manual R").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
             }
             Menu.AddSubMenu(miscMenu);
 
@@ -970,31 +896,10 @@ namespace PennyJinx
             }
             Menu.AddSubMenu(autoMenu);
 
-            var itemsMenu = new Menu("[PJ] Items", "Items");
-            {
-                itemsMenu.AddItem(new MenuItem("BotrkC", "Botrk Combo").SetValue(true));
-                itemsMenu.AddItem(new MenuItem("BotrkH", "Botrk Harrass").SetValue(false));
-                itemsMenu.AddItem(new MenuItem("YoumuuC", "Youmuu Combo").SetValue(true));
-                itemsMenu.AddItem(new MenuItem("YoumuuH", "Youmuu Harrass").SetValue(false));
-                itemsMenu.AddItem(new MenuItem("BilgeC", "Cutlass Combo").SetValue(true));
-                itemsMenu.AddItem(new MenuItem("BilgeH", "Cutlass Harrass").SetValue(false));
-                itemsMenu.AddItem(new MenuItem("OwnHPercBotrk", "Min Own H. % Botrk").SetValue(new Slider(50, 1)));
-                itemsMenu.AddItem(new MenuItem("EnHPercBotrk", "Min Enemy H. % Botrk").SetValue(new Slider(20, 1)));
-            }
-            Menu.AddSubMenu(itemsMenu);
 
-            Menu.AddSubMenu(new Menu("[PJ] QSS Buff Types", "QSST"));
-            Cleanser.CreateTypeQssMenu();
-            Menu.AddSubMenu(new Menu("[PJ] QSS Spells", "QSSSpell"));
-            Cleanser.CreateQssSpellMenu();
-
-            Menu.AddSubMenu(new Menu("[PJ] AutoPot", "AutoPot"));
-            Menu.SubMenu("AutoPot").AddItem(new MenuItem("APH", "Health Pot").SetValue(true));
-            Menu.SubMenu("AutoPot").AddItem(new MenuItem("APM", "Mana Pot").SetValue(true));
-            Menu.SubMenu("AutoPot").AddItem(new MenuItem("APH_Slider", "Health Pot %").SetValue(new Slider(35, 1)));
-            Menu.SubMenu("AutoPot").AddItem(new MenuItem("APM_Slider", "Mana Pot %").SetValue(new Slider(35, 1)));
-            Menu.SubMenu("AutoPot").AddItem(new MenuItem("APHeal", "Use Heal").SetValue(true));
-            Menu.SubMenu("AutoPot").AddItem(new MenuItem("APHeal_Slider", "Heal %").SetValue(new Slider(35, 1)));
+            Cleanser.OnLoad();
+            ItemManager.OnLoad(Menu);
+            PotionManager.OnLoad(Menu);
 
             var drawMenu = new Menu("[PJ] Drawings", "Drawing");
             {

@@ -6,416 +6,484 @@ using LeagueSharp.Common;
 
 namespace PennyJinx
 {
-    internal class Cleanser
+    class Cleanser
     {
-        public static List<QssSpell> QssSpells = new List<QssSpell>();
-        public static bool DeathMarkCreated;
-        public static Obj_AI_Hero Player = ObjectManager.Player;
+        //DONE
 
-        public static void CreateQssSpellMenu()
+        #region
+        private static readonly BuffType[] Buffs = { BuffType.Blind, BuffType.Charm, BuffType.CombatDehancer, BuffType.Fear, BuffType.Flee, BuffType.Knockback, BuffType.Knockup, BuffType.Polymorph, BuffType.Silence, BuffType.Sleep, BuffType.Snare, BuffType.Stun, BuffType.Suppression, BuffType.Taunt };
+        private static float _lastCheckTick;
+        private static readonly Menu MenuInstance = PennyJinx.Menu;
+
+        public static double HealthBuffer
         {
-            foreach (
-                var spell in
-                    ObjectManager.Get<Obj_AI_Hero>()
-                        .Where(he => he.IsEnemy)
-                        .SelectMany(hero => QssSpells.Where(spell => spell.ChampName == hero.ChampionName)))
-            {
-                PennyJinx.Menu.SubMenu("QSSSpell")
-                    .AddItem(
-                        new MenuItem("en" + spell.SpellBuff, spell.SpellName + " always ?").SetValue(spell.IsEnabled));
-                PennyJinx.Menu.SubMenu("QSSSpell")
-                    .AddItem(
-                        new MenuItem("onlyK" + spell.SpellBuff, spell.SpellName + " if killed by it?").SetValue(
-                            spell.OnlyKill));
-                PennyJinx.Menu.SubMenu("QSSSpell").AddItem(new MenuItem("Spacer" + spell.SpellBuff, " "));
-            }
+            get { return PennyJinx.GetSliderValue("pennyjinx.cleanser.hpbuffer"); }
+        }
+        public static float Delay
+        {
+            get { return PennyJinx.GetSliderValue("pennyjinx.cleanser.delay"); }
         }
 
-        public static void CreateTypeQssMenu()
+        private static readonly List<QssSpell> QssSpells = new List<QssSpell>
         {
-            PennyJinx.Menu.SubMenu("QSST").AddItem(new MenuItem("stun", "Stuns").SetValue(true));
-            PennyJinx.Menu.SubMenu("QSST").AddItem(new MenuItem("charm", "Charms").SetValue(true));
-            PennyJinx.Menu.SubMenu("QSST").AddItem(new MenuItem("taunt", "Taunts").SetValue(true));
-            PennyJinx.Menu.SubMenu("QSST").AddItem(new MenuItem("fear", "Fears").SetValue(true));
-            PennyJinx.Menu.SubMenu("QSST").AddItem(new MenuItem("snare", "Snares").SetValue(true));
-            PennyJinx.Menu.SubMenu("QSST").AddItem(new MenuItem("silence", "Silences").SetValue(true));
-            PennyJinx.Menu.SubMenu("QSST").AddItem(new MenuItem("supression", "Supression").SetValue(true));
-            PennyJinx.Menu.SubMenu("QSST").AddItem(new MenuItem("polymorph", "Polymorphs").SetValue(true));
-            PennyJinx.Menu.SubMenu("QSST").AddItem(new MenuItem("blind", "Blinds").SetValue(false));
-            PennyJinx.Menu.SubMenu("QSST").AddItem(new MenuItem("slow", "Slows").SetValue(false));
-            PennyJinx.Menu.SubMenu("QSST").AddItem(new MenuItem("poison", "Poisons").SetValue(false));
-        }
-
-        public static void CreateQssSpellList()
-        {
-            /**Danger Level 5 Spells*/
-            QssSpells.Add(new QssSpell
+            new QssSpell
             {
                 ChampName = "Warwick",
                 IsEnabled = true,
                 SpellBuff = "InfiniteDuress",
                 SpellName = "Warwick R",
-                OnlyKill = false
-            });
-            QssSpells.Add(new QssSpell
+                RealName = "warwickR",
+                OnlyKill = false,
+                Slot = SpellSlot.R,
+                Delay = 100f
+            },
+            new QssSpell
             {
                 ChampName = "Zed",
                 IsEnabled = true,
                 SpellBuff = "zedulttargetmark",
                 SpellName = "Zed R",
-                OnlyKill = true
-            });
-            QssSpells.Add(new QssSpell
+                RealName = "zedultimate",
+                OnlyKill = true,
+                Slot = SpellSlot.R,
+                Delay = 800f
+            },
+            new QssSpell
             {
                 ChampName = "Rammus",
                 IsEnabled = true,
                 SpellBuff = "PuncturingTaunt",
                 SpellName = "Rammus E",
-                OnlyKill = false
-            });
+                RealName = "rammusE",
+                OnlyKill = false,
+                Slot = SpellSlot.E,
+                Delay = 100f                
+            },
             /** Danger Level 4 Spells*/
-            QssSpells.Add(new QssSpell
+            new QssSpell
             {
                 ChampName = "Skarner",
                 IsEnabled = true,
                 SpellBuff = "SkarnerImpale",
                 SpellName = "Skaner R",
-                OnlyKill = false
-            });
-            QssSpells.Add(new QssSpell
+                RealName = "skarnerR",
+                OnlyKill = false,
+                Slot = SpellSlot.R,
+                Delay = 100f
+            },
+            new QssSpell
             {
                 ChampName = "Fizz",
                 IsEnabled = true,
                 SpellBuff = "FizzMarinerDoom",
                 SpellName = "Fizz R",
-                OnlyKill = false
-            });
-            QssSpells.Add(new QssSpell
+                RealName = "FizzR",
+                OnlyKill = false,
+                Slot = SpellSlot.R,
+                Delay = 100f
+            },
+            new QssSpell
             {
                 ChampName = "Galio",
                 IsEnabled = true,
                 SpellBuff = "GalioIdolOfDurand",
                 SpellName = "Galio R",
-                OnlyKill = false
-            });
-            QssSpells.Add(new QssSpell
+                RealName = "GalioR",
+                OnlyKill = false,
+                Slot = SpellSlot.R,
+                Delay = 100f
+            },
+            new QssSpell
             {
                 ChampName = "Malzahar",
                 IsEnabled = true,
                 SpellBuff = "AlZaharNetherGrasp",
                 SpellName = "Malz R",
-                OnlyKill = false
-            });
+                RealName = "MalzaharR",
+                OnlyKill = false,
+                Slot = SpellSlot.R,
+                Delay = 200f
+            },
             /** Danger Level 3 Spells*/
-            QssSpells.Add(new QssSpell
+            new QssSpell
             {
                 ChampName = "Zilean",
                 IsEnabled = false,
                 SpellBuff = "timebombenemybuff",
                 SpellName = "Zilean Q",
-                OnlyKill = true
-            });
-            QssSpells.Add(new QssSpell
+                OnlyKill = true,
+                Slot = SpellSlot.Q,
+                Delay = 700f
+            },
+            new QssSpell
             {
                 ChampName = "Vladimir",
                 IsEnabled = false,
                 SpellBuff = "VladimirHemoplague",
                 SpellName = "Vlad R",
-                OnlyKill = true
-            });
-            QssSpells.Add(new QssSpell
+                RealName = "VladimirR",
+                OnlyKill = true,
+                Slot = SpellSlot.R,
+                Delay = 700f
+            },
+            new QssSpell
             {
                 ChampName = "Mordekaiser",
                 IsEnabled = true,
                 SpellBuff = "MordekaiserChildrenOfTheGrave",
                 SpellName = "Morde R",
-                OnlyKill = true
-            });
+                OnlyKill = true,
+                 Slot = SpellSlot.R,
+                Delay = 800f
+            },
             /** Danger Level 2 Spells*/
-            QssSpells.Add(new QssSpell
+            new QssSpell
             {
                 ChampName = "Poppy",
                 IsEnabled = true,
                 SpellBuff = "PoppyDiplomaticImmunity",
                 SpellName = "Poppy R",
-                OnlyKill = false
-            });
-        }
-
-        internal static void CleanUselessSpells()
-        {
-            var nameList = ObjectManager.Get<Obj_AI_Hero>().Where(h => h.IsEnemy).Select(h => h.ChampionName).ToList();
-            foreach (var spell in QssSpells.Where(spell => !nameList.Contains(spell.ChampName)))
-            {
-                QssSpells.Remove(spell);
+                RealName = "PoppyR",
+                OnlyKill = false,
+                 Slot = SpellSlot.R,
+                Delay = 100f
             }
+        };
+        #endregion
+
+        public static void OnLoad()
+        {
+            var cName = ObjectManager.Player.ChampionName;
+            var spellSubmenu = new Menu("[PJ] Cleanser", cName + "Cleanser");
+
+            //Spell Cleanser Menu
+            var spellCleanserMenu = new Menu("Cleanser - Spell Cleanser", "pennyjinx.cleanser.spell");
+            foreach (var spell in QssSpells.Where(h => GetChampByName(h.ChampName) != null))
+            {
+                var sMenu = new Menu(spell.SpellName, cName + spell.SpellBuff);
+                sMenu.AddItem(
+                    new MenuItem("pennyjinx.cleanser.spell." + spell.SpellBuff + "A", "Always").SetValue(!spell.OnlyKill));
+                sMenu.AddItem(
+                    new MenuItem("pennyjinx.cleanser.spell." + spell.SpellBuff + "K", "Only if killed by it").SetValue(spell.OnlyKill));
+                sMenu.AddItem(
+                    new MenuItem("pennyjinx.cleanser.spell." + spell.SpellBuff + "D", "Delay before cleanse").SetValue(new Slider((int)spell.Delay, 0, 10000)));
+                spellCleanserMenu.AddSubMenu(sMenu);
+            }
+            //Bufftype cleanser menu
+            var buffCleanserMenu = new Menu("Cleanser - Bufftype Cleanser", cName + "pennyjinx.cleanser.bufftype");
+
+            foreach (var buffType in Buffs)
+            {
+                buffCleanserMenu.AddItem(new MenuItem(cName + buffType, buffType.ToString()).SetValue(true));
+            }
+
+            buffCleanserMenu.AddItem(new MenuItem("pennyjinx.cleanser.bufftype.minbuffs", "Min Buffs").SetValue(new Slider(2, 1, 5)));
+
+            var allyMenu = new Menu("Cleanser - Use On", "UseOn");
+            foreach (var ally in HeroManager.Allies)
+            {
+                allyMenu.AddItem(new MenuItem("pennyjinx.cleanser.allies.useon." + ally.ChampionName, ally.ChampionName).SetValue(true));
+            }
+
+            spellSubmenu.AddItem(new MenuItem("pennyjinx.cleanser.items.qss", "Use QSS").SetValue(true));
+            spellSubmenu.AddItem(new MenuItem("pennyjinx.cleanser.items.scimitar", "Use Mercurial Scimitar").SetValue(true));
+            spellSubmenu.AddItem(new MenuItem("pennyjinx.cleanser.items.dervish", "Use Dervish Blade").SetValue(true));
+            spellSubmenu.AddItem(new MenuItem("pennyjinx.cleanser.items.michael", "Use Mikael's Crucible").SetValue(true));
+            spellSubmenu.AddItem(new MenuItem("pennyjinx.cleanser.items.cleanse", "Use Cleanse").SetValue(true));
+            spellSubmenu.AddItem(new MenuItem("pennyjinx.cleanser.hpbuffer", "Health Buffer").SetValue(new Slider(20)));
+            spellSubmenu.AddItem(new MenuItem("pennyjinx.cleanser.delay", "Global Delay (Prevents Lag)").SetValue(new Slider(100, 0, 200)));
+
+            spellSubmenu.AddSubMenu(spellCleanserMenu);
+            spellSubmenu.AddSubMenu(buffCleanserMenu);
+            spellSubmenu.AddSubMenu(allyMenu);
+            MenuInstance.AddSubMenu(spellSubmenu);
+
+            //Subscribe the Events
+            Game.OnGameUpdate += Game_OnGameUpdate;
         }
 
-        public static void CleanserBySpell()
+        static void Game_OnGameUpdate(EventArgs args)
         {
-            var hasIt = Items.HasItem(3139) || Items.HasItem(3140) || Items.HasItem(3137);
-            if (!PennyJinx.IsMenuEnabled("UseQSS") || !hasIt)
+            if (Environment.TickCount - _lastCheckTick < Delay)
+                return;
+            _lastCheckTick = Environment.TickCount;
+
+            KillCleansing();
+            SpellCleansing();
+            BuffTypeCleansing();
+        }
+
+        #region BuffType Cleansing
+        /// <summary>
+        /// Cleanses by BuffType on player
+        /// </summary>
+        static void BuffTypeCleansing()
+        {
+
+            //MASSIVE TODO: Check if the buff is "stuns, roots, taunts, fears, silences and slows" before using Mikaels
+            //Player Cleansing
+            if (OneReady())
+            {
+                var buffCount = Buffs.Count(buff => ObjectManager.Player.HasBuffOfType(buff) && BuffTypeEnabled(buff));
+                if (buffCount >= PennyJinx.GetSliderValue("pennyjinx.cleanser.bufftype.minbuffs"))
+                {
+                    CastCleanseItem(ObjectManager.Player);
+                }
+            }
+            //Ally Cleansing
+            if (!MichaelReady())
             {
                 return;
             }
-
-            var ccList = (from spell in QssSpells
-                where Player.HasBuff(spell.SpellBuff)
-                select new CC {BuffName = spell.SpellBuff, WillKillMe = WillSpellKillMe(spell)}).ToList();
-            foreach (var cc in ccList)
+            var allies = ObjectManager.Player.GetAlliesInRange(600f);
+            var highestAlly = ObjectManager.Player;
+            var highestCount = 0;
+            foreach (var ally in allies)
             {
-                if (PennyJinx.IsMenuEnabled("en" + cc.BuffName))
+                var allyBCount = Buffs.Count(buff => ally.HasBuffOfType(buff) && BuffTypeEnabled(buff));
+                if (allyBCount > highestCount && allyBCount >= PennyJinx.GetSliderValue("pennyjinx.cleanser.bufftype.minbuffs") && PennyJinx.IsMenuEnabled("pennyjinx.cleanser.allies.useon." + ally.ChampionName))
                 {
-                    Console.WriteLine(@"Should Cleanse. " + cc.BuffName + @" cause it is a spell");
-                    if (cc.BuffName == "zedulttargetmark")
+                    highestCount = allyBCount;
+                    highestAlly = ally;
+                }
+            }
+            if (!highestAlly.IsMe)
+            {
+                CastCleanseItem(highestAlly);
+            }
+        }
+        #endregion
+
+        #region Spell Cleansing
+        /// <summary>
+        /// Cleanses using the SpellList buffs as input
+        /// </summary>
+        static void SpellCleansing()
+        {
+            if (OneReady())
+            {
+                QssSpell mySpell = null;
+                if (
+                    QssSpells.Where(
+                        spell => ObjectManager.Player.HasBuff(spell.SpellBuff, true) && SpellEnabledAlways(spell.SpellBuff))
+                        .OrderBy(
+                            spell => GetChampByName(spell.ChampName).GetSpellDamage(ObjectManager.Player, spell.Slot))
+                        .Any())
+                {
+                    mySpell =
+                        QssSpells.Where(
+                            spell => ObjectManager.Player.HasBuff(spell.SpellBuff, true) && SpellEnabledAlways(spell.SpellBuff))
+                            .OrderBy(
+                                spell => GetChampByName(spell.ChampName).GetSpellDamage(ObjectManager.Player, spell.Slot))
+                            .First();
+                }
+                if (mySpell != null)
+                {
+                    UseCleanser(mySpell, ObjectManager.Player);
+                }
+            }
+            if (!MichaelReady())
+            {
+                return;
+            }
+            //Ally Cleansing
+            var allies = ObjectManager.Player.GetAlliesInRange(600f);
+            var highestAlly = ObjectManager.Player;
+            var highestDamage = 0f;
+            QssSpell highestSpell = null;
+            foreach (var ally in allies)
+            {
+                QssSpell theSpell = null;
+                if (QssSpells.Where(spell => ally.HasBuff(spell.SpellBuff, true) && SpellEnabledAlways(spell.SpellBuff)).OrderBy(spell => GetChampByName(spell.ChampName).GetSpellDamage(ally, spell.Slot)).Any())
+                {
+                    theSpell = QssSpells.Where(
+                        spell => ally.HasBuff(spell.SpellBuff, true) && SpellEnabledAlways(spell.SpellBuff))
+                        .OrderBy(spell => GetChampByName(spell.ChampName).GetSpellDamage(ally, spell.Slot))
+                        .First();
+                }
+                if (theSpell != null)
+                {
+                    var damageDone = GetChampByName(theSpell.ChampName).GetSpellDamage(ally, theSpell.Slot);
+                    if (damageDone >= highestDamage && PennyJinx.IsMenuEnabled("pennyjinx.cleanser.allies.useon." + ally.ChampionName))
                     {
-                        Utility.DelayAction.Add(500, Cleanse);
+                        highestSpell = theSpell;
+                        highestDamage = (float)damageDone;
+                        highestAlly = ally;
                     }
-                    else
+                }
+            }
+            if (!highestAlly.IsMe && highestSpell != null)
+            {
+                UseCleanser(highestSpell, highestAlly);
+            }
+        }
+        #endregion
+
+        #region Spell Will Kill Cleansing
+        /// <summary>
+        /// Will Cleanse only on Kill
+        /// </summary>
+        static void KillCleansing()
+        {
+            if (OneReady())
+            {
+                QssSpell mySpell = null;
+                if (
+                    QssSpells.Where(
+                        spell => ObjectManager.Player.HasBuff(spell.SpellBuff, true) && SpellEnabledOnKill(spell.SpellBuff) && GetChampByName(spell.ChampName).GetSpellDamage(ObjectManager.Player, spell.Slot) > ObjectManager.Player.Health + HealthBuffer)
+                        .OrderBy(
+                            spell => GetChampByName(spell.ChampName).GetSpellDamage(ObjectManager.Player, spell.Slot))
+                        .Any())
+                {
+                    mySpell =
+                        QssSpells.Where(
+                            spell => ObjectManager.Player.HasBuff(spell.SpellBuff, true) && SpellEnabledOnKill(spell.SpellBuff))
+                            .OrderBy(
+                                spell => GetChampByName(spell.ChampName).GetSpellDamage(ObjectManager.Player, spell.Slot))
+                            .First();
+                }
+                if (mySpell != null)
+                {
+                    UseCleanser(mySpell, ObjectManager.Player);
+                }
+            }
+            if (!MichaelReady())
+            {
+                return;
+            }
+            //Ally Cleansing
+            var allies = ObjectManager.Player.GetAlliesInRange(600f);
+            var highestAlly = ObjectManager.Player;
+            var highestDamage = 0f;
+            QssSpell highestSpell = null;
+            foreach (var ally in allies)
+            {
+                QssSpell theSpell = null;
+                if (QssSpells.Where(spell => ally.HasBuff(spell.SpellBuff, true) && SpellEnabledOnKill(spell.SpellBuff) && GetChampByName(spell.ChampName).GetSpellDamage(ally, spell.Slot) > ally.Health + HealthBuffer).OrderBy(spell => GetChampByName(spell.ChampName).GetSpellDamage(ally, spell.Slot)).Any())
+                {
+                    theSpell = QssSpells.Where(
+                        spell => ally.HasBuff(spell.SpellBuff, true) && SpellEnabledOnKill(spell.SpellBuff))
+                        .OrderBy(spell => GetChampByName(spell.ChampName).GetSpellDamage(ally, spell.Slot))
+                        .First();
+                }
+                if (theSpell != null)
+                {
+                    var damageDone = GetChampByName(theSpell.ChampName).GetSpellDamage(ally, theSpell.Slot);
+                    if (damageDone >= highestDamage && PennyJinx.IsMenuEnabled("pennyjinx.cleanser.allies.useon." + ally.ChampionName))
                     {
-                        Cleanse();
+                        highestSpell = theSpell;
+                        highestDamage = (float)damageDone;
+                        highestAlly = ally;
                     }
                 }
-                if (!PennyJinx.IsMenuEnabled("onlyK" + cc.BuffName) || !cc.WillKillMe)
-                {
-                    continue;
-                }
-
-                Console.WriteLine(@"Should Cleanse. " + cc.BuffName + @" cause it will kill me");
-                Cleanse();
             }
-        }
-
-        public static void EnableCheck()
-        {
-            foreach (var spell in QssSpells)
+            if (!highestAlly.IsMe && highestSpell != null)
             {
-                if (PennyJinx.IsMenuEnabled("en" + spell.SpellBuff))
-                {
-                    PennyJinx.Menu.Item("onlyK" + spell.SpellBuff).SetValue(false);
-                }
-
-                if (PennyJinx.IsMenuEnabled("onlyK" + spell.SpellBuff))
-                {
-                    PennyJinx.Menu.Item("en" + spell.SpellBuff).SetValue(false);
-                }
+                UseCleanser(highestSpell, highestAlly);
             }
         }
 
-        public static void CleanserByBuffType()
+
+        #endregion
+
+        #region Cleansing
+        static void UseCleanser(QssSpell spell, Obj_AI_Hero target)
         {
-            var hasIt = Items.HasItem(3139) || Items.HasItem(3140) || Items.HasItem(3137);
-            if (!PennyJinx.IsMenuEnabled("UseQSS") || !hasIt)
+            Utility.DelayAction.Add(SpellDelay(spell.RealName), () => CastCleanseItem(target));
+        }
+        static void CastCleanseItem(Obj_AI_Hero target)
+        {
+            if (target == null)
             {
                 return;
             }
 
-            var numBuffs = UnitBuffs(Player);
-            if (numBuffs >= PennyJinx.Menu.Item("QSSMinBuffs").GetValue<Slider>().Value) Cleanse();
-        }
-
-        private static bool WillSpellKillMe(QssSpell spell)
-        {
-            var spells = SpellSlot.R;
-            if (spell.SpellName.Contains(spell.ChampName + " R"))
+            if (PennyJinx.IsMenuEnabled("pennyjinx.cleanser.items.michael") && Items.HasItem(3222) &&
+                   Items.CanUseItem(3222) && target.IsValidTarget(600f)) //TODO Put Michaels buff id
             {
-                spells = SpellSlot.R;
-            }
-
-            if (spell.SpellName.Contains(spell.ChampName + " Q"))
-            {
-                spells = SpellSlot.Q;
-            }
-
-            if (spell.SpellName.Contains(spell.ChampName + " W"))
-            {
-                spells = SpellSlot.W;
-            }
-
-            if (spell.SpellName.Contains(spell.ChampName + " E"))
-            {
-                spells = SpellSlot.E;
-            }
-
-            var theDamage = GetByChampName(spell.ChampName).GetDamageSpell(Player, spells).CalculatedDamage;
-            BuffInstance theBuff = null;
-            foreach (var buff in Player.Buffs)
-            {
-                if (buff.Name == spell.SpellBuff)
-                {
-                    theBuff = buff;
-                }
-            }
-            if (theBuff != null)
-            {
-                var endTime = theBuff.EndTime;
-                var difference = endTime - Environment.TickCount; //TODO Factor Player Regen
-            }
-            return theDamage >= (Player.Health);
-        }
-
-        internal static void SaveMyAss()
-        {
-            if (DeathMarkCreated &&
-                Player.HasBuff(GetSpellByName("Zed R").SpellBuff, true) && GetSpellByName("Zed R").OnlyKill)
-            {
-                Utility.DelayAction.Add(200, Cleanse);
-            }
-        }
-
-        private static int UnitBuffs(Obj_AI_Hero unit)
-        {
-            //Taken from 'Oracle Activator'. Thanks Kurisuu ^.^
-            var cc = 0;
-            if (PennyJinx.Menu.Item("slow").GetValue<bool>())
-            {
-                if (unit.HasBuffOfType(BuffType.Slow))
-                {
-                    cc += 1;
-                }
-            }
-
-            if (PennyJinx.Menu.Item("blind").GetValue<bool>())
-            {
-                if (unit.HasBuffOfType(BuffType.Blind))
-                {
-                    cc += 1;
-                }
-            }
-
-            if (PennyJinx.Menu.Item("charm").GetValue<bool>())
-            {
-                if (unit.HasBuffOfType(BuffType.Charm))
-                {
-                    cc += 1;
-                }
-            }
-
-            if (PennyJinx.Menu.Item("fear").GetValue<bool>())
-            {
-                if (unit.HasBuffOfType(BuffType.Fear))
-                {
-                    cc += 1;
-                }
-            }
-
-            if (PennyJinx.Menu.Item("snare").GetValue<bool>())
-            {
-                if (unit.HasBuffOfType(BuffType.Snare))
-                {
-                    cc += 1;
-                }
-            }
-
-            if (PennyJinx.Menu.Item("taunt").GetValue<bool>())
-            {
-                if (unit.HasBuffOfType(BuffType.Taunt))
-                {
-                    cc += 1;
-                }
-            }
-
-            if (PennyJinx.Menu.Item("supression").GetValue<bool>())
-            {
-                if (unit.HasBuffOfType(BuffType.Suppression))
-                {
-                    cc += 1;
-                }
-            }
-
-            if (PennyJinx.Menu.Item("stun").GetValue<bool>())
-            {
-                if (unit.HasBuffOfType(BuffType.Stun))
-                {
-                    cc += 1;
-                }
-            }
-
-            if (PennyJinx.Menu.Item("polymorph").GetValue<bool>())
-            {
-                if (unit.HasBuffOfType(BuffType.Polymorph))
-                {
-                    cc += 1;
-                }
-            }
-
-            if (PennyJinx.Menu.Item("silence").GetValue<bool>())
-            {
-                if (unit.HasBuffOfType(BuffType.Silence))
-                {
-                    cc += 1;
-                }
-            }
-
-            if (PennyJinx.Menu.Item("poison").GetValue<bool>())
-            {
-                if (unit.HasBuffOfType(BuffType.Poison))
-                {
-                    cc += 1;
-                }
-            }
-
-            return cc;
-        }
-
-        internal static void Cleanse()
-        {
-            if (Items.HasItem(3140))
-            {
-                PennyJinx.UseItem(3140, Player); //QSS
-            }
-            if (Items.HasItem(3139))
-            {
-                PennyJinx.UseItem(3139, Player); //Mercurial
-            }
-            if (Items.HasItem(3137))
-            {
-                PennyJinx.UseItem(3137, Player); //Dervish Blade
-            }
-        }
-
-        public static void OnCreateObj(GameObject sender, EventArgs args)
-        {
-            if (sender.Name != "Zed_Base_R_buf_tell.troy" || !sender.IsEnemy)
-            {
+                Items.UseItem(3222, target);
                 return;
             }
 
-            DeathMarkCreated = true;
-            SaveMyAss();
-        }
-
-        public static void OnDeleteObj(GameObject sender, EventArgs args)
-        {
-            if (sender.Name == "Zed_Base_R_buf_tell.troy" && sender.IsEnemy)
+            if (PennyJinx.IsMenuEnabled("pennyjinx.cleanser.items.cleanse") && SummonerSpells.Cleanse.IsReady()) //TODO Put Michaels buff id
             {
-                DeathMarkCreated = false;
+                SummonerSpells.Cleanse.Cast();
+                return;
+            }
+
+            if (PennyJinx.IsMenuEnabled("pennyjinx.cleanser.items.qss") && Items.HasItem(3140) &&
+                Items.CanUseItem(3140) && target.IsMe)
+            {
+                Items.UseItem(3140, ObjectManager.Player);
+                return;
+            }
+
+            if (PennyJinx.IsMenuEnabled("pennyjinx.cleanser.items.scimitar") && Items.HasItem(3139) &&
+                Items.CanUseItem(3139) && target.IsMe)
+            {
+                Items.UseItem(3139, ObjectManager.Player);
+                return;
+            }
+
+            if (PennyJinx.IsMenuEnabled("pennyjinx.cleanser.items.dervish") && Items.HasItem(3137) &&
+                Items.CanUseItem(3137) && target.IsMe)
+            {
+                Items.UseItem(3137, ObjectManager.Player);
             }
         }
+        #endregion
 
-        private static QssSpell GetSpellByName(String name)
+        #region Utility Methods
+
+        private static bool OneReady()
         {
-            return QssSpells.Find(spell => spell.SpellName == name);
+            return (PennyJinx.IsMenuEnabled("pennyjinx.cleanser.items.qss") && Items.HasItem(3140) &&
+                    Items.CanUseItem(3140)) ||
+                   (PennyJinx.IsMenuEnabled("pennyjinx.cleanser.items.scimitar") && Items.HasItem(3139) &&
+                    Items.CanUseItem(3139)) ||
+                   (PennyJinx.IsMenuEnabled("pennyjinx.cleanser.items.dervish") && Items.HasItem(3137) &&
+                    Items.CanUseItem(3137)) ||
+                   (PennyJinx.IsMenuEnabled("pennyjinx.cleanser.items.cleanse") &&
+                   SummonerSpells.Cleanse.IsReady());
+        }
+        private static bool MichaelReady()
+        {
+            return (PennyJinx.IsMenuEnabled("pennyjinx.cleanser.items.michael") && Items.HasItem(3222) &&
+                    Items.CanUseItem(3222));
+        }
+        private static bool BuffTypeEnabled(BuffType buffType)
+        {
+            return PennyJinx.IsMenuEnabled(ObjectManager.Player.ChampionName + buffType);
+        }
+        private static int SpellDelay(String sName)
+        {
+            return PennyJinx.GetSliderValue("pennyjinx.cleanser.spell." + sName + "D");
+        }
+        private static bool SpellEnabledOnKill(String sName)
+        {
+            return PennyJinx.IsMenuEnabled("pennyjinx.cleanser.spell." + sName + "K");
+        }
+        private static bool SpellEnabledAlways(String sName)
+        {
+            return PennyJinx.IsMenuEnabled("pennyjinx.cleanser.spell." + sName + "A");
         }
 
-        private static Obj_AI_Hero GetByChampName(String name)
+        private static Obj_AI_Hero GetChampByName(String enemyName)
         {
-            return ObjectManager.Get<Obj_AI_Hero>().First(h => h.ChampionName == name && h.IsEnemy);
+            return ObjectManager.Get<Obj_AI_Hero>().Find(h => h.IsEnemy && h.ChampionName == enemyName);
         }
+        #endregion
     }
 
     internal class QssSpell
     {
         public String ChampName { get; set; }
         public String SpellName { get; set; }
+        public String RealName { get; set; }
         public String SpellBuff { get; set; }
         public bool IsEnabled { get; set; }
         public bool OnlyKill { get; set; }
-    }
-
-    internal class CC
-    {
-        public String BuffName { get; set; }
-        public bool WillKillMe { get; set; }
+        public SpellSlot Slot { get; set; }
+        public float Delay { get; set; }
     }
 }
