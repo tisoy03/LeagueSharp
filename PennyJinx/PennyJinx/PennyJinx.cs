@@ -659,7 +659,7 @@ namespace PennyJinx
 
         private static bool Packets()
         {
-            return IsMenuEnabled("Packets");
+            return false;
         }
 
         private static float GetFishboneRange()
@@ -875,7 +875,6 @@ namespace PennyJinx
 
             var miscMenu = new Menu("[PJ] Misc", "Misc");
             {
-                miscMenu.AddItem(new MenuItem("Packets", "Use Packets").SetValue(true));
                 miscMenu.AddItem(new MenuItem("AntiGP", "Anti Gapcloser").SetValue(true));
                 miscMenu.AddItem(new MenuItem("EOnTP", "E On Teleport Location").SetValue(true));
                 miscMenu.AddItem(new MenuItem("Interrupter", "Use Interrupter").SetValue(true));
