@@ -566,7 +566,7 @@ namespace PennyJinx
             //If is killable with W and AA
             //Or the ally players in there are > 0
             if (IsKillableWaa(rTarget) ||
-                CountAllyPlayers(rTarget, 500) > 0 || Player.Distance(rTarget) < (W.Range/2))
+                CountAllyPlayers(rTarget, 900) > 0 || Player.Distance(rTarget) < (W.Range/2))
             {
                 return;
             }
