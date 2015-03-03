@@ -93,6 +93,8 @@ namespace DZAIO.Champions
             var farmMenu = new Menu(cName + " - Farm", "dzaio.cassiopeia.farm");
             farmMenu.AddModeMenu(Mode.Laneclear, new[] { SpellSlot.Q,SpellSlot.W,SpellSlot.E }, new[] { false,false,false });
             farmMenu.AddManaManager(Mode.Laneclear, new[] { SpellSlot.Q, SpellSlot.W, SpellSlot.E}, new[] { 35,35,35 });
+            farmMenu.AddModeMenu(Mode.Lasthit, new[] { SpellSlot.E }, new[] { false });
+            farmMenu.AddManaManager(Mode.Lasthit, new[] { SpellSlot.E }, new[] { 35 });
             farmMenu.AddItem(new MenuItem("dzaio.cassiopeia.farm.minminions", "Min. Minions for Q/W").SetValue(new Slider(2, 1, 5)));
             menu.AddSubMenu(farmMenu);
             var miscMenu = new Menu(cName + " - Misc", "dzaio.cassiopeia.misc");
@@ -352,7 +354,7 @@ namespace DZAIO.Champions
             }
             _lastLcTick = Environment.TickCount;
 
-            var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, _spells[SpellSlot.E].Range);
+            var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, _spells[SpellSlot.E].Range,MinionTypes.All,MinionTeam.NotAlly);
             var eDelay = MenuHelper.getSliderValue("dzaio.cassiopeia.misc.humanizer.edelay");
             if (_spells[SpellSlot.Q].IsEnabledAndReady(Mode.Laneclear))
             {
@@ -376,6 +378,16 @@ namespace DZAIO.Champions
                     _spells[SpellSlot.E].Cast(poisonedMinions.First());
                 }
             }
+
+            if (_spells[SpellSlot.E].IsEnabledAndReady(Mode.Lasthit))
+            {
+                var killableMinion = minions.Find(minion => minion.Health + 5 <= _spells[SpellSlot.E].GetDamage(minion));
+                if (killableMinion.IsValidTarget())
+                {
+                    _spells[SpellSlot.E].Cast(killableMinion);
+                }
+            }
+
         }
 
         void AutoHarass()
