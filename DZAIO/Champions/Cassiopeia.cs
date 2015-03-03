@@ -79,8 +79,8 @@ namespace DZAIO.Champions
 
             menu.AddSubMenu(comboMenu);
             var harrassMenu = new Menu(cName + " - Harrass", "dzaio.cassiopeia.harass");
-            harrassMenu.AddModeMenu(Mode.Harrass, new[] { SpellSlot.Q, SpellSlot.E }, new[] { true, true });
-            harrassMenu.AddManaManager(Mode.Harrass, new[] { SpellSlot.Q, SpellSlot.E }, new[] { 30, 20 });
+            harrassMenu.AddModeMenu(Mode.Harrass, new[] { SpellSlot.Q,SpellSlot.W, SpellSlot.E }, new[] { true, false, true });
+            harrassMenu.AddManaManager(Mode.Harrass, new[] { SpellSlot.Q, SpellSlot.W, SpellSlot.E }, new[] { 30, 10, 20 });
 
             var autoHarrassMenu = new Menu("AutoHarass", "dzaio.cassiopeia.harass.autoharass");
             {
@@ -337,6 +337,12 @@ namespace DZAIO.Champions
                 {
                     _spells[SpellSlot.Q].CastIfHitchanceEquals(harassTarget, MenuHelper.GetHitchance());
                 }
+
+                if(_spells[SpellSlot.W].IsEnabledAndReady(Mode.Harrass) && (harassTarget.Health <= _spells[SpellSlot.W].GetDamage(harassTarget) + _spells[SpellSlot.E].GetDamage(harassTarget)*3))
+                {
+                    _spells[SpellSlot.W].CastIfHitchanceEquals(harassTarget, MenuHelper.GetHitchance());
+                }
+
                 if (_spells[SpellSlot.E].IsEnabledAndReady(Mode.Combo) && IsTargetPoisoned(harassTarget) &&
                     (Environment.TickCount - _lastCastedETick >= eDelay))
                 {
