@@ -142,6 +142,17 @@ namespace DZAIO.Champions
                 default:
                     return;
             }
+            if (MenuHelper.getKeybindValue("dzaio.graves.misc.manualr"))
+            {
+                var rTarget = TargetSelector.GetTarget(_spells[SpellSlot.R].Range, TargetSelector.DamageType.Physical);
+                if (rTarget.IsValidTarget(_spells[SpellSlot.R].Range))
+                {
+                    if (_spells[SpellSlot.R].IsEnabledAndReady(Mode.Combo) && _spells[SpellSlot.R].GetDamage(rTarget) >= rTarget.Health + 20)
+                    {
+                        _spells[SpellSlot.R].CastIfHitchanceEquals(rTarget, MenuHelper.GetHitchance());
+                    }
+                }
+            }
         }
 
         private void Combo()
@@ -170,7 +181,7 @@ namespace DZAIO.Champions
             //Normal R Casting in Combo
             if (rTarget.IsValidTarget(_spells[SpellSlot.R].Range))
             {
-                if (_spells[SpellSlot.R].IsEnabledAndReady(Mode.Combo) && _spells[SpellSlot.R].IsKillable(rTarget) &&
+                if (_spells[SpellSlot.R].IsEnabledAndReady(Mode.Combo) && _spells[SpellSlot.R].GetDamage(rTarget) >= rTarget.Health + 20 &&
                 !(DZAIO.Player.Distance(rTarget) < DZAIO.Player.AttackRange))
                 {
                     _spells[SpellSlot.R].CastIfHitchanceEquals(rTarget, MenuHelper.GetHitchance());
