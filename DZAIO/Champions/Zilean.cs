@@ -59,7 +59,7 @@ namespace DZAIO.Champions
 
         public void RegisterEvents()
         {
-            Game.OnGameUpdate += Game_OnGameUpdate;
+            Game.OnUpdate += Game_OnGameUpdate;
             Drawing.OnDraw += Drawing_OnDraw;
             DamagePrediction.OnSpellWillKill += DamagePrediction_OnSpellWillKill;
             AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;

@@ -200,7 +200,7 @@ namespace DZAIO.Utility
             MenuInstance.AddSubMenu(spellSubmenu);
 
             //Subscribe the Events
-            Game.OnGameUpdate += Game_OnGameUpdate;
+            Game.OnUpdate += Game_OnGameUpdate;
         }
 
         static void Game_OnGameUpdate(EventArgs args)

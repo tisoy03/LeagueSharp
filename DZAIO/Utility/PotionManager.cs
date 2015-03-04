@@ -51,7 +51,7 @@ namespace DZAIO.Utility
         public static void OnLoad(Menu menu)
         {
             AddMenu(DZAIO.Config);
-            Game.OnGameUpdate += Game_OnGameUpdate;
+            Game.OnUpdate += Game_OnGameUpdate;
         }
 
         

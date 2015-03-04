@@ -134,7 +134,7 @@ namespace DZAIO.Champions
 
         public void RegisterEvents()
         {
-            Game.OnGameUpdate += Game_OnGameUpdate;
+            Game.OnUpdate += Game_OnGameUpdate;
             Drawing.OnDraw += Drawing_OnDraw;
             Obj_AI_Base.OnProcessSpellCast += Obj_AI_Hero_OnProcessSpellCast;
             AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
@@ -267,7 +267,6 @@ namespace DZAIO.Champions
         {
             var comboTarget = TargetSelector.GetTarget(_spells[SpellSlot.Q].Range, TargetSelector.DamageType.Magical);
             var eDelay = MenuHelper.getSliderValue("dzaio.cassiopeia.misc.humanizer.edelay");
-
             if (PoisonedTargetInRange(_spells[SpellSlot.E].Range).Any())
             {
                 comboTarget = PoisonedTargetInRange(_spells[SpellSlot.E].Range).OrderBy(h => h.HealthPercentage()).First();
