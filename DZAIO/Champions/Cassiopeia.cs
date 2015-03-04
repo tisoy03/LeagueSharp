@@ -279,14 +279,16 @@ namespace DZAIO.Champions
                 {
                     _spells[SpellSlot.Q].CastIfHitchanceEquals(comboTarget, MenuHelper.GetHitchance());
                 }
-                if (_spells[SpellSlot.W].IsEnabledAndReady(Mode.Combo) && Environment.TickCount - _lastCastedQTick >= 700f)
+                if (_spells[SpellSlot.W].IsEnabledAndReady(Mode.Combo) && Environment.TickCount - _lastCastedQTick >= 800f)
                 {
                     if (MenuHelper.getSliderValue("dzaio.cassiopeia.combo.skilloptions.minwenemies") == 1)
                     {
-                        if ((MenuHelper.isMenuEnabled("dzaio.cassiopeia.combo.skilloptions.onlywnotpoison") &&
-                             !IsTargetPoisoned(comboTarget)))
+                        if (MenuHelper.isMenuEnabled("dzaio.cassiopeia.combo.skilloptions.onlywnotpoison"))
                         {
-                            _spells[SpellSlot.W].CastIfHitchanceEquals(comboTarget, MenuHelper.GetHitchance());
+                            if (!IsTargetPoisoned(comboTarget))
+                            {
+                                _spells[SpellSlot.W].CastIfHitchanceEquals(comboTarget, MenuHelper.GetHitchance());
+                            }
                         }
                         else
                         {
