@@ -165,7 +165,7 @@ namespace DZAIO.Utility
 
         public static HitChance GetHitchance()
         {
-            switch (DZAIO.DZAIO.Config.Item("dzaio.activator.customhitchance").GetValue<StringList>().SelectedIndex)
+            switch (DZAIO.Config.Item("dzaio.activator.customhitchance").GetValue<StringList>().SelectedIndex)
             {
                 case 0:
                     return HitChance.Low;
