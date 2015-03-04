@@ -6,7 +6,7 @@ using DZAIO.Utility.Helpers;
 using LeagueSharp;
 using LeagueSharp.Common;
 
-namespace VayneHunter_Reborn.Utility
+namespace DZAIO.Utility
 {
     class ItemManager
     {

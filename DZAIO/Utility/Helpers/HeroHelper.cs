@@ -3,7 +3,7 @@ using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
-using VayneHunter_Reborn.Utility;
+using DZAIO.Utility;
 
 namespace DZAIO.Utility.Helpers
 {
