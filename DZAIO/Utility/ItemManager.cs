@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using DZAIO.Utility.Helpers;
 using LeagueSharp;
 using LeagueSharp.Common;
 
-namespace DZAIO.Utility
+namespace VayneHunter_Reborn.Utility
 {
     class ItemManager
     {
@@ -22,30 +23,34 @@ namespace DZAIO.Utility
                 Id=3144,
                 Name = "Bilgewater Cutlass",
                 Range = 600f,
-                Class = ItemClass.Offensive
+                Class = ItemClass.Offensive,
+                Mode = ItemMode.Targeted
             },
             new DzItem
             {
                 Id= 3153,
                 Name = "Blade of the Ruined King",
                 Range = 600f,
-                Class = ItemClass.Offensive
+                Class = ItemClass.Offensive,
+                Mode = ItemMode.Targeted
             },
             new DzItem
             {
                 Id= 3142,
                 Name = "Youmuu",
-                Range = float.MaxValue,
-                Class = ItemClass.Offensive
+                Range = 600f,
+                Class = ItemClass.Offensive,
+                Mode = ItemMode.NoTarget
             }
         };
+
 
         public static void OnLoad(Menu menu)
         {
             //Create the menu here.
             var cName = ObjectManager.Player.ChampionName;
             var activatorMenu = new Menu(cName + " - Activator", "dzaio.activator");
-            
+
             //Offensive Menu
             var offensiveMenu = new Menu("Activator - Offensive", "dzaio.activator.offensive");
             var offensiveItems = ItemList.FindAll(item => item.Class == ItemClass.Offensive);
@@ -74,7 +79,7 @@ namespace DZAIO.Utility
 
         static void Game_OnGameUpdate(EventArgs args)
         {
-            if (!MenuHelper.isMenuEnabled("dzaio.activator.enabledalways") ||
+            if (!MenuHelper.isMenuEnabled("dzaio.activator.enabledalways") &&
                 !MenuHelper.getKeybindValue("dzaio.activator.enabledcombo"))
             {
                 return;
@@ -93,8 +98,10 @@ namespace DZAIO.Utility
             foreach (var item in offensiveItems)
             {
                 var selectedTarget = Hud.SelectedUnit as Obj_AI_Base ?? TargetSelector.GetTarget(item.Range, TargetSelector.DamageType.True);
-                if (!selectedTarget.IsValidTarget())
+                if (!selectedTarget.IsValidTarget(item.Range))
+                {
                     return;
+                }
                 if (MenuHelper.isMenuEnabled("dzaio.activator." + item.Id + ".always"))
                 {
                     UseItem(selectedTarget, item);
@@ -119,7 +126,7 @@ namespace DZAIO.Utility
         }
 
 
-        static void UseItem(Obj_AI_Base target,DzItem item)
+        static void UseItem(Obj_AI_Base target, DzItem item)
         {
             if (!Items.HasItem(item.Id) || !Items.CanUseItem(item.Id))
             {
@@ -130,7 +137,14 @@ namespace DZAIO.Utility
                 case ItemMode.Targeted:
                     Items.UseItem(item.Id, target);
                     break;
+                case ItemMode.NoTarget:
+                    Items.UseItem(item.Id, ObjectManager.Player);
+                    break;
                 case ItemMode.Skillshot:
+                    if (item.CustomInput == null)
+                    {
+                        return;
+                    }
                     var customPred = Prediction.GetPrediction(item.CustomInput);
                     if (customPred.Hitchance >= GetHitchance())
                     {
@@ -142,15 +156,16 @@ namespace DZAIO.Utility
 
         static SpellSlot GetItemSpellSlot(DzItem item)
         {
-            foreach (var it in ObjectManager.Player.InventoryItems.Where(it => (int)it.Id == item.Id)) {
-                return it.SpellSlot!=SpellSlot.Unknown?it.SpellSlot:SpellSlot.Unknown;
+            foreach (var it in ObjectManager.Player.InventoryItems.Where(it => (int)it.Id == item.Id))
+            {
+                return it.SpellSlot != SpellSlot.Unknown ? it.SpellSlot : SpellSlot.Unknown;
             }
             return SpellSlot.Unknown;
         }
 
         public static HitChance GetHitchance()
         {
-            switch (DZAIO.Config.Item("dzaio.activator.customhitchance").GetValue<StringList>().SelectedIndex)
+            switch (DZAIO.DZAIO.Config.Item("dzaio.activator.customhitchance").GetValue<StringList>().SelectedIndex)
             {
                 case 0:
                     return HitChance.Low;
@@ -173,7 +188,7 @@ namespace DZAIO.Utility
         internal static float GetItemsDamage(Obj_AI_Hero target)
         {
             var items = ItemList.Where(item => Items.HasItem(item.Id) && Items.CanUseItem(item.Id) && MenuHelper.isMenuEnabled("dzaio.activator." + item.Id + ".displaydmg"));
-            return items.Sum(item => (float) ObjectManager.Player.GetSpellDamage(target, GetItemSpellSlot(item)));
+            return items.Sum(item => (float)ObjectManager.Player.GetSpellDamage(target, GetItemSpellSlot(item)));
         }
     }
 
@@ -189,11 +204,11 @@ namespace DZAIO.Utility
 
     enum ItemMode
     {
-        Targeted,Skillshot
+        Targeted, Skillshot, NoTarget
     }
 
     enum ItemClass
     {
-        Offensive,Defensive
+        Offensive, Defensive
     }
 }
