@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using LeagueSharp;
 using LeagueSharp.Common;
 
@@ -96,7 +97,7 @@ namespace VayneHunter_Reborn.Utility
             foreach (var item in offensiveItems)
             {
                 var selectedTarget = Hud.SelectedUnit as Obj_AI_Base ?? TargetSelector.GetTarget(item.Range, TargetSelector.DamageType.True);
-                if (!selectedTarget.IsValidTarget() && item.Mode != ItemMode.NoTarget)
+                if (!selectedTarget.IsValidTarget(item.Range) && item.Mode != ItemMode.NoTarget)
                 {
                     return;
                 }
@@ -139,6 +140,10 @@ namespace VayneHunter_Reborn.Utility
                     Items.UseItem(item.Id, ObjectManager.Player);
                     break;
                 case ItemMode.Skillshot:
+                    if (item.CustomInput == null)
+                    {
+                        return;
+                    }
                     var customPred = Prediction.GetPrediction(item.CustomInput);
                     if (customPred.Hitchance >= GetHitchance())
                     {
