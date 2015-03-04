@@ -96,6 +96,7 @@ namespace DZAIO.Champions
             farmMenu.AddModeMenu(Mode.Lasthit, new[] { SpellSlot.E }, new[] { false });
             farmMenu.AddManaManager(Mode.Lasthit, new[] { SpellSlot.E }, new[] { 35 });
             farmMenu.AddItem(new MenuItem("dzaio.cassiopeia.farm.minminions", "Min. Minions for Q/W").SetValue(new Slider(2, 1, 5)));
+            farmMenu.AddItem(new MenuItem("dzaio.cassiopeia.farm.lhpoison", "Only LastHit Poisoned").SetValue(true));
             menu.AddSubMenu(farmMenu);
             var miscMenu = new Menu(cName + " - Misc", "dzaio.cassiopeia.misc");
             {
@@ -390,7 +391,17 @@ namespace DZAIO.Champions
                 var killableMinion = minions.Find(minion => minion.Health + 5 <= _spells[SpellSlot.E].GetDamage(minion));
                 if (killableMinion.IsValidTarget())
                 {
-                    _spells[SpellSlot.E].Cast(killableMinion);
+                    if (!MenuHelper.isMenuEnabled("dzaio.cassiopeia.farm.lhpoison"))
+                    {
+                        _spells[SpellSlot.E].Cast(killableMinion);
+                    }
+                    else
+                    {
+                        if (IsTargetPoisoned(killableMinion))
+                        {
+                            _spells[SpellSlot.E].Cast(killableMinion);
+                        }
+                    }
                 }
             }
 
