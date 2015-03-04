@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using DZAIO.Utility.Helpers;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
@@ -57,6 +58,11 @@ namespace DZAIO.Utility.Drawing
 
         private static void Drawing_OnDraw(EventArgs args)
         {
+            if (MenuHelper.isMenuEnabled("dzaio.hpdraw.disable"))
+            {
+                return;
+            }
+
             foreach (var unit in ObjectManager.Get<Obj_AI_Hero>().Where(u => u.IsValidTarget()))
             {
                 // Get damage to unit

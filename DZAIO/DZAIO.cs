@@ -62,7 +62,7 @@ namespace DZAIO
             DebugHelper.OnLoad();
             NotificationDrawing.OnLoad();
             PotionManager.OnLoad(Config);
-
+            Config.AddItem(new MenuItem("dzaio.hpdraw.disable", "Disable HP Bar Drawing").SetValue(false));
             var aboutMenu = new Menu(Player.ChampionName + " - About", "dzaio.about");
             {
                 aboutMenu.AddItem(new MenuItem("dzaio.about.line1", "DZAIO By Asuna/DZ191"));
