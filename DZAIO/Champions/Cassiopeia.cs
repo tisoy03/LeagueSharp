@@ -97,6 +97,7 @@ namespace DZAIO.Champions
             farmMenu.AddManaManager(Mode.Lasthit, new[] { SpellSlot.E }, new[] { 35 });
             farmMenu.AddItem(new MenuItem("dzaio.cassiopeia.farm.minminions", "Min. Minions for Q/W").SetValue(new Slider(2, 1, 5)));
             farmMenu.AddItem(new MenuItem("dzaio.cassiopeia.farm.lhpoison", "Only LastHit Poisoned").SetValue(true));
+            farmMenu.AddItem(new MenuItem("dzaio.cassiopeia.farm.lckill", "Only E LaneClear Killable Minions").SetValue(false));
             menu.AddSubMenu(farmMenu);
             var miscMenu = new Menu(cName + " - Misc", "dzaio.cassiopeia.misc");
             {
@@ -169,7 +170,7 @@ namespace DZAIO.Champions
         {
             if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
             {
-                if (!MenuHelper.isMenuEnabled("dzaio.cassiopeia.misc.aacombo") && _spells[SpellSlot.E].IsReady())
+                if (!MenuHelper.isMenuEnabled("dzaio.cassiopeia.misc.aacombo"))
                 {
                     args.Process = false;
                 }
@@ -382,7 +383,18 @@ namespace DZAIO.Champions
                 var poisonedMinions = minions.FindAll(minion => minion.HasBuffOfType(BuffType.Poison)).OrderBy(minion => minion.HealthPercentage());
                 if (poisonedMinions.Any() && (Environment.TickCount - _lastCastedETick >= eDelay))
                 {
-                    _spells[SpellSlot.E].Cast(poisonedMinions.First());
+                    if (MenuHelper.isMenuEnabled("dzaio.cassiopeia.farm.lckill"))
+                    {
+                        var killableMinion = poisonedMinions.Find(minion => minion.Health + 5 <= _spells[SpellSlot.E].GetDamage(minion));
+                        if (killableMinion.IsValidTarget())
+                        {
+                            _spells[SpellSlot.E].Cast(killableMinion);
+                        }
+                    }
+                    else
+                    {
+                        _spells[SpellSlot.E].Cast(poisonedMinions.First());
+                    }
                 }
             }
 
