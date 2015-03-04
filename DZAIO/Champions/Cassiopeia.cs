@@ -111,7 +111,7 @@ namespace DZAIO.Champions
             var humanizerMenu = new Menu("Humanizer", "dzaio.cassiopeia.misc.humanizer");
             {
                 humanizerMenu.AddItem(new MenuItem("dzaio.cassiopeia.misc.humanizer.edelay", "E Delay").SetValue(new Slider(300,0, 1500)));
-                humanizerMenu.AddItem(new MenuItem("dzaio.cassiopeia.misc.humanizer.lcdelay", "Laneclear Delay").SetValue(new Slider(300, 0, 1000)));
+                humanizerMenu.AddItem(new MenuItem("dzaio.cassiopeia.misc.humanizer.lcdelay", "Farm Delay").SetValue(new Slider(300, 0, 1000)));
                 humanizerMenu.AddItem(new MenuItem("dzaio.cassiopeia.misc.humanizer.disableaalc", "Disable AA Laneclear").SetValue(false));
             }
             miscMenu.AddSubMenu(humanizerMenu);
