@@ -478,7 +478,7 @@ namespace VayneHunter_Reborn
                             //var extendedPosition3 = targetPosition.Extend(fromPosition, -(i * target.BoundingRadius - target.BoundingRadius / 4));
                             var underTurret = MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.condemnturret") && (Helpers.UnderAllyTurret(finalPosition) || Helpers.IsFountain(finalPosition));
                             var j4Flag = MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.condemnflag") && (Helpers.IsJ4FlagThere(extendedPosition, target));
-                            if ((extendedPosition.IsWall() || j4Flag) && !(target.Path.Count() > 1) && !target.IsDashing())
+                            if ((extendedPosition.IsWall() || j4Flag) && (target.Path.Count() < 2) && !target.IsDashing())
                             {
                                 condemnNotification.Text = "Condemned " + target.ChampionName;
                                 //Game.PrintChat("Condemned " + target.ChampionName +" His BBox is "+ target.BoundingRadius +" It's Wall NavMesh: "+extendedPosition.IsWall()+", J4 Flag:"+ j4Flag +", UnderTurret: "+ underTurret);
