@@ -102,12 +102,13 @@ namespace VayneHunter_Reborn
             Game.PrintChat("<b><font color='#FF0000'>[VH]</font></b><font color='#FFFFFF'> Vayne Hunter Reborn loaded! Version: {0} </font>",Assembly.GetExecutingAssembly().GetName().Version);
             SetUpEvents();
             SetUpSkills();
+
             Console.Clear();
         }
 
         void SetUpSkills()
         {
-            _spells[SpellSlot.E].SetTargetted(0.35f,2200f);
+            _spells[SpellSlot.E].SetTargetted(0.25f,2000f);
         }
 
         void SetUpEvents()
@@ -124,6 +125,11 @@ namespace VayneHunter_Reborn
         }
         void Game_OnGameUpdate(EventArgs args)
         {
+            if (ObjectManager.Player.IsDead)
+            {
+                return;
+            }
+
             switch (Orbwalker.ActiveMode)
             {
                 case Orbwalking.OrbwalkingMode.Combo:
@@ -355,7 +361,6 @@ namespace VayneHunter_Reborn
         {
             if (MenuHelper.isMenuEnabled("dz191.vhr.misc.general.antigp"))
             {
-               
                 if (gapcloser.Sender.IsValidTarget(_spells[SpellSlot.E].Range) && gapcloser.End.Distance(ObjectManager.Player.ServerPosition) <= 375f && (gapcloser.Sender is Obj_AI_Hero))
                 {
                     _spells[SpellSlot.E].Cast(gapcloser.Sender);
@@ -462,9 +467,6 @@ namespace VayneHunter_Reborn
                     {
                         var pushDistance = MenuHelper.getSliderValue("dz191.vhr.misc.condemn.pushdistance");
                         var targetPosition = _spells[SpellSlot.E].GetPrediction(target).UnitPosition;
-                        var myDelay = (int)Math.Ceiling(fromPosition.Distance(target.ServerPosition) / _spells[SpellSlot.E].Speed * 1000 +50);
-                        // var targetPosition = Prediction.GetPrediction(target, myDelay).UnitPosition;
-                        //var targetPosition = target.Position;
                         var finalPosition = targetPosition.Extend(fromPosition, -pushDistance);
                         var numberOfChecks = (float)Math.Ceiling(pushDistance / 30f);
                         for (var i = 1; i <= 30; i++)
@@ -476,11 +478,10 @@ namespace VayneHunter_Reborn
                             //var extendedPosition3 = targetPosition.Extend(fromPosition, -(i * target.BoundingRadius - target.BoundingRadius / 4));
                             var underTurret = MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.condemnturret") && (Helpers.UnderAllyTurret(finalPosition) || Helpers.IsFountain(finalPosition));
                             var j4Flag = MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.condemnflag") && (Helpers.IsJ4FlagThere(extendedPosition, target));
-
-                            if (extendedPosition.IsWall() || j4Flag || underTurret)
+                            if ((extendedPosition.IsWall() || j4Flag) && !(target.Path.Count() > 1) && !target.IsDashing())
                             {
                                 condemnNotification.Text = "Condemned " + target.ChampionName;
-                                //Game.PrintChat("Condemned " + target.ChampionName +" His BBox is "+ target.BoundingRadius +" "+ extendedPosition.IsWall() +" "+ j4Flag +" "+ underTurret);
+                                //Game.PrintChat("Condemned " + target.ChampionName +" His BBox is "+ target.BoundingRadius +" It's Wall NavMesh: "+extendedPosition.IsWall()+", J4 Flag:"+ j4Flag +", UnderTurret: "+ underTurret);
                                 predictedEndPosition = extendedPosition;
                                 predictedPosition = targetPosition;
                                 Notifications.AddNotification(condemnNotification);
