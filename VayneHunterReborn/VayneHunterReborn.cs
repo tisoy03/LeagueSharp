@@ -86,6 +86,7 @@ namespace VayneHunter_Reborn
                 miscGeneralSubMenu.AddItem(new MenuItem("dz191.vhr.misc.general.antigp", "Anti Gapcloser")).SetValue(true);
                 miscGeneralSubMenu.AddItem(new MenuItem("dz191.vhr.misc.general.interrupt", "Interrupter").SetValue(true));
                 miscGeneralSubMenu.AddItem(new MenuItem("dz191.vhr.misc.general.specialfocus", "Focus targets with 2 W marks").SetValue(false));
+                miscGeneralSubMenu.AddItem(new MenuItem("dz191.vhr.misc.general.reveal", "Stealth Reveal (Pink Ward)").SetValue(false));
             }
             miscMenu.AddSubMenu(miscQMenu);
             miscMenu.AddSubMenu(miscEMenu);
@@ -121,7 +122,22 @@ namespace VayneHunter_Reborn
             Orbwalking.AfterAttack += OrbwalkingAfterAttack;
             AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
             Interrupter2.OnInterruptableTarget += Interrupter2_OnInterruptableTarget;
+            Stealth.OnStealth += Stealth_OnStealth;
             Drawing.OnDraw += Drawing_OnDraw;
+        }
+
+        void Stealth_OnStealth(Stealth.OnStealthEventArgs obj)
+        {
+            if (MenuHelper.isMenuEnabled("dz191.vhr.misc.general.reveal"))
+            {
+                if (obj.Sender.Distance(ObjectManager.Player) <= 450f && obj.IsStealthed)
+                {
+                    if (Items.HasItem(2043) && Items.CanUseItem(2043))
+                    {
+                        Items.UseItem(2043,obj.Sender.ServerPosition.Extend(ObjectManager.Player.ServerPosition, 200f));
+                    }
+                }
+            }
         }
         void Game_OnGameUpdate(EventArgs args)
         {
