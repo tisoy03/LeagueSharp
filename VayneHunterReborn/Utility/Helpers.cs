@@ -62,6 +62,14 @@ namespace VayneHunter_Reborn.Utility
             return (allies + 1 > enemies - lhEnemies);
         }
 
+        public static bool OkToQ2(Vector3 Position)
+        {
+            if (Position.CountEnemiesInRange(300f) > 1)
+            {
+                return false;
+            }
+            return true;
+        }
         public static List<Obj_AI_Hero> GetLhEnemiesNearPosition(Vector3 position, float range)
         {
             return HeroManager.Enemies.Where(hero => hero.IsValidTarget(range, true, position) && hero.HealthPercentage() <= 15).ToList();
