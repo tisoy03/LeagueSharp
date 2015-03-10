@@ -419,7 +419,7 @@ namespace VayneHunter_Reborn
                     }
                 }
             }
-            if (_spells[SpellSlot.R].IsEnabledAndReady(Mode.Combo) && ObjectManager.Player.CountEnemiesInRange(Orbwalking.GetRealAutoAttackRange(null)) >= MenuHelper.getSliderValue("dz191.vhr.combo.r.minenemies"))
+            if (_spells[SpellSlot.R].IsEnabledAndReady(Mode.Combo) && (Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo) && ObjectManager.Player.CountEnemiesInRange(Orbwalking.GetRealAutoAttackRange(null)) >= MenuHelper.getSliderValue("dz191.vhr.combo.r.minenemies"))
             {
                 _spells[SpellSlot.R].Cast();
             }
