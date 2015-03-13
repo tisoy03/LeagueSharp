@@ -181,8 +181,8 @@ namespace VayneHunter_Reborn
                 var target = HeroManager.Enemies.Find(en => en.IsValidTarget(ObjectManager.Player.AttackRange) && en.Has2WStacks());
                 if (target != null)
                 {
-                   // Orbwalker.ForceTarget(target);
-                  //  Hud.SelectedUnit = target;
+                   Orbwalker.ForceTarget(target);
+                   Hud.SelectedUnit = target;
                 }
             }
             #endregion
