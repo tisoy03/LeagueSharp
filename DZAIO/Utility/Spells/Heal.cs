@@ -29,7 +29,8 @@ namespace DZAIO.Utility.Spells
             return GetSummonerSpell().IsReady() &&
                    MenuHelper.isMenuEnabled("dzaio.activator.summonerspells." + GetName() + ".enabled") &&
                    ObjectManager.Player.HealthPercentage() <=
-                   MenuHelper.getSliderValue("daio.activator.summonerspells." + GetName() + ".hpercent");
+                   MenuHelper.getSliderValue("dzaio.activator.summonerspells." + GetName() + ".hpercent") &&
+                   ObjectManager.Player.CountEnemiesInRange(ObjectManager.Player.AttackRange) >= 1;
         }
 
         public void Execute()

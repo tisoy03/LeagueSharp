@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
 using DZAIO.Utility.Helpers;
 using DZAIO.Utility.Spells;
 using LeagueSharp;
@@ -15,7 +14,7 @@ namespace DZAIO.Utility
         //TODO: List of Activator Features here:
 
         //TODO: Shield Module
-        //TODO: Summoners Spells Implementation
+        //TODO: Summoners Spells Implementation #Partially Done
 
         private static readonly List<DzItem> ItemList = new List<DzItem>
         {
@@ -47,7 +46,8 @@ namespace DZAIO.Utility
 
         private static readonly List<ISummonerSpell> SummonerSpellsList = new List<ISummonerSpell>
         {
-           new Ignite()
+           new Ignite(),
+           new Heal()
         };
 
         public static void OnLoad(Menu menu)
