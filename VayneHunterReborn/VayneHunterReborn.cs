@@ -18,7 +18,7 @@ namespace VayneHunter_Reborn
         public static Orbwalking.Orbwalker Orbwalker;
         private static Vector3 predictedPosition;
         private static Vector3 predictedEndPosition;
-        private readonly Dictionary<SpellSlot, Spell> _spells = new Dictionary<SpellSlot, Spell>
+        private static readonly Dictionary<SpellSlot, Spell> _spells = new Dictionary<SpellSlot, Spell>
         {
             { SpellSlot.Q, new Spell(SpellSlot.Q) },
             { SpellSlot.W, new Spell(SpellSlot.W) },
@@ -26,12 +26,8 @@ namespace VayneHunter_Reborn
             { SpellSlot.R, new Spell(SpellSlot.R) }
         };
         private static Notification condemnNotification = new Notification("Condemned: ",5500);
-        public VayneHunterReborn()
-        {
-            CustomEvents.Game.OnGameLoad += OnLoad;
-        }
 
-        void OnLoad(EventArgs args)
+        public static void OnLoad(EventArgs args)
         {
             if (ObjectManager.Player.ChampionName != "Vayne")
             {
@@ -107,12 +103,12 @@ namespace VayneHunter_Reborn
             Console.Clear();
         }
 
-        void SetUpSkills()
+        static void SetUpSkills()
         {
             _spells[SpellSlot.E].SetTargetted(0.25f,2000f);
         }
 
-        void SetUpEvents()
+        static void SetUpEvents()
         {
             Cleanser.OnLoad();
             PotionManager.OnLoad(Menu);
@@ -126,7 +122,7 @@ namespace VayneHunter_Reborn
             Drawing.OnDraw += Drawing_OnDraw;
         }
 
-        void Stealth_OnStealth(Stealth.OnStealthEventArgs obj)
+        static void Stealth_OnStealth(Stealth.OnStealthEventArgs obj)
         {
             if (MenuHelper.isMenuEnabled("dz191.vhr.misc.general.reveal"))
             {
@@ -139,7 +135,7 @@ namespace VayneHunter_Reborn
                 }
             }
         }
-        void Game_OnGameUpdate(EventArgs args)
+        static void Game_OnGameUpdate(EventArgs args)
         {
             if (ObjectManager.Player.IsDead)
             {
@@ -159,7 +155,7 @@ namespace VayneHunter_Reborn
             OnUpdateFunctions();
         }
 
-        private void OnUpdateFunctions()
+        static private void OnUpdateFunctions()
         {        
             #region Auto E
             if (MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.autoe"))
@@ -230,7 +226,7 @@ namespace VayneHunter_Reborn
 
         }
 
-        private void Combo()
+        private static void Combo()
         {
             if (_spells[SpellSlot.E].IsEnabledAndReady(Mode.Combo))
             {
@@ -246,7 +242,7 @@ namespace VayneHunter_Reborn
             }
         }
 
-        private void Harrass()
+        private static void Harrass()
         {
             if (_spells[SpellSlot.E].IsEnabledAndReady(Mode.Harrass))
             {
@@ -267,7 +263,7 @@ namespace VayneHunter_Reborn
             }
         }
 
-        private void Farm()
+        private static void Farm()
         {
             if (!_spells[SpellSlot.Q].IsEnabledAndReady(Mode.Farm))
             {
@@ -286,7 +282,7 @@ namespace VayneHunter_Reborn
             }
         }
 
-        void OrbwalkingAfterAttack(AttackableUnit unit, AttackableUnit target)
+        static void OrbwalkingAfterAttack(AttackableUnit unit, AttackableUnit target)
         {
             if (!(target is Obj_AI_Base) || !unit.IsMe)
             {
@@ -325,7 +321,7 @@ namespace VayneHunter_Reborn
         }
 
 
-        void Drawing_OnDraw(EventArgs args)
+        static void Drawing_OnDraw(EventArgs args)
         {
             var drawE = Menu.Item("VayneDrawE").GetValue<Circle>();
             var midWallQPos = new Vector2(6707.485f, 8802.744f);
@@ -359,7 +355,7 @@ namespace VayneHunter_Reborn
            
         }
 
-        void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
+        static void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
         {
             if (MenuHelper.isMenuEnabled("dz191.vhr.misc.general.antigp"))
             {
@@ -370,7 +366,7 @@ namespace VayneHunter_Reborn
             }
         }
 
-        void Interrupter2_OnInterruptableTarget(Obj_AI_Hero sender, Interrupter2.InterruptableTargetEventArgs args)
+        static void Interrupter2_OnInterruptableTarget(Obj_AI_Hero sender, Interrupter2.InterruptableTargetEventArgs args)
         {
             if (MenuHelper.isMenuEnabled("dz191.vhr.misc.general.interrupt"))
             {
@@ -383,7 +379,7 @@ namespace VayneHunter_Reborn
         
 
         #region Tumble Region
-        private void CastQ(Obj_AI_Base target)
+        static private void CastQ(Obj_AI_Base target)
         {
             if (Environment.TickCount - _spells[SpellSlot.E].LastCastAttemptT <= 265)
             {
@@ -413,7 +409,7 @@ namespace VayneHunter_Reborn
             CastTumble(myPosition,target);
         }
 
-        void CastTumble(Obj_AI_Base target)
+        static void CastTumble(Obj_AI_Base target)
         {
             if (!_spells[SpellSlot.Q].IsReady())
             {
@@ -431,7 +427,7 @@ namespace VayneHunter_Reborn
                 _spells[SpellSlot.Q].Cast(Game.CursorPos);
             }
         }
-        void CastTumble(Vector3 pos, Obj_AI_Base target)
+        static void CastTumble(Vector3 pos, Obj_AI_Base target)
         {
             if (!_spells[SpellSlot.Q].IsReady())
             {
@@ -454,7 +450,7 @@ namespace VayneHunter_Reborn
 
         #region E Region
 
-        bool CondemnCheck(Vector3 fromPosition, out Obj_AI_Hero tg)
+        static bool CondemnCheck(Vector3 fromPosition, out Obj_AI_Hero tg)
         {
             if (fromPosition.UnderTurret(true) && MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.noeturret") || !_spells[SpellSlot.E].IsReady())
             {
@@ -524,7 +520,7 @@ namespace VayneHunter_Reborn
         #endregion
 
         #region WallTumble
-        void WallTumble()
+        static void WallTumble()
         {
             Vector2 midWallQPos = new Vector2(6707.485f, 8802.744f);
             Vector2 drakeWallQPos = new Vector2(11514, 4462);

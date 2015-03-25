@@ -10,9 +10,9 @@ namespace VayneHunter_Reborn
 {
     class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
-            new VayneHunterReborn();
+            CustomEvents.Game.OnGameLoad += VayneHunterReborn.OnLoad;
         }
     }
 }
