@@ -114,7 +114,7 @@ namespace VayneHunter_Reborn
             PotionManager.OnLoad(Menu);
             ItemManager.OnLoad(Menu);
 
-            Game.OnGameUpdate += Game_OnGameUpdate;
+            Game.OnUpdate += Game_OnGameUpdate;
             Orbwalking.AfterAttack += OrbwalkingAfterAttack;
             AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
             Interrupter2.OnInterruptableTarget += Interrupter2_OnInterruptableTarget;
