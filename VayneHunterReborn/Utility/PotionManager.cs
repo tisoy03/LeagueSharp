@@ -49,7 +49,7 @@ namespace VayneHunter_Reborn.Utility
         public static void OnLoad(Menu menu)
         {
             AddMenu(menu);
-            Game.OnGameUpdate += Game_OnGameUpdate;
+            Game.OnUpdate += Game_OnGameUpdate;
         }
 
 

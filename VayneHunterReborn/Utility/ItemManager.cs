@@ -73,7 +73,7 @@ namespace VayneHunter_Reborn.Utility
             activatorMenu.AddItem(new MenuItem("dz191.vhr.activator.enabledalways", "Enabled Always?").SetValue(false));
             activatorMenu.AddItem(new MenuItem("dz191.vhr.activator.enabledcombo", "Enabled On Press?").SetValue(new KeyBind(32, KeyBindType.Press)));
             menu.AddSubMenu(activatorMenu);
-            Game.OnGameUpdate += Game_OnGameUpdate;
+            Game.OnUpdate += Game_OnGameUpdate;
         }
 
         static void Game_OnGameUpdate(EventArgs args)

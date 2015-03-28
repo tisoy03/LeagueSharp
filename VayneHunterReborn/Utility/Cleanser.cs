@@ -197,7 +197,7 @@ namespace VayneHunter_Reborn.Utility
             spellSubmenu.AddSubMenu(allyMenu);
             MenuInstance.AddSubMenu(spellSubmenu);
             //Subscribe the Events
-            Game.OnGameUpdate += Game_OnGameUpdate;
+            Game.OnUpdate += Game_OnGameUpdate;
             // DamagePrediction.DamagePrediction.OnSpellWillKill += DamagePrediction_OnSpellWillKill;
         }
         /**
