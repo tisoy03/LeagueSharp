@@ -99,8 +99,6 @@ namespace VayneHunter_Reborn
             Game.PrintChat("<b><font color='#FF0000'>[VH]</font></b><font color='#FFFFFF'> Vayne Hunter Reborn loaded! Version: {0} </font>",Assembly.GetExecutingAssembly().GetName().Version);
             SetUpEvents();
             SetUpSkills();
-
-            Console.Clear();
         }
 
         static void SetUpSkills()
