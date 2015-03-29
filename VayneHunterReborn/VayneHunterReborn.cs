@@ -27,7 +27,7 @@ namespace VayneHunter_Reborn
         };
         private static Notification condemnNotification = new Notification("Condemned: ",5500);
 
-        public static void OnLoad(EventArgs args)
+        public static void OnLoad()
         {
             if (ObjectManager.Player.ChampionName != "Vayne")
             {

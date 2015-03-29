@@ -12,7 +12,12 @@ namespace VayneHunter_Reborn
     {
         private static void Main(string[] args)
         {
-            CustomEvents.Game.OnGameLoad += VayneHunterReborn.OnLoad;
+            CustomEvents.Game.OnGameLoad += Game_OnLoad;
+        }
+
+        private static void Game_OnLoad(EventArgs args)
+        {
+            VayneHunterReborn.OnLoad();
         }
     }
 }
