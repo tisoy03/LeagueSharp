@@ -44,7 +44,7 @@ namespace VayneHunter_Reborn
 
             var comboMenu = new Menu("[VHR] Combo", "dz191.vhr.combo");
             comboMenu.AddModeMenu(Mode.Combo,new []{SpellSlot.Q,SpellSlot.E,SpellSlot.R},new []{true,true,false});
-            comboMenu.AddManaManager(Mode.Combo, new[] { SpellSlot.Q, SpellSlot.E, SpellSlot.R }, new[] { 25,20,20 });
+            comboMenu.AddManaManager(Mode.Combo, new[] { SpellSlot.Q, SpellSlot.E, SpellSlot.R }, new[] { 0,0,0 });
             comboMenu.AddItem(new MenuItem("dz191.vhr.combo.r.minenemies", "Min R Enemies").SetValue(new Slider(2, 1, 5)));
             Menu.AddSubMenu(comboMenu);
             var harassMenu = new Menu("[VHR] Harass", "dz191.vhr.harass");
@@ -67,12 +67,12 @@ namespace VayneHunter_Reborn
             var miscEMenu = new Menu("Misc - Condemn", "dz191.vhr.misc.condemn");
             {
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.enextauto", "E Next Auto").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Toggle)));
-                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.condemnmethod", "Condemn Method").SetValue(new StringList(new []{"VH Reborn","Marksman/Gosu"})));
+                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.condemnmethod", "Condemn Method").SetValue(new StringList(new []{"VH Reborn","Marksman/Gosu", "VH Rework"})));
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.pushdistance", "E Push Dist").SetValue(new Slider(375, 350, 500)));
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.condemnturret", "Try to Condemn to turret").SetValue(false));
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.condemnflag", "Condemn to J4 flag").SetValue(true));
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.autoe", "Auto E").SetValue(false));
-                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.eks", "Smart E Ks").SetValue(true));
+                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.eks", "Smart E Ks").SetValue(false));
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.ethird", "E 3rd proc in Harass").SetValue(false));
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.noeturret", "No E Under enemy turret").SetValue(true));
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.lowlifepeel", "Peel with E when low").SetValue(false));
@@ -508,6 +508,23 @@ namespace VayneHunter_Reborn
                         {
                             tg = target;
                             return true;
+                        }
+                    }
+                    break;
+                case 2:
+                    foreach (var En in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsEnemy && hero.IsValidTarget() && hero.Distance(Player.Position)<= _spells[SpellSlot.E].Range))
+                    {
+                        var ePred = _spells[SpellSlot.E].GetPrediction(En);
+                        int pushDist = Menu.Item("dz191.vhr.misc.condemn.pushdistance").GetValue<Slider>().Value;
+                        for (int i = 0; i < pushDist; i += (int)En.BoundingRadius)
+                        {
+                            Vector3 loc3 = ePred.UnitPosition.To2D().Extend(fromPosition.To2D(), -i).To3D();
+                            var orTurret = MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.condemnturret") && Helpers.UnderAllyTurret(loc3);
+                            if (loc3.IsWall() || orTurret)
+                            {
+                                tg = En;
+                                return true; 
+                            }
                         }
                     }
                     break;
