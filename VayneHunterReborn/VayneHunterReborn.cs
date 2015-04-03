@@ -512,17 +512,17 @@ namespace VayneHunter_Reborn
                     }
                     break;
                 case 2:
-                    foreach (var En in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsEnemy && hero.IsValidTarget() && hero.Distance(Player.Position)<= _spells[SpellSlot.E].Range))
+                    foreach (var en in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsEnemy && hero.IsValidTarget() && hero.Distance(Player.Position)<= _spells[SpellSlot.E].Range))
                     {
-                        var ePred = _spells[SpellSlot.E].GetPrediction(En);
+                        var ePred = _spells[SpellSlot.E].GetPrediction(en);
                         int pushDist = Menu.Item("dz191.vhr.misc.condemn.pushdistance").GetValue<Slider>().Value;
-                        for (int i = 0; i < pushDist; i += (int)En.BoundingRadius)
+                        for (int i = 0; i < pushDist; i += (int)en.BoundingRadius)
                         {
                             Vector3 loc3 = ePred.UnitPosition.To2D().Extend(fromPosition.To2D(), -i).To3D();
                             var orTurret = MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.condemnturret") && Helpers.UnderAllyTurret(loc3);
                             if (loc3.IsWall() || orTurret)
                             {
-                                tg = En;
+                                tg = en;
                                 return true; 
                             }
                         }
