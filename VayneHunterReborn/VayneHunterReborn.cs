@@ -62,6 +62,7 @@ namespace VayneHunter_Reborn
                 miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.tumble.smartq", "Try to QE First").SetValue(false));
                 miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.tumble.noqenemies", "Don't Q into enemies").SetValue(true));
                 miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.tumble.noaastealth", "Don't AA while stealthed").SetValue(false));
+                miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.tumble.qspam", "Ignore Q checks").SetValue(false));
                 miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.tumble.walltumble", "Tumble Over Wall").SetValue(new KeyBind("Y".ToCharArray()[0],KeyBindType.Press)));
             }
             var miscEMenu = new Menu("Misc - Condemn", "dz191.vhr.misc.condemn");
@@ -416,11 +417,14 @@ namespace VayneHunter_Reborn
             var posAfterTumble =
                 ObjectManager.Player.ServerPosition.To2D().Extend(Game.CursorPos.To2D(), 300).To3D();
             var distanceAfterTumble = Vector3.DistanceSquared(posAfterTumble, target.ServerPosition);
-            if (distanceAfterTumble < 550 * 550 && distanceAfterTumble > 100 * 100)
+            if ((distanceAfterTumble < 550 * 550 && distanceAfterTumble > 100 * 100) || (MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.qspam")))
             {
                 if (!Helpers.OkToQ2(posAfterTumble) && MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.noqenemies"))
                 {
-                    return;
+                    if(!(MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.qspam")))
+                    {
+                          return;
+                    }
                 }
                 _spells[SpellSlot.Q].Cast(Game.CursorPos);
             }
@@ -434,11 +438,14 @@ namespace VayneHunter_Reborn
             var posAfterTumble =
                 ObjectManager.Player.ServerPosition.To2D().Extend(pos.To2D(), 300).To3D();
             var distanceAfterTumble = Vector3.DistanceSquared(posAfterTumble, target.ServerPosition);
-            if (distanceAfterTumble < 550 * 550 && distanceAfterTumble > 100 * 100)
+            if (distanceAfterTumble < 550 * 550 && distanceAfterTumble > 100 * 100 || (MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.qspam")))
             {
                 if (!Helpers.OkToQ2(posAfterTumble) && MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.noqenemies"))
                 {
-                    return;
+                    if(!(MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.qspam")))
+                    {
+                          return;
+                    }
                 }
                 _spells[SpellSlot.Q].Cast(pos);
             }

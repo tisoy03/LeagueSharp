@@ -20,7 +20,7 @@ namespace DZAIO.Utility.Spells
         public void AddToMenu(Menu menu)
         {
             menu.AddItem(
-                new MenuItem("daio.activator.summonerspells." + GetName() + ".hpercent", "Health %").SetValue(
+                new MenuItem("dzaio.activator.summonerspells." + GetName() + ".hpercent", "Health %").SetValue(
                     new Slider(25, 1)));
         }
 
