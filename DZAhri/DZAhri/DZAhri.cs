@@ -191,6 +191,7 @@ namespace DZAhri
                     _spells[SpellSlot.Q].Cast(charmedUnit);
                 }
             }
+            
         }
         static void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
         {
@@ -266,7 +267,8 @@ namespace DZAhri
                 miscMenu.AddItem(new MenuItem("dz191.ahri.combo.userexpire", "Use R when about to expire").SetValue(false)); //Done
             }
             Menu.AddSubMenu(miscMenu);
-            var farmMenu = new Menu("[Ahri] Misc", "dz191.ahri.misc");
+
+            var farmMenu = new Menu("[Ahri] Farm", "dz191.ahri.farm");
             {
                 farmMenu.AddItem(new MenuItem("dz191.ahri.farm.qlh", "Use Q LastHit").SetValue(false));
                 farmMenu.AddItem(new MenuItem("dz191.ahri.farm.qlc", "Use Q Laneclear").SetValue(false));

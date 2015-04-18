@@ -18,7 +18,7 @@ namespace DZAhri
 
         public static bool IsCharmed(this Obj_AI_Hero target)
         {
-            return target.HasBuffOfType(BuffType.Charm);
+            return target.HasBuff("AhriSeduce",true);
         }
 
         public static bool IsSafe(this Vector3 myVector)
