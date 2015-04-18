@@ -38,7 +38,7 @@ namespace DZAhri
         #region Modes Menu
         private static void Combo()
         {
-            if (ObjectManager.Player.ManaPercent < Menu.Item("dz191.ahri.combo.mana").GetValue<Slider>().Value || ObjectManager.Player.IsDead)
+            if (ObjectManager.Player.ManaPercentage() < Menu.Item("dz191.ahri.combo.mana").GetValue<Slider>().Value || ObjectManager.Player.IsDead)
             {
                 return;
             }
@@ -69,7 +69,7 @@ namespace DZAhri
 
         private static void Harass()
         {
-            if (ObjectManager.Player.ManaPercent < Menu.Item("dz191.ahri.harass.mana").GetValue<Slider>().Value || ObjectManager.Player.IsDead)
+            if (ObjectManager.Player.ManaPercentage() < Menu.Item("dz191.ahri.harass.mana").GetValue<Slider>().Value || ObjectManager.Player.IsDead)
             {
                 return;
             }
@@ -86,8 +86,12 @@ namespace DZAhri
                 {
                     _spells[SpellSlot.E].CastIfHitchanceEquals(target, HitChance.High);
                 }
-                if (Helpers.IsMenuEnabled("dz191.ahri.harass.useq") && _spells[SpellSlot.Q].IsReady() && !_spells[SpellSlot.E].IsReady())
+                if (Helpers.IsMenuEnabled("dz191.ahri.harass.useq") && _spells[SpellSlot.Q].IsReady())
                 {
+                    if (Helpers.IsMenuEnabled("dz191.ahri.harass.onlyqcharm") && !target.IsCharmed())
+                    {
+                        return;
+                    }
                     _spells[SpellSlot.Q].CastIfHitchanceEquals(target, HitChance.High);
                 }
                 if (Helpers.IsMenuEnabled("dz191.ahri.harass.usew") && _spells[SpellSlot.W].IsReady() && ObjectManager.Player.Distance(target) <= _spells[SpellSlot.W].Range)
@@ -99,7 +103,7 @@ namespace DZAhri
 
         private static void LastHit()
         {
-            if (ObjectManager.Player.ManaPercent < Menu.Item("dz191.ahri.farm.mana").GetValue<Slider>().Value)
+            if (ObjectManager.Player.ManaPercentage() < Menu.Item("dz191.ahri.farm.mana").GetValue<Slider>().Value)
             {
                 return;
             }
@@ -116,7 +120,7 @@ namespace DZAhri
 
         private static void Laneclear()
         {
-            if (ObjectManager.Player.ManaPercent < Menu.Item("dz191.ahri.farm.mana").GetValue<Slider>().Value)
+            if (ObjectManager.Player.ManaPercentage() < Menu.Item("dz191.ahri.farm.mana").GetValue<Slider>().Value)
             {
                 return;
             }
