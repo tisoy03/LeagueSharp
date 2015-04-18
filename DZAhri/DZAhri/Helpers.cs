@@ -18,10 +18,6 @@ namespace DZAhri
 
         public static bool IsCharmed(this Obj_AI_Hero target)
         {
-            if (!target.IsValidTarget())
-            {
-                return false;
-            }
             return target.HasBuffOfType(BuffType.Charm);
         }
 

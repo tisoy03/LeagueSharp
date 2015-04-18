@@ -15,7 +15,7 @@ namespace DZAhri
             { SpellSlot.Q, new Spell(SpellSlot.Q, 925f) },
             { SpellSlot.W, new Spell(SpellSlot.W, 700f) },
             { SpellSlot.E, new Spell(SpellSlot.E, 875f) },
-            { SpellSlot.R, new Spell(SpellSlot.R, 850f) }
+            { SpellSlot.R, new Spell(SpellSlot.R, 400f) }
         };
         private delegate void OnOrbwalkingMode();
         private static Dictionary<Orbwalking.OrbwalkingMode, OnOrbwalkingMode> _orbwalkingModesDictionary;
@@ -39,7 +39,7 @@ namespace DZAhri
         private static void Combo()
         {
             var comboTarget = TargetSelector.GetTarget(_spells[SpellSlot.E].Range, TargetSelector.DamageType.Magical);
-            var charmedUnit = HeroManager.Enemies.Find(h => h.HasBuffOfType(BuffType.Charm) && h.IsValidTarget());
+            var charmedUnit = HeroManager.Enemies.Find(h => h.HasBuffOfType(BuffType.Charm) && h.IsValidTarget(_spells[SpellSlot.Q].Range));
             Obj_AI_Hero target = comboTarget;
             if (charmedUnit != null)
             {
@@ -55,7 +55,11 @@ namespace DZAhri
                 {
                     _spells[SpellSlot.Q].CastIfHitchanceEquals(target, HitChance.High);
                 }
-                if (Helpers.IsMenuEnabled("dz191.ahri.combo.usew") && _spells[SpellSlot.W].IsReady() && ObjectManager.Player.Distance(target) <= _spells[SpellSlot.W].Range - 70 && (target.IsCharmed() || (_spells[SpellSlot.W].GetDamage(target) + _spells[SpellSlot.Q].GetDamage(target) > target.Health + 25)))
+                if (target.IsCharmed())
+                {
+                    Game.PrintChat(target.IsCharmed().ToString());
+                }
+                if (Helpers.IsMenuEnabled("dz191.ahri.combo.usew") && _spells[SpellSlot.W].IsReady() && ObjectManager.Player.Distance(target) <= _spells[SpellSlot.W].Range && (target.IsCharmed() || (_spells[SpellSlot.W].GetDamage(target) + _spells[SpellSlot.Q].GetDamage(target) > target.Health + 25)))
                 {
                     _spells[SpellSlot.W].Cast();
                 }
@@ -82,12 +86,12 @@ namespace DZAhri
             if (_spells[SpellSlot.R].IsReady() && Helpers.IsMenuEnabled("dz191.ahri.combo.user"))
             {
                 //User chose not to initiate with R.
-                if (!Helpers.IsMenuEnabled("dz191.ahri.combo.initr") && Helpers.RStacks() == 0)
+                if (Helpers.IsMenuEnabled("dz191.ahri.combo.initr"))
                 {
                     return;
                 }
                 //Neither Q or E are ready in <= 2 seconds and we can't kill the enemy with 1 R stack. Don't use R
-                if (!_spells[SpellSlot.Q].IsReady(2) && !_spells[SpellSlot.E].IsReady(2) && !(_spells[SpellSlot.R].GetDamage(target) >= target.Health +20))
+                if ((!_spells[SpellSlot.Q].IsReady(2) && !_spells[SpellSlot.E].IsReady(2)) || !(Helpers.GetComboDamage(target) >= target.Health +20))
                 {
                     return;
                 }
@@ -108,6 +112,19 @@ namespace DZAhri
         static void Game_OnUpdate(EventArgs args)
         {
             _orbwalkingModesDictionary[Orbwalker.ActiveMode]();
+            if (Helpers.IsMenuEnabled("dz191.ahri.combo.userexpire"))
+            {
+                var rBuff = ObjectManager.Player.Buffs.Find(buff => buff.Name == "AhriTumble");
+                if (rBuff != null)
+                {
+                    //This tryhard tho
+                    if (rBuff.EndTime - Game.Time <= 1.0f + (Game.Ping/(2f*1000f)))
+                    {
+                        var extendedPosition = ObjectManager.Player.Position.Extend(Game.CursorPos, _spells[SpellSlot.R].Range);
+                        _spells[SpellSlot.R].Cast(extendedPosition);
+                    }
+                }
+            }
         }
         #endregion
 
@@ -149,7 +166,7 @@ namespace DZAhri
                 harassMenu.AddItem(new MenuItem("dz191.ahri.harass.usew", "Use W Harass").SetValue(true));
                 harassMenu.AddItem(new MenuItem("dz191.ahri.harass.usee", "Use E Harass").SetValue(true));
                 harassMenu.AddItem(new MenuItem("dz191.ahri.harass.onlyqcharm", "Use Q Only when charmed").SetValue(true));
-                harassMenu.AddItem(new MenuItem("dz191.ahri.harass.mana", "Min Combo Mana").SetValue(new Slider(20)));
+                harassMenu.AddItem(new MenuItem("dz191.ahri.harass.mana", "Min Harass Mana").SetValue(new Slider(20)));
             }
             Menu.AddSubMenu(harassMenu);
 
@@ -159,6 +176,7 @@ namespace DZAhri
                 miscMenu.AddItem(new MenuItem("dz191.ahri.misc.eint", "Auto E Interrupter").SetValue(true));
                 miscMenu.AddItem(new MenuItem("dz191.ahri.misc.rgap", "R away gapclosers if E on CD").SetValue(false));
                 miscMenu.AddItem(new MenuItem("dz191.ahri.misc.autoq", "Auto Q Charmed targets").SetValue(false));
+                miscMenu.AddItem(new MenuItem("dz191.ahri.combo.userexpire", "Use R when about to expire").SetValue(false));
             }
             Menu.AddSubMenu(miscMenu);
             Menu.AddToMainMenu();
