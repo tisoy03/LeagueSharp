@@ -55,7 +55,7 @@ namespace DZAhri
                 {
                     _spells[SpellSlot.E].CastIfHitchanceEquals(target, HitChance.High);
                 }
-                if (Helpers.IsMenuEnabled("dz191.ahri.combo.useq") && _spells[SpellSlot.Q].IsReady() && !_spells[SpellSlot.E].IsReady())
+                if (Helpers.IsMenuEnabled("dz191.ahri.combo.useq") && _spells[SpellSlot.Q].IsReady() && (!_spells[SpellSlot.E].IsReady() || ObjectManager.Player.ManaPercent <= 25))
                 {
                     _spells[SpellSlot.Q].CastIfHitchanceEquals(target, HitChance.High);
                 }
