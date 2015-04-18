@@ -33,6 +33,7 @@ namespace DZAhri
             SetUpMenu();
             SetUpSpells();
             SetUpEvents();
+            Game.PrintChat("iJabba is the boss, and i love him!");
         }
 
         #region Modes Menu
