@@ -33,6 +33,7 @@ namespace DZAhri
             SetUpMenu();
             SetUpSpells();
             SetUpEvents();
+            Game.PrintChat("DZAhri Loaded!");
             Game.PrintChat("iJabba is the boss, and i love him!");
         }
 
@@ -154,14 +155,14 @@ namespace DZAhri
                     return;
                 }
                 //Neither Q or E are ready in <= 2 seconds and we can't kill the enemy with 1 R stack. Don't use R
-                if ((!_spells[SpellSlot.Q].IsReady(2) && !_spells[SpellSlot.E].IsReady(2)) || !(Helpers.GetComboDamage(target) >= target.Health +20))
+                if ((!_spells[SpellSlot.Q].IsReady(2) && !_spells[SpellSlot.E].IsReady(2)) || !(Helpers.GetComboDamage(target) >= target.Health + 20))
                 {
                     return;
                 }
                 //Set the test position to the Cursor Position
                 var testPosition = Game.CursorPos;
                 //Extend from out position towards there
-                var extendedPosition = ObjectManager.Player.Position.Extend(testPosition, _spells[SpellSlot.R].Range);
+                var extendedPosition = ObjectManager.Player.Position.Extend(testPosition, 500f);
                 //Safety checks
                 if (extendedPosition.IsSafe())
                 {
@@ -181,10 +182,13 @@ namespace DZAhri
                 if (rBuff != null)
                 {
                     //This tryhard tho
-                    if (rBuff.EndTime - Game.Time <= 1.0f + (Game.Ping/(2f*1000f)))
+                    if (rBuff.EndTime - Game.Time <= 1.0f + (Game.Ping / (2f * 1000f)))
                     {
                         var extendedPosition = ObjectManager.Player.Position.Extend(Game.CursorPos, _spells[SpellSlot.R].Range);
-                        _spells[SpellSlot.R].Cast(extendedPosition);
+                        if (extendedPosition.IsSafe())
+                        {
+                            _spells[SpellSlot.R].Cast(extendedPosition);
+                        }
                     }
                 }
             }
@@ -196,7 +200,7 @@ namespace DZAhri
                     _spells[SpellSlot.Q].Cast(charmedUnit);
                 }
             }
-            
+
         }
         static void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
         {
@@ -207,12 +211,12 @@ namespace DZAhri
             if (Helpers.IsMenuEnabled("dz191.ahri.misc.rgap") && !_spells[SpellSlot.E].IsReady() &&
                 _spells[SpellSlot.R].IsReady())
             {
-                _spells[SpellSlot.R].Cast(ObjectManager.Player.ServerPosition.Extend(gapcloser.End,-400f));
+                _spells[SpellSlot.R].Cast(ObjectManager.Player.ServerPosition.Extend(gapcloser.End, -400f));
             }
         }
         static void Interrupter2_OnInterruptableTarget(Obj_AI_Hero sender, Interrupter2.InterruptableTargetEventArgs args)
         {
-            if (Helpers.IsMenuEnabled("dz191.ahri.misc.eint") && args.DangerLevel >= Interrupter2.DangerLevel.High && _spells[SpellSlot.E].IsReady())
+            if (Helpers.IsMenuEnabled("dz191.ahri.misc.eint") && args.DangerLevel >= Interrupter2.DangerLevel.Medium && _spells[SpellSlot.E].IsReady())
             {
                 _spells[SpellSlot.E].Cast(sender.ServerPosition);
             }
@@ -235,7 +239,7 @@ namespace DZAhri
 
         private static void SetUpMenu()
         {
-             Menu = new Menu("DZAhri","dz191.ahri",true);
+            Menu = new Menu("DZAhri", "dz191.ahri", true);
             var orbMenu = new Menu("[Ahri] Orbwalker", "dz191.ahri.orbwalker");
             Orbwalker = new Orbwalking.Orbwalker(orbMenu);
             Menu.AddSubMenu(orbMenu);
