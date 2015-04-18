@@ -38,6 +38,10 @@ namespace DZAhri
         #region Modes Menu
         private static void Combo()
         {
+            if (ObjectManager.Player.ManaPercent < Menu.Item("dz191.ahri.combo.mana").GetValue<Slider>().Value || ObjectManager.Player.IsDead)
+            {
+                return;
+            }
             var comboTarget = TargetSelector.GetTarget(_spells[SpellSlot.E].Range, TargetSelector.DamageType.Magical);
             var charmedUnit = HeroManager.Enemies.Find(h => h.HasBuffOfType(BuffType.Charm) && h.IsValidTarget(_spells[SpellSlot.Q].Range));
             Obj_AI_Hero target = comboTarget;
@@ -55,10 +59,6 @@ namespace DZAhri
                 {
                     _spells[SpellSlot.Q].CastIfHitchanceEquals(target, HitChance.High);
                 }
-                if (target.IsCharmed())
-                {
-                    Game.PrintChat(target.IsCharmed().ToString());
-                }
                 if (Helpers.IsMenuEnabled("dz191.ahri.combo.usew") && _spells[SpellSlot.W].IsReady() && ObjectManager.Player.Distance(target) <= _spells[SpellSlot.W].Range && (target.IsCharmed() || (_spells[SpellSlot.W].GetDamage(target) + _spells[SpellSlot.Q].GetDamage(target) > target.Health + 25)))
                 {
                     _spells[SpellSlot.W].Cast();
@@ -69,17 +69,75 @@ namespace DZAhri
 
         private static void Harass()
         {
-            throw new NotImplementedException();
+            if (ObjectManager.Player.ManaPercent < Menu.Item("dz191.ahri.harass.mana").GetValue<Slider>().Value || ObjectManager.Player.IsDead)
+            {
+                return;
+            }
+            var comboTarget = TargetSelector.GetTarget(_spells[SpellSlot.E].Range, TargetSelector.DamageType.Magical);
+            var charmedUnit = HeroManager.Enemies.Find(h => h.HasBuffOfType(BuffType.Charm) && h.IsValidTarget(_spells[SpellSlot.Q].Range));
+            Obj_AI_Hero target = comboTarget;
+            if (charmedUnit != null)
+            {
+                target = charmedUnit;
+            }
+            if (target.IsValidTarget())
+            {
+                if (!target.IsCharmed() && Helpers.IsMenuEnabled("dz191.ahri.harass.usee") && _spells[SpellSlot.E].IsReady() && _spells[SpellSlot.Q].IsReady())
+                {
+                    _spells[SpellSlot.E].CastIfHitchanceEquals(target, HitChance.High);
+                }
+                if (Helpers.IsMenuEnabled("dz191.ahri.harass.useq") && _spells[SpellSlot.Q].IsReady() && !_spells[SpellSlot.E].IsReady())
+                {
+                    _spells[SpellSlot.Q].CastIfHitchanceEquals(target, HitChance.High);
+                }
+                if (Helpers.IsMenuEnabled("dz191.ahri.harass.usew") && _spells[SpellSlot.W].IsReady() && ObjectManager.Player.Distance(target) <= _spells[SpellSlot.W].Range)
+                {
+                    _spells[SpellSlot.W].Cast();
+                }
+            }
         }
 
         private static void LastHit()
         {
-            throw new NotImplementedException();
+            if (ObjectManager.Player.ManaPercent < Menu.Item("dz191.ahri.farm.mana").GetValue<Slider>().Value)
+            {
+                return;
+            }
+            if (Helpers.IsMenuEnabled("dz191.ahri.farm.qlh"))
+            {
+                var minionInQ = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, _spells[SpellSlot.Q].Range).FindAll(m => _spells[SpellSlot.Q].GetDamage(m) >= m.Health).ToList();
+                var killableMinions = _spells[SpellSlot.Q].GetLineFarmLocation(minionInQ);
+                if (killableMinions.MinionsHit > 0)
+                {
+                    _spells[SpellSlot.Q].Cast(killableMinions.Position);
+                }
+            }
         }
 
         private static void Laneclear()
         {
-            throw new NotImplementedException();
+            if (ObjectManager.Player.ManaPercent < Menu.Item("dz191.ahri.farm.mana").GetValue<Slider>().Value)
+            {
+                return;
+            }
+            if (Helpers.IsMenuEnabled("dz191.ahri.farm.qlc"))
+            {
+                var minionInQ = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, _spells[SpellSlot.Q].Range);
+                var killableMinions = _spells[SpellSlot.Q].GetLineFarmLocation(minionInQ);
+                if (killableMinions.MinionsHit >= 3)
+                {
+                    _spells[SpellSlot.Q].Cast(killableMinions.Position);
+                }
+            }
+            if (Helpers.IsMenuEnabled("dz191.ahri.farm.wlc"))
+            {
+                var minionInW = MinionManager.GetMinions(
+                    ObjectManager.Player.ServerPosition, _spells[SpellSlot.W].Range);
+                if (minionInW.Count > 0)
+                {
+                    _spells[SpellSlot.W].Cast();
+                }
+            }
         }
         private static void HandleRCombo(Obj_AI_Hero target)
         {
@@ -125,6 +183,33 @@ namespace DZAhri
                     }
                 }
             }
+            if (Helpers.IsMenuEnabled("dz191.ahri.misc.autoq"))
+            {
+                var charmedUnit = HeroManager.Enemies.Find(h => h.HasBuffOfType(BuffType.Charm) && h.IsValidTarget(_spells[SpellSlot.Q].Range));
+                if (charmedUnit != null)
+                {
+                    _spells[SpellSlot.Q].Cast(charmedUnit);
+                }
+            }
+        }
+        static void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
+        {
+            if (Helpers.IsMenuEnabled("dz191.ahri.misc.egp") && gapcloser.Sender.IsValidTarget() && _spells[SpellSlot.E].IsReady())
+            {
+                _spells[SpellSlot.E].Cast(gapcloser.Sender);
+            }
+            if (Helpers.IsMenuEnabled("dz191.ahri.misc.rgap") && !_spells[SpellSlot.E].IsReady() &&
+                _spells[SpellSlot.R].IsReady())
+            {
+                _spells[SpellSlot.R].Cast(ObjectManager.Player.ServerPosition.Extend(gapcloser.End,-400f));
+            }
+        }
+        static void Interrupter2_OnInterruptableTarget(Obj_AI_Hero sender, Interrupter2.InterruptableTargetEventArgs args)
+        {
+            if (Helpers.IsMenuEnabled("dz191.ahri.misc.eint") && args.DangerLevel >= Interrupter2.DangerLevel.High && _spells[SpellSlot.E].IsReady())
+            {
+                _spells[SpellSlot.E].Cast(sender.ServerPosition);
+            }
         }
         #endregion
 
@@ -132,6 +217,8 @@ namespace DZAhri
         private static void SetUpEvents()
         {
             Game.OnUpdate += Game_OnUpdate;
+            AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
+            Interrupter2.OnInterruptableTarget += Interrupter2_OnInterruptableTarget;
         }
 
         private static void SetUpSpells()
@@ -149,13 +236,13 @@ namespace DZAhri
             var tsMenu = new Menu("[Ahri] Target Selector", "dz191.ahri.ts");
             TargetSelector.AddToMenu(tsMenu);
             Menu.AddSubMenu(tsMenu);
-            var comboMenu = new Menu("[Ahri] Combo", "dz191.ahri.combo");
+            var comboMenu = new Menu("[Ahri] Combo", "dz191.ahri.combo"); //Done
             {
                 comboMenu.AddItem(new MenuItem("dz191.ahri.combo.useq", "Use Q Combo").SetValue(true));
                 comboMenu.AddItem(new MenuItem("dz191.ahri.combo.usew", "Use W Combo").SetValue(true));
                 comboMenu.AddItem(new MenuItem("dz191.ahri.combo.usee", "Use E Combo").SetValue(true));
                 comboMenu.AddItem(new MenuItem("dz191.ahri.combo.user", "Use R Combo").SetValue(true));
-                comboMenu.AddItem(new MenuItem("dz191.ahri.combo.initr", "Don't Initiate with R").SetValue(false));
+                comboMenu.AddItem(new MenuItem("dz191.ahri.combo.initr", "Don't Initiate with R").SetValue(false)); //Done
                 comboMenu.AddItem(new MenuItem("dz191.ahri.combo.mana", "Min Combo Mana").SetValue(new Slider(20)));
             }
             Menu.AddSubMenu(comboMenu);
@@ -172,13 +259,22 @@ namespace DZAhri
 
             var miscMenu = new Menu("[Ahri] Misc", "dz191.ahri.misc");
             {
-                miscMenu.AddItem(new MenuItem("dz191.ahri.misc.egp", "Auto E Gapclosers").SetValue(true));
-                miscMenu.AddItem(new MenuItem("dz191.ahri.misc.eint", "Auto E Interrupter").SetValue(true));
-                miscMenu.AddItem(new MenuItem("dz191.ahri.misc.rgap", "R away gapclosers if E on CD").SetValue(false));
-                miscMenu.AddItem(new MenuItem("dz191.ahri.misc.autoq", "Auto Q Charmed targets").SetValue(false));
-                miscMenu.AddItem(new MenuItem("dz191.ahri.combo.userexpire", "Use R when about to expire").SetValue(false));
+                miscMenu.AddItem(new MenuItem("dz191.ahri.misc.egp", "Auto E Gapclosers").SetValue(true)); //Done
+                miscMenu.AddItem(new MenuItem("dz191.ahri.misc.eint", "Auto E Interrupter").SetValue(true)); //Done
+                miscMenu.AddItem(new MenuItem("dz191.ahri.misc.rgap", "R away gapclosers if E on CD").SetValue(false)); //Done
+                miscMenu.AddItem(new MenuItem("dz191.ahri.misc.autoq", "Auto Q Charmed targets").SetValue(false)); //Done
+                miscMenu.AddItem(new MenuItem("dz191.ahri.combo.userexpire", "Use R when about to expire").SetValue(false)); //Done
             }
             Menu.AddSubMenu(miscMenu);
+            var farmMenu = new Menu("[Ahri] Misc", "dz191.ahri.misc");
+            {
+                farmMenu.AddItem(new MenuItem("dz191.ahri.farm.qlh", "Use Q LastHit").SetValue(false));
+                farmMenu.AddItem(new MenuItem("dz191.ahri.farm.qlc", "Use Q Laneclear").SetValue(false));
+                farmMenu.AddItem(new MenuItem("dz191.ahri.farm.wlc", "Use W Laneclear").SetValue(false));
+                farmMenu.AddItem(new MenuItem("dz191.ahri.farm.mana", "Min Farm Mana").SetValue(new Slider(20)));
+            }
+            Menu.AddSubMenu(farmMenu);
+
             Menu.AddToMainMenu();
         }
         #endregion
