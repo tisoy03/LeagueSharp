@@ -80,7 +80,7 @@ namespace DZAhri
                 return;
             }
             var comboTarget = TargetSelector.GetTarget(_spells[SpellSlot.E].Range, TargetSelector.DamageType.Magical);
-            var charmedUnit = HeroManager.Enemies.Find(h => h.HasBuffOfType(BuffType.Charm) && h.IsValidTarget(_spells[SpellSlot.Q].Range));
+            var charmedUnit = HeroManager.Enemies.Find(h => h.IsCharmed() && h.IsValidTarget(_spells[SpellSlot.Q].Range));
             Obj_AI_Hero target = comboTarget;
             if (charmedUnit != null)
             {
