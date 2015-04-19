@@ -22,6 +22,10 @@ namespace DZAhri
 
         public static void OnLoad()
         {
+            if (ObjectManager.Player.ChampionName != "Ahri")
+            {
+                return;
+            }
             _orbwalkingModesDictionary = new Dictionary<Orbwalking.OrbwalkingMode, OnOrbwalkingMode>
             {
                 { Orbwalking.OrbwalkingMode.Combo, Combo },
