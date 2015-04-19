@@ -220,7 +220,8 @@ namespace DZAhri
             if (Menu.Item("dz191.ahri.misc.instacharm").GetValue<KeyBind>().Active && _spells[SpellSlot.E].IsReady())
             {
                 var target = TargetSelector.GetTarget(_spells[SpellSlot.E].Range, TargetSelector.DamageType.Magical);
-                _spells[SpellSlot.E].Cast(target);
+                var prediction = _spells[SpellSlot.E].GetPrediction(target);
+                _spells[SpellSlot.E].Cast(prediction.CastPosition);
             }
 
         }
