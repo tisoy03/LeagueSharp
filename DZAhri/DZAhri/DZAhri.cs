@@ -181,7 +181,7 @@ namespace DZAhri
         static void Game_OnUpdate(EventArgs args)
         {
             _orbwalkingModesDictionary[Orbwalker.ActiveMode]();
-            if (Helpers.IsMenuEnabled("dz191.ahri.combo.userexpire"))
+            if (Helpers.IsMenuEnabled("dz191.ahri.misc.userexpire"))
             {
                 var rBuff = ObjectManager.Player.Buffs.Find(buff => buff.Name == "AhriTumble");
                 if (rBuff != null)
@@ -199,11 +199,28 @@ namespace DZAhri
             }
             if (Helpers.IsMenuEnabled("dz191.ahri.misc.autoq"))
             {
-                var charmedUnit = HeroManager.Enemies.Find(h => h.HasBuffOfType(BuffType.Charm) && h.IsValidTarget(_spells[SpellSlot.Q].Range));
+                var charmedUnit = HeroManager.Enemies.Find(h => h.IsCharmed() && h.IsValidTarget(_spells[SpellSlot.Q].Range));
                 if (charmedUnit != null)
                 {
                     _spells[SpellSlot.Q].Cast(charmedUnit);
                 }
+            }
+            if (Helpers.IsMenuEnabled("dz191.ahri.combo.autoq2"))
+            {
+                var qMana = Menu.Item("dz191.ahri.combo.autoq2mana").GetValue<Slider>().Value;
+                if (ObjectManager.Player.ManaPercentage() >= qMana && _spells[SpellSlot.Q].IsReady())
+                {
+                    var target = TargetSelector.GetTarget(_spells[SpellSlot.Q].Range, TargetSelector.DamageType.Magical);
+                    if (ObjectManager.Player.Distance(target) >= _spells[SpellSlot.Q].Range * 0.7f)
+                    {
+                        _spells[SpellSlot.Q].CastIfHitchanceEquals(target, HitChance.High);
+                    }
+                }
+            }
+            if (Menu.Item("dz191.ahri.misc.instacharm").GetValue<KeyBind>().Active && _spells[SpellSlot.E].IsReady())
+            {
+                var target = TargetSelector.GetTarget(_spells[SpellSlot.E].Range, TargetSelector.DamageType.Magical);
+                _spells[SpellSlot.E].Cast(target);
             }
 
         }
@@ -293,7 +310,10 @@ namespace DZAhri
                 miscMenu.AddItem(new MenuItem("dz191.ahri.misc.eint", "Auto E Interrupter").SetValue(true)); //Done
                 miscMenu.AddItem(new MenuItem("dz191.ahri.misc.rgap", "R away gapclosers if E on CD").SetValue(false)); //Done
                 miscMenu.AddItem(new MenuItem("dz191.ahri.misc.autoq", "Auto Q Charmed targets").SetValue(false)); //Done
-                miscMenu.AddItem(new MenuItem("dz191.ahri.combo.userexpire", "Use R when about to expire").SetValue(false)); //Done
+                miscMenu.AddItem(new MenuItem("dz191.ahri.misc.userexpire", "Use R when about to expire").SetValue(false)); //Done
+                miscMenu.AddItem(new MenuItem("dz191.ahri.misc.autoq2", "Auto Q poke (Long range)").SetValue(false)); //Done
+                miscMenu.AddItem(new MenuItem("dz191.ahri.misc.autoq2mana", "Auto Q mana").SetValue(new Slider(25))); //Done
+                miscMenu.AddItem(new MenuItem("dz191.ahri.misc.instacharm", "Instacharm").SetValue(new KeyBind("T".ToCharArray()[0],KeyBindType.Press))); //Done
             }
             Menu.AddSubMenu(miscMenu);
 
