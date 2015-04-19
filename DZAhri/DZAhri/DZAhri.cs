@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
@@ -225,6 +226,20 @@ namespace DZAhri
                 _spells[SpellSlot.E].Cast(sender.ServerPosition);
             }
         }
+        static void Drawing_OnDraw(EventArgs args)
+        {
+            var qItem = Menu.Item("dz191.ahri.drawings.q").GetValue<Circle>();
+            var eItem = Menu.Item("dz191.ahri.drawings.e").GetValue<Circle>();
+            if (qItem.Active)
+            {
+                Render.Circle.DrawCircle(ObjectManager.Player.Position,_spells[SpellSlot.Q].Range,qItem.Color);
+            }
+            if (eItem.Active)
+            {
+                Render.Circle.DrawCircle(ObjectManager.Player.Position, _spells[SpellSlot.E].Range, eItem.Color);
+            }
+        }
+
         #endregion
 
         #region Events, Spells, Menu Init
@@ -233,6 +248,7 @@ namespace DZAhri
             Game.OnUpdate += Game_OnUpdate;
             AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
             Interrupter2.OnInterruptableTarget += Interrupter2_OnInterruptableTarget;
+            Drawing.OnDraw += Drawing_OnDraw;
         }
 
         private static void SetUpSpells()
@@ -289,6 +305,13 @@ namespace DZAhri
                 farmMenu.AddItem(new MenuItem("dz191.ahri.farm.mana", "Min Farm Mana").SetValue(new Slider(20)));
             }
             Menu.AddSubMenu(farmMenu);
+
+            var drawMenu = new Menu("[Ahri] Drawing", "dz191.ahri.drawings");
+            {
+                drawMenu.AddItem(new MenuItem("dz191.ahri.drawings.q", "Draw Q").SetValue(new Circle(true,Color.Aqua)));
+                drawMenu.AddItem(new MenuItem("dz191.ahri.drawings.e", "Draw E").SetValue(new Circle(true, Color.Aqua)));
+            }
+            Menu.AddSubMenu(drawMenu);
 
             Menu.AddToMainMenu();
         }
