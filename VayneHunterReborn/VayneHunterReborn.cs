@@ -120,6 +120,22 @@ namespace VayneHunter_Reborn
             Stealth.OnStealth += Stealth_OnStealth;
             Drawing.OnDraw += Drawing_OnDraw;
             Obj_AI_Hero.OnPlayAnimation += Obj_AI_Hero_OnPlayAnimation;
+            GameObject.OnCreate += GameObject_OnCreate;
+        }
+
+        static void GameObject_OnCreate(GameObject sender, EventArgs args)
+        {
+            if (MenuHelper.isMenuEnabled("dz191.vhr.misc.general.antigp") && _spells[SpellSlot.E].IsReady())
+            {
+                if (sender.IsEnemy && sender.Name == "Rengar_LeapSound.troy")
+                {
+                    var rengarEntity = HeroManager.Enemies.Find(h => h.ChampionName.Equals("Rengar") && h.IsValidTarget(_spells[SpellSlot.E].Range));
+                    if (rengarEntity != null)
+                    {
+                        _spells[SpellSlot.E].Cast(rengarEntity);
+                    }
+                }
+            }
         }
 
         static void Obj_AI_Hero_OnPlayAnimation(Obj_AI_Base sender, GameObjectPlayAnimationEventArgs args)
@@ -304,7 +320,6 @@ namespace VayneHunter_Reborn
 
         static void OrbwalkingAfterAttack(AttackableUnit unit, AttackableUnit target)
         {
-            Console.WriteLine("Being Called!");
 
             if (!(target is Obj_AI_Base) || !unit.IsMe)
             {
