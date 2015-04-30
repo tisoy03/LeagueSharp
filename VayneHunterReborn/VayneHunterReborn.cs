@@ -124,6 +124,7 @@ namespace VayneHunter_Reborn
 
         static void Obj_AI_Hero_OnPlayAnimation(Obj_AI_Base sender, GameObjectPlayAnimationEventArgs args)
         {
+            return;
             if (!sender.IsMe)
             {
                 return;
