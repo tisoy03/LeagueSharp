@@ -119,6 +119,26 @@ namespace VayneHunter_Reborn
             Interrupter2.OnInterruptableTarget += Interrupter2_OnInterruptableTarget;
             Stealth.OnStealth += Stealth_OnStealth;
             Drawing.OnDraw += Drawing_OnDraw;
+            Obj_AI_Hero.OnPlayAnimation += Obj_AI_Hero_OnPlayAnimation;
+        }
+
+        static void Obj_AI_Hero_OnPlayAnimation(Obj_AI_Base sender, GameObjectPlayAnimationEventArgs args)
+        {
+            if (!sender.IsMe)
+            {
+                return;
+            }
+            //Console.WriteLine(args.Animation.ToString());
+            if (args.Animation.Contains("Attack"))
+            {
+                LeagueSharp.Common.Utility.DelayAction.Add((25), () =>
+                {
+                    if (ObjectManager.Player.IsAttackingPlayer)
+                    {
+                        LeagueSharp.Common.Utility.DelayAction.Add((int)(ObjectManager.Player.AttackCastDelay * 1000 + 15), () => OrbwalkingAfterAttack(ObjectManager.Player, Orbwalker.GetTarget()));
+                    }
+                });
+            }
         }
 
         static void Stealth_OnStealth(Stealth.OnStealthEventArgs obj)
@@ -283,6 +303,8 @@ namespace VayneHunter_Reborn
 
         static void OrbwalkingAfterAttack(AttackableUnit unit, AttackableUnit target)
         {
+            Console.WriteLine("Being Called!");
+
             if (!(target is Obj_AI_Base) || !unit.IsMe)
             {
                 return;
