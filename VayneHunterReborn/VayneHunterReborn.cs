@@ -16,8 +16,10 @@ namespace VayneHunter_Reborn
         public static Menu Menu;
         public static Obj_AI_Hero Player = ObjectManager.Player;
         public static Orbwalking.Orbwalker Orbwalker;
-        private static Vector3 predictedPosition;
-        private static Vector3 predictedEndPosition;
+        private static Vector3 _predictedPosition;
+        private static Vector3 _predictedEndPosition;
+        private static float _lastCheckTick;
+        private static float _lastCheckTick2;
         private static readonly Dictionary<SpellSlot, Spell> _spells = new Dictionary<SpellSlot, Spell>
         {
             { SpellSlot.Q, new Spell(SpellSlot.Q) },
@@ -25,7 +27,7 @@ namespace VayneHunter_Reborn
             { SpellSlot.E, new Spell(SpellSlot.E, 590f) },
             { SpellSlot.R, new Spell(SpellSlot.R) }
         };
-        private static Notification condemnNotification = new Notification("Condemned: ",5500);
+        private static readonly Notification CondemnNotification = new Notification("Condemned",5500);
 
         public static void OnLoad()
         {
@@ -192,9 +194,14 @@ namespace VayneHunter_Reborn
         }
 
         static private void OnUpdateFunctions()
-        {        
+        {
+            if (Environment.TickCount - _lastCheckTick < 150)
+            {
+                return;
+            }
+            _lastCheckTick = Environment.TickCount;
             #region Auto E
-            if (MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.autoe"))
+            if (MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.autoe") && _spells[SpellSlot.E].IsReady())
             {
                 Obj_AI_Hero target;
                 if (CondemnCheck(ObjectManager.Player.ServerPosition, out target))
@@ -227,7 +234,7 @@ namespace VayneHunter_Reborn
             #endregion
 
             #region Condemn KS
-            if (MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.eks"))
+            if (MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.eks") && _spells[SpellSlot.E].IsReady())
             {
                 var target = HeroManager.Enemies.Find(en => en.IsValidTarget(_spells[SpellSlot.E].Range) && en.Has2WStacks());
                 if (target != null && target.Health + 20 <=(_spells[SpellSlot.E].GetDamage(target) + _spells[SpellSlot.W].GetDamage(target)) && (target is Obj_AI_Hero))
@@ -238,7 +245,7 @@ namespace VayneHunter_Reborn
             #endregion
 
             #region WallTumble
-            if (Menu.Item("dz191.vhr.misc.tumble.walltumble").GetValue<KeyBind>().Active)
+            if (Menu.Item("dz191.vhr.misc.tumble.walltumble").GetValue<KeyBind>().Active && _spells[SpellSlot.Q].IsReady())
             {
                 WallTumble();
             }
@@ -246,7 +253,7 @@ namespace VayneHunter_Reborn
 
             #region Low Life Peel
 
-            if (MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.lowlifepeel") &&ObjectManager.Player.HealthPercentage() <= 20)
+            if (MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.lowlifepeel") && ObjectManager.Player.HealthPercentage() <= 20 && _spells[SpellSlot.E].IsReady())
             {
                 var meleeEnemies = ObjectManager.Player.GetEnemiesInRange(350f).FindAll(m => m.IsMelee());
                 if (meleeEnemies.Any())
@@ -264,6 +271,11 @@ namespace VayneHunter_Reborn
 
         private static void Combo()
         {
+            if (Environment.TickCount - _lastCheckTick2 < 80)
+            {
+                return;
+            }
+            _lastCheckTick2 = Environment.TickCount;
             if (_spells[SpellSlot.E].IsEnabledAndReady(Mode.Combo))
             {
                 Obj_AI_Hero target;
@@ -370,6 +382,7 @@ namespace VayneHunter_Reborn
             if (MenuHelper.isMenuEnabled("dz191.vhr.drawing.drawstun"))
             {
                 Obj_AI_Hero myTarget;
+                /**
                 if (CondemnCheck(ObjectManager.Player.ServerPosition, out myTarget))
                 {
                     if (myTarget != null)
@@ -377,6 +390,7 @@ namespace VayneHunter_Reborn
                         Drawing.DrawText(myTarget.Position.X, myTarget.Position.Y, Color.Aqua, "Stunnable!");
                     }
                 }
+                 * */
             }
             if (MenuHelper.isMenuEnabled("dz191.vhr.drawing.drawspots"))
             {
@@ -495,7 +509,7 @@ namespace VayneHunter_Reborn
 
         static bool CondemnCheck(Vector3 fromPosition, out Obj_AI_Hero tg)
         {
-            if (fromPosition.UnderTurret(true) && MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.noeturret") || !_spells[SpellSlot.E].IsReady())
+            if ((fromPosition.UnderTurret(true) && MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.noeturret"))|| !_spells[SpellSlot.E].IsReady())
             {
                 tg = null;
                 return false;
@@ -529,9 +543,9 @@ namespace VayneHunter_Reborn
                             var j4Flag = MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.condemnflag") && (Helpers.IsJ4FlagThere(extendedPosition, target));
                             if ((extendedPosition.IsWall() || j4Flag) && (target.Path.Count() < 2) && !target.IsDashing())
                             {
-                                condemnNotification.Text = "Condemned " + target.ChampionName;
-                                predictedEndPosition = extendedPosition;
-                                predictedPosition = targetPosition;
+                                CondemnNotification.Text = "Condemned " + target.ChampionName;
+                                _predictedEndPosition = extendedPosition;
+                                _predictedPosition = targetPosition;
                                 //Notifications.AddNotification(condemnNotification);
                                 tg = target;
                                 return true;
