@@ -27,6 +27,8 @@ namespace VayneHunter_Reborn
             { SpellSlot.E, new Spell(SpellSlot.E, 590f) },
             { SpellSlot.R, new Spell(SpellSlot.R) }
         };
+
+        private static Spell trinketSpell;
         private static readonly Notification CondemnNotification = new Notification("Condemned",5500);
 
         public static void OnLoad()
@@ -79,6 +81,8 @@ namespace VayneHunter_Reborn
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.ethird", "E 3rd proc in Harass").SetValue(false));
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.noeturret", "No E Under enemy turret").SetValue(true));
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.lowlifepeel", "Peel with E when low").SetValue(false));
+                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.onlystuncurrent", "Only stun current target").SetValue(false));
+                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.trinketbush", "Trinket Bush on Condemn").SetValue(true));
             }
             var miscGeneralSubMenu = new Menu("Misc - General", "dz191.vhr.misc.general");
             {
@@ -99,9 +103,10 @@ namespace VayneHunter_Reborn
             Menu.AddSubMenu(drawMenu);
 
             Menu.AddToMainMenu();
-            Game.PrintChat("<b><font color='#FF0000'>[VH]</font></b><font color='#FFFFFF'> Vayne Hunter Reborn loaded! Version: {0} </font>",Assembly.GetExecutingAssembly().GetName().Version);
+            //Game.PrintChat("<b><font color='#FF0000'>[VH]</font></b><font color='#FFFFFF'> Vayne Hunter Reborn loaded! Version: {0} </font>",Assembly.GetExecutingAssembly().GetName().Version);
             SetUpEvents();
             SetUpSkills();
+            trinketSpell = new Spell(SpellSlot.Trinket);
         }
 
         static void SetUpSkills()
@@ -543,6 +548,20 @@ namespace VayneHunter_Reborn
                             var j4Flag = MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.condemnflag") && (Helpers.IsJ4FlagThere(extendedPosition, target));
                             if ((extendedPosition.IsWall() || j4Flag) && (target.Path.Count() < 2) && !target.IsDashing())
                             {
+                                if (MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.onlystuncurrent") &&
+                                    !target.Equals(Orbwalker.GetTarget()))
+                                {
+                                    tg = null;
+                                    return false;
+                                }
+                                if (MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.trinketbush") &&
+                                    NavMesh.IsWallOfGrass(extendedPosition,25) && trinketSpell != null)
+                                {
+                                    var wardPosition = ObjectManager.Player.ServerPosition.Extend(
+                                        extendedPosition,
+                                        ObjectManager.Player.ServerPosition.Distance(extendedPosition) - 25f);
+                                    LeagueSharp.Common.Utility.DelayAction.Add(250,() => trinketSpell.Cast(wardPosition));
+                                }
                                 CondemnNotification.Text = "Condemned " + target.ChampionName;
                                 _predictedEndPosition = extendedPosition;
                                 _predictedPosition = targetPosition;
@@ -565,6 +584,13 @@ namespace VayneHunter_Reborn
                         var j4Flag = MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.condemnflag") && (Helpers.IsJ4FlagThere(finalPosition, target) || Helpers.IsJ4FlagThere(finalPosition2, target));
                         if (finalPosition.IsWall() || finalPosition2.IsWall() || underTurret || j4Flag)
                         {
+                            if (MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.onlystuncurrent") &&
+                                    !target.Equals(Orbwalker.GetTarget()))
+                            {
+                                tg = null;
+                                return false;
+                            }
+
                             tg = target;
                             return true;
                         }
@@ -582,6 +608,20 @@ namespace VayneHunter_Reborn
                             var orTurret = MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.condemnturret") && Helpers.UnderAllyTurret(loc3);
                             if (loc3.IsWall() || orTurret)
                             {
+                                if (MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.onlystuncurrent") &&
+                                    !en.Equals(Orbwalker.GetTarget()))
+                                {
+                                    tg = null;
+                                    return false;
+                                }
+                                if (MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.trinketbush") &&
+                                    NavMesh.IsWallOfGrass(loc3, 25) && trinketSpell != null)
+                                {
+                                    var wardPosition = ObjectManager.Player.ServerPosition.Extend(
+                                        loc3,
+                                        ObjectManager.Player.ServerPosition.Distance(loc3) - 25f);
+                                    LeagueSharp.Common.Utility.DelayAction.Add(250, () => trinketSpell.Cast(wardPosition));
+                                }
                                 tg = en;
                                 return true; 
                             }
