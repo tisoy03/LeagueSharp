@@ -441,7 +441,7 @@ namespace VayneHunter_Reborn
             {
                 const int currentStep = 30;
                 var direction = ObjectManager.Player.Direction.To2D().Perpendicular();
-                for (var i = 0f; i < 360; i += currentStep)
+                for (var i = 0f; i < 360f; i += currentStep)
                 {
                     var angleRad = Geometry.DegreeToRadian(i);
                     var rotatedPosition = ObjectManager.Player.Position.To2D() + (300 * direction.Rotated(angleRad));
@@ -560,7 +560,7 @@ namespace VayneHunter_Reborn
                         var pushDistance = MenuHelper.getSliderValue("dz191.vhr.misc.condemn.pushdistance");
                         var targetPosition = _spells[SpellSlot.E].GetPrediction(target).UnitPosition;
                         var finalPosition = targetPosition.Extend(fromPosition, -pushDistance);
-                        var finalPosition2 = targetPosition.Extend(fromPosition, -(pushDistance/2));
+                        var finalPosition2 = targetPosition.Extend(fromPosition, -(pushDistance/2f));
                         var underTurret = MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.condemnturret") && (finalPosition.UnderTurret(false) || Helpers.IsFountain(finalPosition));
                         var j4Flag = MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.condemnflag") && (Helpers.IsJ4FlagThere(finalPosition, target) || Helpers.IsJ4FlagThere(finalPosition2, target));
                         if (finalPosition.IsWall() || finalPosition2.IsWall() || underTurret || j4Flag)
@@ -571,6 +571,7 @@ namespace VayneHunter_Reborn
                     }
                     break;
                 case 2:
+                    //Vayne Hunter Rework
                     foreach (var en in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsEnemy && hero.IsValidTarget() && hero.Distance(Player.Position)<= _spells[SpellSlot.E].Range))
                     {
                         var ePred = _spells[SpellSlot.E].GetPrediction(en);
