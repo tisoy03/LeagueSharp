@@ -242,7 +242,7 @@ namespace VayneHunter_Reborn
             if (MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.eks") && _spells[SpellSlot.E].IsReady())
             {
                 var target = HeroManager.Enemies.Find(en => en.IsValidTarget(_spells[SpellSlot.E].Range) && en.Has2WStacks());
-                if (target != null && target.Health + 20 <=(_spells[SpellSlot.E].GetDamage(target) + _spells[SpellSlot.W].GetDamage(target)) && (target is Obj_AI_Hero))
+                if (target != null && target.Health + 60 <=(_spells[SpellSlot.E].GetDamage(target) + _spells[SpellSlot.W].GetDamage(target)) && (target is Obj_AI_Hero))
                 {
                     _spells[SpellSlot.E].Cast(target);
                 }
