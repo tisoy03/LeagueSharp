@@ -632,6 +632,19 @@ namespace VayneHunter_Reborn
             tg = null;
             return false;
         }
+
+        static bool CondemnBeta(Vector3 fromPosition, out Obj_AI_Hero tg)
+        {
+            foreach (var target in from target in HeroManager.Enemies.Where(
+                h =>
+                    h.IsValidTarget(_spells[SpellSlot.E].Range) && !h.HasBuffOfType(BuffType.SpellShield) &&
+                    !h.HasBuffOfType(BuffType.SpellImmunity)) let pushDistance = MenuHelper.getSliderValue("dz191.vhr.misc.condemn.pushdistance") let targetPosition = _spells[SpellSlot.E].GetPrediction(target).UnitPosition let finalPosition = targetPosition.Extend(fromPosition, -pushDistance) let condemnRectangle = new Polygon(Polygon.Rectangle(targetPosition.To2D(), finalPosition.To2D(), target.BoundingRadius)) where condemnRectangle.Points.Any(point => point.IsWall()) select target) {
+                        tg = target;
+                        return true;
+                    }
+            tg = null;
+            return false;
+        }
         #endregion
 
         #region WallTumble
