@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,6 +26,28 @@ namespace VayneHunter_Reborn.MapPosition
             }
         }
 
+        private static List<Obj_AI_Hero> AlliesClose
+        {
+            get
+            {
+                return
+                    HeroManager.Allies.FindAll(
+                        m =>
+                            m.Distance(ObjectManager.Player) <= Range && m.IsValidTarget(Range, false) &&
+                            m.CountAlliesInRange(m.AttackRange + RangeOffsetAlly) > 0);
+            }
+        }
+        private static List<Obj_AI_Hero> EnemiesClose
+        {
+            get
+            {
+                return
+                    HeroManager.Enemies.FindAll(
+                        m =>
+                            m.Distance(ObjectManager.Player) <= Range && m.IsValidTarget(Range, false) &&
+                            m.CountEnemiesInRange(m.AttackRange + RangeOffsetEnemy) > 0);
+            }
+        } 
         public static List<Vector2> GetSafeZone()
         {
             var allyList = GetAllyPoints();
@@ -35,14 +58,14 @@ namespace VayneHunter_Reborn.MapPosition
 
         public static List<Vector2> GetAllyPoints()
         {
-            var polygonsList = HeroManager.Allies.FindAll(m => m.Distance(ObjectManager.Player) <= Range && m.IsValidTarget(Range,false)).Select(ally => new Geometry.Circle(ally.ServerPosition.To2D(), ally.AttackRange + RangeOffsetAlly).ToPolygon()).ToList();
+            var polygonsList = AlliesClose.Select(ally => new Geometry.Circle(ally.ServerPosition.To2D(), ally.AttackRange + RangeOffsetAlly).ToPolygon()).ToList();
             var pathList = Geometry.ClipPolygons(polygonsList);
             var pointList = pathList.SelectMany(path => path, (path, point) => new Vector2(point.X, point.Y)).Where(currentPoint => currentPoint.IsWall()).ToList();
             return pointList;
         }
         public static List<Vector2> GetEnemyPoints()
         {
-            var polygonsList = HeroManager.Enemies.FindAll(m => m.Distance(ObjectManager.Player) <= Range && m.IsValidTarget(Range)).Select(enemy => new Geometry.Circle(enemy.ServerPosition.To2D(), enemy.AttackRange + RangeOffsetEnemy).ToPolygon()).ToList();
+            var polygonsList = EnemiesClose.Select(enemy => new Geometry.Circle(enemy.ServerPosition.To2D(), enemy.AttackRange + RangeOffsetEnemy).ToPolygon()).ToList();
             var pathList = Geometry.ClipPolygons(polygonsList);
             var pointList = pathList.SelectMany(path => path, (path, point) => new Vector2(point.X, point.Y)).Where(currentPoint => currentPoint.IsWall()).ToList();
             return pointList;
