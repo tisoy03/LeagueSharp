@@ -44,6 +44,19 @@ namespace VayneHunter_Reborn.MapPosition
         {
             return new Vector3(v.X, v.Z, v.Y);
         }
+        public static bool IsOverWall(Vector3 start, Vector3 end)
+        {
+            double distance = Vector3.Distance(start, end);
+            for (uint i = 0; i < distance; i += 10)
+            {
+                var tempPosition = start.Extend(end, i).To2D();
+                if (tempPosition.IsWall())
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
 
         //Clipper
         public static List<Polygon> ToPolygons(this Paths v)

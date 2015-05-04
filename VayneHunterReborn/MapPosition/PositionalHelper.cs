@@ -70,7 +70,7 @@ namespace VayneHunter_Reborn.MapPosition
                         .ToPolygon());
             }
             var pathList = Geometry.ClipPolygons(polygonsList);
-            var pointList = pathList.SelectMany(path => path, (path, point) => new Vector2(point.X, point.Y)).Where(currentPoint => !currentPoint.IsWall()).ToList();
+            var pointList = pathList.SelectMany(path => path, (path, point) => new Vector2(point.X, point.Y)).Where(currentPoint => !currentPoint.IsWall() && !Geometry.IsOverWall(ObjectManager.Player.ServerPosition,currentPoint.To3D())).ToList();
             return pointList;
         }
         public static List<Vector2> GetAllyPoints()
