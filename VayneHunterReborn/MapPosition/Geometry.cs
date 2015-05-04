@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using ClipperLib;
+using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
 using Color = System.Drawing.Color;
@@ -171,8 +172,14 @@ namespace VayneHunter_Reborn.MapPosition
                 for (var i = 0; i <= Points.Count - 1; i++)
                 {
                     var nextIndex = (Points.Count - 1 == i) ? 0 : (i + 1);
-                    //Utils.DrawLineInWorld(Points[i].To3D(), Points[nextIndex].To3D(), width, color);
+                    DrawLineInWorld(Points[i].To3D(), Points[nextIndex].To3D(), width, color);
                 }
+            }
+            public static void DrawLineInWorld(Vector3 start, Vector3 end, int width, Color color)
+            {
+                var from = Drawing.WorldToScreen(start);
+                var to = Drawing.WorldToScreen(end);
+                Drawing.DrawLine(from[0], from[1], to[0], to[1], width, color);
             }
         }
 

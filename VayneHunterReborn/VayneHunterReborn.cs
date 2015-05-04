@@ -6,8 +6,10 @@ using System.Runtime;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
+using VayneHunter_Reborn.MapPosition;
 using VayneHunter_Reborn.Utility;
 using Color = System.Drawing.Color;
+using Geometry = LeagueSharp.Common.Geometry;
 
 namespace VayneHunter_Reborn
 {
@@ -377,6 +379,7 @@ namespace VayneHunter_Reborn
 
         static void Drawing_OnDraw(EventArgs args)
         {
+            //PositionalHelper.DrawMyZone();
             var drawE = Menu.Item("VayneDrawE").GetValue<Circle>();
             var midWallQPos = new Vector2(6707.485f, 8802.744f);
             var drakeWallQPos = new Vector2(11514, 4462);

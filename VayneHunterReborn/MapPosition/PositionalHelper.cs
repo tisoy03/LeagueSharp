@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using ClipperLib;
 using LeagueSharp;
 using LeagueSharp.Common;
 using LeagueSharp.Common.Data;
 using SharpDX;
-
+using Paths = System.Collections.Generic.List<System.Collections.Generic.List<ClipperLib.IntPoint>>;
 namespace VayneHunter_Reborn.MapPosition
 {
     class PositionalHelper
@@ -47,27 +45,46 @@ namespace VayneHunter_Reborn.MapPosition
                             m.Distance(ObjectManager.Player) <= Range && m.IsValidTarget(Range, false) &&
                             m.CountEnemiesInRange(m.AttackRange + RangeOffsetEnemy) > 0);
             }
-        } 
+        }
+
+        public static void DrawMyZone()
+        {
+            var currentPath = MyPoints().Select(v2 => new IntPoint(v2.X, v2.Y)).ToList();
+            var currentPoly = currentPath.ToPolygon();
+            currentPoly.Draw(System.Drawing.Color.White);
+        }
         public static List<Vector2> GetSafeZone()
         {
             var allyList = GetAllyPoints();
             var enemyList = GetEnemyPoints();
             var intersectionList = allyList.Intersect(enemyList);
-            return StrongerTeam == Team.Ally ? allyList.Concat(intersectionList).ToList() : allyList.Except(intersectionList).ToList();
+            return StrongerTeam == Team.Ally ? allyList.Concat(MyPoints()).Concat(intersectionList).ToList() : allyList.Except(MyPoints()).Except(intersectionList).ToList();
         }
-
+        public static List<Vector2> MyPoints()
+        {
+            List<Geometry.Polygon> polygonsList = new List<Geometry.Polygon>();
+            {
+                polygonsList.Add(
+                    new Geometry.Circle(
+                        ObjectManager.Player.ServerPosition.To2D(), ObjectManager.Player.AttackRange + ObjectManager.Player.BoundingRadius + RangeOffsetAlly)
+                        .ToPolygon());
+            }
+            var pathList = Geometry.ClipPolygons(polygonsList);
+            var pointList = pathList.SelectMany(path => path, (path, point) => new Vector2(point.X, point.Y)).Where(currentPoint => !currentPoint.IsWall()).ToList();
+            return pointList;
+        }
         public static List<Vector2> GetAllyPoints()
         {
-            var polygonsList = AlliesClose.Select(ally => new Geometry.Circle(ally.ServerPosition.To2D(), ally.AttackRange + RangeOffsetAlly).ToPolygon()).ToList();
+            var polygonsList = AlliesClose.Select(ally => new Geometry.Circle(ally.ServerPosition.To2D(), ally.AttackRange + ally.BoundingRadius + RangeOffsetAlly).ToPolygon()).ToList();
             var pathList = Geometry.ClipPolygons(polygonsList);
-            var pointList = pathList.SelectMany(path => path, (path, point) => new Vector2(point.X, point.Y)).Where(currentPoint => currentPoint.IsWall()).ToList();
+            var pointList = pathList.SelectMany(path => path, (path, point) => new Vector2(point.X, point.Y)).Where(currentPoint => !currentPoint.IsWall()).ToList();
             return pointList;
         }
         public static List<Vector2> GetEnemyPoints()
         {
-            var polygonsList = EnemiesClose.Select(enemy => new Geometry.Circle(enemy.ServerPosition.To2D(), enemy.AttackRange + RangeOffsetEnemy).ToPolygon()).ToList();
+            var polygonsList = EnemiesClose.Select(enemy => new Geometry.Circle(enemy.ServerPosition.To2D(), enemy.AttackRange + enemy.BoundingRadius + RangeOffsetEnemy).ToPolygon()).ToList();
             var pathList = Geometry.ClipPolygons(polygonsList);
-            var pointList = pathList.SelectMany(path => path, (path, point) => new Vector2(point.X, point.Y)).Where(currentPoint => currentPoint.IsWall()).ToList();
+            var pointList = pathList.SelectMany(path => path, (path, point) => new Vector2(point.X, point.Y)).Where(currentPoint => !currentPoint.IsWall()).ToList();
             return pointList;
         }
 
