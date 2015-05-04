@@ -1,10 +1,8 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using ClipperLib;
 using LeagueSharp;
 using LeagueSharp.Common;
-using LeagueSharp.Common.Data;
 using SharpDX;
 using Paths = System.Collections.Generic.List<System.Collections.Generic.List<ClipperLib.IntPoint>>;
 namespace VayneHunter_Reborn.MapPosition
@@ -18,13 +16,13 @@ namespace VayneHunter_Reborn.MapPosition
         {
             get
             {
-                var enemyCs = HeroManager.Enemies.FindAll(m => m.Distance(ObjectManager.Player) <= Range && m.IsValidTarget(Range, false)).Aggregate(0f, (current, enemy) => current + (enemy.MinionsKilled + enemy.NeutralMinionsKilled)); ;
+                var enemyCs = HeroManager.Enemies.FindAll(m => m.Distance(ObjectManager.Player) <= Range && m.IsValidTarget(Range, false)).Aggregate(0f, (current, enemy) => current + (enemy.MinionsKilled + enemy.NeutralMinionsKilled));
                 var allyCs = HeroManager.Allies.FindAll(m => m.Distance(ObjectManager.Player) <= Range && m.IsValidTarget(Range, false)).Aggregate(0f, (current, ally) => current + (ally.MinionsKilled + ally.NeutralMinionsKilled));
                 return allyCs >= enemyCs ? Team.Ally : Team.Enemy;
             }
         }
 
-        private static List<Obj_AI_Hero> AlliesClose
+        private static IEnumerable<Obj_AI_Hero> AlliesClose
         {
             get
             {
@@ -35,7 +33,7 @@ namespace VayneHunter_Reborn.MapPosition
                             m.CountAlliesInRange(m.AttackRange + RangeOffsetAlly) > 0);
             }
         }
-        private static List<Obj_AI_Hero> EnemiesClose
+        private static IEnumerable<Obj_AI_Hero> EnemiesClose
         {
             get
             {
