@@ -380,6 +380,10 @@ namespace VayneHunter_Reborn
         static void Drawing_OnDraw(EventArgs args)
         {
             //PositionalHelper.DrawMyZone();
+            //PositionalHelper.DrawSafeZone();
+            //PositionalHelper.DrawAllyZone();
+            //PositionalHelper.DrawEnemyZone();
+            //PositionalHelper.DrawIntersection();
             var drawE = Menu.Item("VayneDrawE").GetValue<Circle>();
             var midWallQPos = new Vector2(6707.485f, 8802.744f);
             var drakeWallQPos = new Vector2(11514, 4462);

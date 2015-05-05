@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using ClipperLib;
 using LeagueSharp;
@@ -18,7 +19,10 @@ namespace VayneHunter_Reborn.MapPosition
             {
                 var enemyCs = HeroManager.Enemies.FindAll(m => m.Distance(ObjectManager.Player) <= Range && m.IsValidTarget(Range, false)).Aggregate(0f, (current, enemy) => current + (enemy.MinionsKilled + enemy.NeutralMinionsKilled));
                 var allyCs = HeroManager.Allies.FindAll(m => m.Distance(ObjectManager.Player) <= Range && m.IsValidTarget(Range, false)).Aggregate(0f, (current, ally) => current + (ally.MinionsKilled + ally.NeutralMinionsKilled));
-                return allyCs >= enemyCs ? Team.Ally : Team.Enemy;
+                var allyKills = HeroManager.Allies.FindAll(m => m.Distance(ObjectManager.Player) <= Range && m.IsValidTarget(Range, false)).Aggregate(0f, (current, ally) => current + (ally.ChampionsKilled));
+                var enemyKills = HeroManager.Enemies.FindAll(m => m.Distance(ObjectManager.Player) <= Range && m.IsValidTarget(Range, false)).Aggregate(0f, (current, enemy) => current + (enemy.ChampionsKilled));
+                return allyCs*17.5f + allyKills*300f >= enemyCs*17.5f + enemyKills*300f ? Team.Ally : Team.Enemy;
+               // return Team.Ally;
             }
         }
 
@@ -30,7 +34,7 @@ namespace VayneHunter_Reborn.MapPosition
                     HeroManager.Allies.FindAll(
                         m =>
                             m.Distance(ObjectManager.Player) <= Range && m.IsValidTarget(Range, false) &&
-                            m.CountAlliesInRange(m.AttackRange*2f + RangeOffsetAlly*2f) > 0);
+                            m.CountAlliesInRange(m.IsMelee() ? m.AttackRange * 1.5f : m.AttackRange + RangeOffsetAlly * 1.5f) > 0);
             }
         }
         private static IEnumerable<Obj_AI_Hero> EnemiesClose
@@ -41,7 +45,7 @@ namespace VayneHunter_Reborn.MapPosition
                     HeroManager.Enemies.FindAll(
                         m =>
                             m.Distance(ObjectManager.Player) <= Range && m.IsValidTarget(Range, false) &&
-                            m.CountEnemiesInRange(m.AttackRange*2f + RangeOffsetEnemy*2f) > 0);
+                            m.CountEnemiesInRange(m.IsMelee()?m.AttackRange*1.5f:m.AttackRange + RangeOffsetEnemy*1.5f) > 0);
             }
         }
 
@@ -49,14 +53,63 @@ namespace VayneHunter_Reborn.MapPosition
         {
             var currentPath = MyPoints().Select(v2 => new IntPoint(v2.X, v2.Y)).ToList();
             var currentPoly = currentPath.ToPolygon();
+            currentPoly.Draw(System.Drawing.Color.Red);
+        }
+        public static void DrawSafeZone()
+        {
+            var currentPath = GetSafeZone().Select(v2 => new IntPoint(v2.X, v2.Y)).ToList();
+            var currentPoly = currentPath.ToPolygon();
+            currentPoly.Draw(System.Drawing.Color.Blue);
+        }
+        public static void DrawAllyZone()
+        {
+            var currentPath = GetAllyPoints().Select(v2 => new IntPoint(v2.X, v2.Y)).ToList();
+            var currentPoly = currentPath.ToPolygon();
+            currentPoly.Draw(System.Drawing.Color.Orange);
+        }
+        public static void DrawEnemyZone()
+        {
+            var currentPath = GetEnemyPoints().Select(v2 => new IntPoint(v2.X, v2.Y)).ToList();
+            var currentPoly = currentPath.ToPolygon();
             currentPoly.Draw(System.Drawing.Color.White);
+        }
+
+        public static void DrawIntersection()
+        {
+            var allyList = GetAllyPoints();
+            var enemyList = GetEnemyPoints();
+            var intersectionList = allyList.Intersect(enemyList);
+            if (intersectionList.Any())
+            {
+               //Console.WriteLine("Hiiiii");
+            }
+            else
+            {
+              // Console.WriteLine("Not hiii");
+            }
+
+            var currentPath = intersectionList.Select(v2 => new IntPoint(v2.X, v2.Y)).ToList();
+            var currentPoly = currentPath.ToPolygon();
+            currentPoly.Draw(System.Drawing.Color.Violet);
         }
         public static List<Vector2> GetSafeZone()
         {
             var allyList = GetAllyPoints();
             var enemyList = GetEnemyPoints();
-            var intersectionList = allyList.Intersect(enemyList);
-            return StrongerTeam == Team.Ally ? allyList.Concat(MyPoints()).Concat(intersectionList).ToList() : allyList.Except(MyPoints()).Except(intersectionList).ToList();
+            var intersectionList = enemyList.Intersect(allyList);
+            //if (intersectionList.Any())
+           // {
+           //     Console.WriteLine("Hi, I' intersecting");
+           // }
+           // if(ContainsAllItems(allyList,MyPoints()))
+           // {
+           //     return StrongerTeam == Team.Ally ? allyList.Concat(intersectionList).ToList() : allyList.Concat(MyPoints()).Except(intersectionList).ToList();
+           // }
+            return StrongerTeam == Team.Ally ? allyList.ToList() : allyList.Except(intersectionList).ToList();
+        }
+        public static bool ContainsAllItems(List<Vector2> a, List<Vector2> b)
+        {
+            return !b.Except(a).Any();
         }
         public static List<Vector2> MyPoints()
         {
@@ -73,14 +126,14 @@ namespace VayneHunter_Reborn.MapPosition
         }
         public static List<Vector2> GetAllyPoints()
         {
-            var polygonsList = AlliesClose.Select(ally => new Geometry.Circle(ally.ServerPosition.To2D(), (ally.IsMeele?ally.AttackRange:ally.AttackRange / 2.2f) + ally.BoundingRadius + RangeOffsetAlly).ToPolygon()).ToList();
+            var polygonsList = AlliesClose.Select(ally => new Geometry.Circle(ally.ServerPosition.To2D(), (ally.IsMeele?ally.AttackRange*1.5f:ally.AttackRange) + ally.BoundingRadius + RangeOffsetAlly).ToPolygon()).ToList();
             var pathList = Geometry.ClipPolygons(polygonsList);
             var pointList = pathList.SelectMany(path => path, (path, point) => new Vector2(point.X, point.Y)).Where(currentPoint => !currentPoint.IsWall()).ToList();
             return pointList;
         }
         public static List<Vector2> GetEnemyPoints()
         {
-            var polygonsList = EnemiesClose.Select(enemy => new Geometry.Circle(enemy.ServerPosition.To2D(), (enemy.IsMeele ? enemy.AttackRange : enemy.AttackRange / 2.2f) + enemy.BoundingRadius + RangeOffsetEnemy).ToPolygon()).ToList();
+            var polygonsList = EnemiesClose.Select(enemy => new Geometry.Circle(enemy.ServerPosition.To2D(), (enemy.IsMeele ? enemy.AttackRange * 1.5f : enemy.AttackRange) + enemy.BoundingRadius + RangeOffsetEnemy).ToPolygon()).ToList();
             var pathList = Geometry.ClipPolygons(polygonsList);
             var pointList = pathList.SelectMany(path => path, (path, point) => new Vector2(point.X, point.Y)).Where(currentPoint => !currentPoint.IsWall()).ToList();
             return pointList;
