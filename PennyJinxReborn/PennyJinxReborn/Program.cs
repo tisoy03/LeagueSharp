@@ -1,20 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using LeagueSharp;
-using LeagueSharp.Common;
-
-namespace PennyJinxReborn
+﻿namespace PennyJinxReborn
 {
-    class Program
+    using System;
+    using LeagueSharp.Common;
+    internal class Program
     {
-        static void Main(string[] args)
+
+        /// <summary>
+        /// The Main method.
+        /// </summary>
+        /// <param name="args">The method args</param>
+        internal static void Main(string[] args)
         {
             CustomEvents.Game.OnGameLoad += GameOnLoad;
         }
 
+        /// <summary>
+        /// Called on the game load.
+        /// </summary>
+        /// <param name="args">The event args.</param>
         private static void GameOnLoad(EventArgs args)
         {
             PJR.OnLoad();

@@ -1,24 +1,43 @@
-﻿#region
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using LeagueSharp;
-using LeagueSharp.Common;
-using SharpDX;
-
-#endregion
-
-namespace PennyJinxReborn
+﻿namespace PennyJinxReborn
 {
+    #region
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using LeagueSharp;
+    using LeagueSharp.Common;
+    using SharpDX;
+    #endregion
     // ReSharper disable once InconsistentNaming
-    class PJR
+    /// <summary>
+    /// Penny Jinx Reborn main class
+    /// </summary>
+    internal class PJR
     {
-        public static Menu Menu;
+        /// <summary>
+        /// The Menu variable.
+        /// </summary>
+        private static Menu _menu;
+        /// <summary>
+        /// The orbwalker instance we are using.
+        /// </summary>
         private static Orbwalking.Orbwalker _orbwalker;
-        private const String AssemblyName = "PennyJinx Reborn";
-        private const String MenuName = "pennyjinx";
-        private const String MenuPrefix = "[PJ]";
+        /// <summary>
+        /// The assembly name, used for welcome messages.
+        /// </summary>
+        private const string AssemblyName = "PennyJinx Reborn";
+        /// <summary>
+        /// The assembly name used in the menu fields.
+        /// </summary>
+        private const string MenuName = "pennyjinx";
+        /// <summary>
+        /// The prefix of the submenus.
+        /// </summary>
+        private const string MenuPrefix = "[PJ]";
         // ReSharper disable once InconsistentNaming
+        /// <summary>
+        /// The Spells dictionary, containing the 4 spells.
+        /// </summary>
         private static readonly Dictionary<SpellSlot, Spell> _spells = new Dictionary<SpellSlot, Spell>
         {
             { SpellSlot.Q, new Spell(SpellSlot.Q) },
@@ -27,6 +46,9 @@ namespace PennyJinxReborn
             { SpellSlot.R, new Spell(SpellSlot.R, 2000f) }
         };
 
+        /// <summary>
+        /// A list of Movement Impairing buffs.
+        /// </summary>
         private static List<BuffType> ImpairedBuffTypes
         {
             get
@@ -43,6 +65,9 @@ namespace PennyJinxReborn
             }
         }
 
+        /// <summary>
+        /// OnLoad method, called when the assembly is loaded.
+        /// </summary>
         internal static void OnLoad()
         {
             if (!ShouldBeLoaded())
@@ -55,38 +80,59 @@ namespace PennyJinxReborn
             Notifications.AddNotification(new Notification(AssemblyName + " Loaded!", 2750, true));
         }
 
+        /// <summary>
+        /// Determines wether or not the assembly should be loaded.
+        /// </summary>
+        /// <returns>Wether or not the assembly should be loaded</returns>
         internal static bool ShouldBeLoaded()
         {
             return ObjectManager.Player.ChampionName.Equals("Jinx");
         }
 
         #region Combo/Harass/Farm logic
+        /// <summary>
+        /// The method called when the orbwalking mode is Combo.
+        /// </summary>
         internal static void OnCombo()
         {
             QSwap(_orbwalker.ActiveMode);
             WLogic(_orbwalker.ActiveMode);
+            ELogic(_orbwalker.ActiveMode);
             RLogic(_orbwalker.ActiveMode);
         }
+
+        /// <summary>
+        /// The method called when the orbwalking mode is Mixed.
+        /// </summary>
         internal static void OnHarass()
         {
             QSwap(_orbwalker.ActiveMode);
             WLogic(_orbwalker.ActiveMode);
         }
+
+        /// <summary>
+        /// The method called when the orbwalking mode is lasthit/laneclear.
+        /// </summary>
         internal static void OnFarm()
         {
             
         }
+
+        /// <summary>
+        /// The Q Swapping logic.
+        /// </summary>
+        /// <param name="currentMode">The current orbwalking mode.</param>
         internal static void QSwap(Orbwalking.OrbwalkingMode currentMode)
         {
-            //Prevents AutoAttack cancelling
-            var qEnabled = Menu.Item(String.Format("dz191." + MenuName + ".{0}.useq", currentMode).ToLowerInvariant()).GetValue<bool>();
+            ////Prevents AutoAttack cancelling
+            var qEnabled = _menu.Item(string.Format("dz191." + MenuName + ".{0}.useq", currentMode).ToLowerInvariant()).GetValue<bool>();
             if (!_spells[SpellSlot.Q].IsReady() || ObjectManager.Player.IsWindingUp || !qEnabled || !ObjectManager.Player.CanAttack)
             {
                 return;
             }
             var maxAaRange = GetMinigunRange(null) + GetFishboneRange() + 25f;
             var currentTarget = TargetSelector.GetTarget(maxAaRange, TargetSelector.DamageType.Physical);
-            var qMana = Menu.Item(String.Format("dz191." + MenuName + ".{0}.mm.q", currentMode).ToLowerInvariant()).GetValue<Slider>().Value;
+            var qMana = _menu.Item(string.Format("dz191." + MenuName + ".{0}.mm.q", currentMode).ToLowerInvariant()).GetValue<Slider>().Value;
             if (!currentTarget.IsValidTarget(maxAaRange))
             {
                 return;
@@ -99,9 +145,9 @@ namespace PennyJinxReborn
                 }
                 return;
             }
-            var qSwapMode = Menu.Item("dz191." + MenuName + ".settings.q.qmode").GetValue<StringList>().SelectedIndex; //0 = AOE 1 = Range 2 = Both
-            var minEnemiesAoeMode = Menu.Item("dz191." + MenuName + ".settings.q.aoeswitch").GetValue<Slider>().Value;
-            var qAoeRadius = Menu.Item("dz191." + MenuName + ".settings.q.aoeradius").GetValue<Slider>().Value;
+            var qSwapMode = _menu.Item("dz191." + MenuName + ".settings.q.qmode").GetValue<StringList>().SelectedIndex; ////0 = AOE 1 = Range 2 = Both
+            var minEnemiesAoeMode = _menu.Item("dz191." + MenuName + ".settings.q.aoeswitch").GetValue<Slider>().Value;
+            var qAoeRadius = _menu.Item("dz191." + MenuName + ".settings.q.aoeradius").GetValue<Slider>().Value;
             var jinxBaseRange = GetMinigunRange(currentTarget);
             switch (qSwapMode)
             {
@@ -120,6 +166,7 @@ namespace PennyJinxReborn
                             _spells[SpellSlot.Q].Cast();
                         }
                     }
+
                     break;
                 case 1:
                     if (IsFishBone())
@@ -136,6 +183,7 @@ namespace PennyJinxReborn
                             _spells[SpellSlot.Q].Cast();
                         }
                     }
+
                     break;
                 case 2:
                     if (IsFishBone())
@@ -152,42 +200,56 @@ namespace PennyJinxReborn
                             _spells[SpellSlot.Q].Cast();
                         }
                     }
+
                     break;
             }
         }
+
+        /// <summary>
+        /// The W Skill logic
+        /// </summary>
+        /// <param name="currentMode">The current orbwalking mode.</param>
         internal static void WLogic(Orbwalking.OrbwalkingMode currentMode)
         {
-            var wEnabled = Menu.Item(String.Format("dz191." + MenuName + ".{0}.usew", currentMode).ToLowerInvariant()).GetValue<bool>();
+            var wEnabled = _menu.Item(string.Format("dz191." + MenuName + ".{0}.usew", currentMode).ToLowerInvariant()).GetValue<bool>();
             if (!_spells[SpellSlot.W].IsReady() || !wEnabled)
             {
                 return;
             }
-            var minWRange = Menu.Item("dz191." + MenuName + ".settings.w.minwrange").GetValue<Slider>().Value;
+
+            var minWRange = _menu.Item("dz191." + MenuName + ".settings.w.minwrange").GetValue<Slider>().Value;
             var currentTarget = TargetSelector.GetTarget(_spells[SpellSlot.W].Range, TargetSelector.DamageType.Physical);
-            var wMana = Menu.Item(String.Format("dz191." + MenuName + ".{0}.mm.w", currentMode).ToLowerInvariant()).GetValue<Slider>().Value;
+            var wMana = _menu.Item(string.Format("dz191." + MenuName + ".{0}.mm.w", currentMode).ToLowerInvariant()).GetValue<Slider>().Value;
             if (currentTarget.IsValidTarget(minWRange) || !_spells[SpellSlot.W].CanCast(currentTarget) || ObjectManager.Player.ManaPercent < wMana || !currentTarget.IsValidTarget(_spells[SpellSlot.W].Range))
             {
                 return;
             }
+
             var wHitchance = GetHitchanceFromMenu("dz191." + MenuName + ".settings.w.hitchance");
             _spells[SpellSlot.W].CastIfHitchanceEquals(currentTarget, wHitchance);
         }
 
+        /// <summary>
+        /// The E Skill logic
+        /// </summary>
+        /// <param name="currentMode">The current orbwalking mode.</param>
         internal static void ELogic(Orbwalking.OrbwalkingMode currentMode)
         {
-            var eEnabled = Menu.Item(String.Format("dz191." + MenuName + ".{0}.usee", currentMode).ToLowerInvariant()).GetValue<bool>();
-            var eMana = Menu.Item(String.Format("dz191." + MenuName + ".{0}.mm.e", currentMode).ToLowerInvariant()).GetValue<Slider>().Value;
+            var eEnabled = _menu.Item(string.Format("dz191." + MenuName + ".{0}.usee", currentMode).ToLowerInvariant()).GetValue<bool>();
+            var eMana = _menu.Item(string.Format("dz191." + MenuName + ".{0}.mm.e", currentMode).ToLowerInvariant()).GetValue<Slider>().Value;
             if (!_spells[SpellSlot.E].IsReady() || !eEnabled || ObjectManager.Player.ManaPercent < eMana)
             {
                 return;
             }
+
             var eTarget = _orbwalker.GetTarget().IsValid<Obj_AI_Hero>()?_orbwalker.GetTarget() as Obj_AI_Hero:TargetSelector.GetTarget(_spells[SpellSlot.E].Range, TargetSelector.DamageType.Physical);
             if (!eTarget.IsValidTarget())
             {
                 return;
             }
-            var onlyESlowed = Menu.Item("dz191." + MenuName + ".settings.e.onlyslow").GetValue<bool>();
-            var onlyEStunned = Menu.Item("dz191." + MenuName + ".settings.e.onlyimm").GetValue<bool>();
+
+            var onlyESlowed = _menu.Item("dz191." + MenuName + ".settings.e.onlyslow").GetValue<bool>();
+            var onlyEStunned = _menu.Item("dz191." + MenuName + ".settings.e.onlyimm").GetValue<bool>();
             var eHitchance = GetHitchanceFromMenu("dz191." + MenuName + ".settings.e.hitchance");
 
             var isTargetSlowed = IsLightlyImpaired(eTarget);
@@ -202,6 +264,7 @@ namespace PennyJinxReborn
                         _spells[SpellSlot.E].CastIfHitchanceEquals(eTarget, eHitchance);
                     }
                 }
+
                 if (isTargetImmobile)
                 {
                     var immobileEndTime = GetImpairedEndTime(eTarget);
@@ -213,25 +276,31 @@ namespace PennyJinxReborn
             }
         }
 
+        /// <summary>
+        /// The R Skill logic
+        /// </summary>
+        /// <param name="currentMode">The current orbwalking mode.</param>
         internal static void RLogic(Orbwalking.OrbwalkingMode currentMode)
         {
-            var rEnabled = Menu.Item("dz191." + MenuName + ".combo.user").GetValue<bool>();
+            var rEnabled = _menu.Item("dz191." + MenuName + ".combo.user").GetValue<bool>();
             if (!_spells[SpellSlot.R].IsReady() || !rEnabled)
             {
                 return;
             }
-            var rMana = Menu.Item("dz191." + MenuName + ".combo.mm.r").GetValue<Slider>().Value;
+
+            var rMana = _menu.Item("dz191." + MenuName + ".combo.mm.r").GetValue<Slider>().Value;
             var rTarget = TargetSelector.GetTarget(_spells[SpellSlot.R].Range, TargetSelector.DamageType.Physical);
             if (rTarget.IsValidTarget(_spells[SpellSlot.R].Range) || !_spells[SpellSlot.R].CanCast(rTarget) || ObjectManager.Player.ManaPercent < rMana)
             {
                 return;
             }
-            var aaBuffer = Menu.Item("dz191." + MenuName + ".settings.r.preventoverkill").GetValue<bool>() ? Menu.Item("dz191." + MenuName + ".settings.r.aa").GetValue<Slider>().Value : 0f;
+
+            var aaBuffer = _menu.Item("dz191." + MenuName + ".settings.r.preventoverkill").GetValue<bool>() ? _menu.Item("dz191." + MenuName + ".settings.r.aa").GetValue<Slider>().Value : 0f;
             var wDamageBuffer = 0f;
             var aaDamageBuffer = 0f;
-            var minRange = Menu.Item("dz191." + MenuName + ".settings.r.minrange").GetValue<Slider>().Value;
-            var wEnabled = Menu.Item(String.Format("dz191." + MenuName + ".{0}.usew", currentMode).ToLowerInvariant()).GetValue<bool>();
-            var qEnabled = Menu.Item(String.Format("dz191." + MenuName + ".{0}.useq", currentMode).ToLowerInvariant()).GetValue<bool>();
+            var minRange = _menu.Item("dz191." + MenuName + ".settings.r.minrange").GetValue<Slider>().Value;
+            var wEnabled = _menu.Item(string.Format("dz191." + MenuName + ".{0}.usew", currentMode).ToLowerInvariant()).GetValue<bool>();
+            var qEnabled = _menu.Item(string.Format("dz191." + MenuName + ".{0}.useq", currentMode).ToLowerInvariant()).GetValue<bool>();
             var currentDistance = rTarget.Distance(ObjectManager.Player.ServerPosition);
             if (currentDistance >= minRange)
             {
@@ -241,14 +310,16 @@ namespace PennyJinxReborn
                     var wPrediction = _spells[SpellSlot.W].GetPrediction(rTarget);
                     if (wPrediction.Hitchance >= wHitchance)
                     {
-                        wDamageBuffer = Menu.Item("dz191." + MenuName + ".settings.r.preventoverkill").GetValue<bool>() ? _spells[SpellSlot.W].GetDamage(rTarget) : 0f;
+                        wDamageBuffer = _menu.Item("dz191." + MenuName + ".settings.r.preventoverkill").GetValue<bool>() ? _spells[SpellSlot.W].GetDamage(rTarget) : 0f;
                     }
                 }
+
                 if (currentDistance < GetMinigunRange(rTarget) + GetFishboneRange() && _spells[SpellSlot.Q].IsReady() &&
                     !ObjectManager.Player.IsWindingUp && ObjectManager.Player.CanAttack && qEnabled)
                 {
-                    aaDamageBuffer = Menu.Item("dz191." + MenuName + ".settings.r.preventoverkill").GetValue<bool>() ? (float)(ObjectManager.Player.GetAutoAttackDamage(rTarget) * aaBuffer) : 0f;
+                    aaDamageBuffer = _menu.Item("dz191." + MenuName + ".settings.r.preventoverkill").GetValue<bool>() ? (float)(ObjectManager.Player.GetAutoAttackDamage(rTarget) * aaBuffer) : 0f;
                 }
+
                 var targetPredictedHealth = rTarget.Health + 20;
                 if (targetPredictedHealth > wDamageBuffer + aaDamageBuffer &&
                     targetPredictedHealth < _spells[SpellSlot.R].GetDamage(rTarget))
@@ -265,25 +336,46 @@ namespace PennyJinxReborn
                 }
             }
         }
+
         #endregion
 
         #region Utility Methods
+        /// <summary>
+        /// Determines wether or not FishBone is active.
+        /// </summary>
+        /// <returns>Range > 565</returns>
         internal static bool IsFishBone()
         {
             return ObjectManager.Player.AttackRange > 565f;
         }
+
+        /// <summary>
+        /// Determines the minigun range
+        /// </summary>
+        /// <param name="target">Current target</param>
+        /// <returns>The minigun range</returns>
         internal static float GetMinigunRange(GameObject target)
         {
             return 525f + ObjectManager.Player.BoundingRadius + (target != null ? target.BoundingRadius : 0f);
         }
+
+        /// <summary>
+        /// Determines the extra range.
+        /// </summary>
+        /// <returns>Extra fishbone range</returns>
         internal static float GetFishboneRange()
         {
             return 50f + 25f * _spells[SpellSlot.Q].Level;
         }
 
-        internal static HitChance GetHitchanceFromMenu(String menuValue)
+        /// <summary>
+        /// The Hitchance selected in the menu
+        /// </summary>
+        /// <param name="menuValue">The menuitem name</param>
+        /// <returns>The Hitchance</returns>
+        internal static HitChance GetHitchanceFromMenu(string menuValue)
         {
-            var possibleValue = Menu.Item(menuValue).GetValue<StringList>().SelectedIndex;
+            var possibleValue = _menu.Item(menuValue).GetValue<StringList>().SelectedIndex;
             switch (possibleValue)
             {
                 case 0:
@@ -298,17 +390,34 @@ namespace PennyJinxReborn
                     return HitChance.High;
             }
         }
+
+        /// <summary>
+        /// Determines if the target is heavily impaired (stunned/rooted)
+        /// </summary>
+        /// <param name="enemy">The target</param>
+        /// <returns>Whether the target is heavily impaired</returns>
         private static bool IsHeavilyImpaired(Obj_AI_Hero enemy)
         {
-            return (enemy.HasBuffOfType(BuffType.Stun) || enemy.HasBuffOfType(BuffType.Snare) ||
+            return  enemy.HasBuffOfType(BuffType.Stun) || enemy.HasBuffOfType(BuffType.Snare) ||
                     enemy.HasBuffOfType(BuffType.Charm) || enemy.HasBuffOfType(BuffType.Fear) ||
-                    enemy.HasBuffOfType(BuffType.Taunt) || IsLightlyImpaired(enemy));
+                    enemy.HasBuffOfType(BuffType.Taunt) || IsLightlyImpaired(enemy);
         }
 
+        /// <summary>
+        /// Determines if the target is lightly impaired (slowed)
+        /// </summary>
+        /// <param name="enemy">The target</param>
+        /// <returns>Whether the target is lightly impaired</returns>
         private static bool IsLightlyImpaired(Obj_AI_Hero enemy)
         {
-            return (enemy.HasBuffOfType(BuffType.Slow));
+            return enemy.HasBuffOfType(BuffType.Slow);
         }
+
+        /// <summary>
+        /// Gets the Root/Stun/Immobile buff end time
+        /// </summary>
+        /// <param name="target">The enemy</param>
+        /// <returns>Buff end time</returns>
         private static float GetImpairedEndTime(Obj_AI_Base target)
         {
             return target.Buffs.OrderByDescending(buff => buff.EndTime - Game.Time)
@@ -316,6 +425,12 @@ namespace PennyJinxReborn
                     .Select(buff => buff.EndTime)
                     .FirstOrDefault();
         }
+
+        /// <summary>
+        /// Get the Slow end time
+        /// </summary>
+        /// <param name="target">The enemy</param>
+        /// <returns>Buff end time</returns>
         private static float GetSlowEndTime(Obj_AI_Base target)
         {
             return
@@ -324,6 +439,12 @@ namespace PennyJinxReborn
                     .Select(buff => buff.EndTime)
                     .FirstOrDefault();
         }
+
+        /// <summary>
+        /// Determines the real R speed using acceleration.
+        /// </summary>
+        /// <param name="endPosition">The End Position (Target position)</param>
+        /// <returns>Real ult speed</returns>
         internal static float GetRealUltSpeed(Vector3 endPosition)
         {
             //Thanks to Beaving - BaseUlt3 - https://github.com/Beaving/LeagueSharp/blob/master/BaseUlt3/
@@ -335,15 +456,21 @@ namespace PennyJinxReborn
                 {
                     accelSpace = 150f;
                 }
+
                 var distanceDifference = ObjectManager.Player.ServerPosition.Distance(endPosition) - 1500f;
                 var realSpeed = (1350f * _spells[SpellSlot.R].Speed + accelSpace * (_spells[SpellSlot.R].Speed + accelRate * accelSpace) + distanceDifference * 2200f) / ObjectManager.Player.ServerPosition.Distance(endPosition);
                 return realSpeed;
             }
+
             return _spells[SpellSlot.R].Speed;
         }
+
         #endregion
 
         #region Events, Skills And Menu
+        /// <summary>
+        /// Initializes Events
+        /// </summary>
         internal static void LoadEvents()
         {
             Game.OnUpdate += args1 => OnUpdate();
@@ -353,21 +480,28 @@ namespace PennyJinxReborn
             Interrupter2.OnInterruptableTarget += Interrupter2_OnInterruptableTarget;
         }
 
+        /// <summary>
+        /// Loads the skills. (Using fixed Spelldata)
+        /// </summary>
         internal static void LoadSkills()
         {
             _spells[SpellSlot.W].SetSkillshot(0.6f, 60f, 3300f, true, SkillshotType.SkillshotLine);
             _spells[SpellSlot.E].SetSkillshot(1.2f, 1f, 1750f, false, SkillshotType.SkillshotCircle);
             _spells[SpellSlot.R].SetSkillshot(0.6f, 140f, 1700f, false, SkillshotType.SkillshotLine);
         }
+
+        /// <summary>
+        /// Loads the Menu and makes it visible.
+        /// </summary>
         internal static void LoadMenu()
         {
-            Menu = new Menu(AssemblyName,"dz191."+MenuName,true);
+            _menu = new Menu(AssemblyName,"dz191." + MenuName,true);
             var orbwalkerMenu = new Menu(MenuPrefix + " Orbwalker", "dz191." + MenuName+".orbwalker");
             _orbwalker = new Orbwalking.Orbwalker(orbwalkerMenu);
-            Menu.AddSubMenu(orbwalkerMenu);
+            _menu.AddSubMenu(orbwalkerMenu);
             var tsMenu = new Menu(MenuPrefix + " TargetSelector", "dz191." + MenuName + ".targetselector");
             TargetSelector.AddToMenu(tsMenu);
-            Menu.AddSubMenu(tsMenu);
+            _menu.AddSubMenu(tsMenu);
             var comboMenu = new Menu(MenuPrefix + " Combo", "dz191." + MenuName + ".combo");
             {
                 comboMenu.AddItem(new MenuItem("dz191." + MenuName + ".combo.useq", "Use Q").SetValue(true));
@@ -375,6 +509,7 @@ namespace PennyJinxReborn
                 comboMenu.AddItem(new MenuItem("dz191." + MenuName + ".combo.usee", "Use E").SetValue(true));
                 comboMenu.AddItem(new MenuItem("dz191." + MenuName + ".combo.user", "Use R").SetValue(true));
             }
+
             var comboManaManager = new Menu("Mana Manager", "dz191." + MenuName + ".combo.mm");
             {
                 comboManaManager.AddItem(new MenuItem("dz191." + MenuName + ".combo.mm.q", "Q").SetValue(new Slider(10)));
@@ -383,22 +518,25 @@ namespace PennyJinxReborn
                 comboManaManager.AddItem(new MenuItem("dz191." + MenuName + ".combo.mm.r", "R").SetValue(new Slider(5)));
                 comboManaManager.AddItem(new MenuItem("dz191." + MenuName + ".combo.mm.auto", "Auto Mana Manager").SetValue(false));
             }
+
             comboMenu.AddSubMenu(comboManaManager);
-            Menu.AddSubMenu(comboMenu);
+            _menu.AddSubMenu(comboMenu);
 
             var harassMenu = new Menu(MenuPrefix + " Harass", "dz191." + MenuName + ".mixed");
             {
                 harassMenu.AddItem(new MenuItem("dz191." + MenuName + ".mixed.useq", "Use Q").SetValue(true));
                 harassMenu.AddItem(new MenuItem("dz191." + MenuName + ".mixed.usew", "Use W").SetValue(true));
             }
+
             var harassManaManager = new Menu("Mana Manager", "dz191." + MenuName + ".mixed.mm");
             {
                 harassManaManager.AddItem(new MenuItem("dz191." + MenuName + ".mixed.mm.q", "Q").SetValue(new Slider(10)));
                 harassManaManager.AddItem(new MenuItem("dz191." + MenuName + ".mixed.mm.w", "W").SetValue(new Slider(15)));
                 harassManaManager.AddItem(new MenuItem("dz191." + MenuName + ".mixed.mm.auto", "Auto Mana Manager").SetValue(false));
             }
+
             harassMenu.AddSubMenu(harassManaManager);
-            Menu.AddSubMenu(harassMenu);
+            _menu.AddSubMenu(harassMenu);
 
             var miscMenu = new Menu(MenuPrefix + " Skills Settings", "dz191." + MenuName + ".settings");
             var miscQMenu = new Menu("Q Settings", "dz191." + MenuName + ".settings.q");
@@ -430,6 +568,7 @@ namespace PennyJinxReborn
 
 
             }
+
             miscMenu.AddSubMenu(miscQMenu);
 
             var miscWMenu = new Menu("W Settings", "dz191." + MenuName + ".settings.w");
@@ -447,6 +586,7 @@ namespace PennyJinxReborn
                 miscWMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.w.hitchance", "W Hitchance").SetValue(new StringList(new[] { "Low", "Medium", "High", "Very High" }, 3)));
                 /**End*/
             }
+
             miscMenu.AddSubMenu(miscWMenu);
 
             var miscEMenu = new Menu("E Settings", "dz191." + MenuName + ".settings.e");
@@ -471,6 +611,7 @@ namespace PennyJinxReborn
                 miscEMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.e.hitchance", "E Hitchance").SetValue(new StringList(new[] { "Low", "Medium", "High", "Very High" }, 3)));
                 /**End*/
             }
+
             miscMenu.AddSubMenu(miscEMenu);
 
             var miscRMenu = new Menu("R Settings", "dz191." + MenuName + ".settings.r");
@@ -483,10 +624,11 @@ namespace PennyJinxReborn
                 miscRMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.r.hitchance", "R Hitchance").SetValue(new StringList(new[] { "Low", "Medium", "High", "Very High" }, 3))); //Done
                 /**End*/
             }
+
             miscMenu.AddSubMenu(miscRMenu);
             miscMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.reset", "Reset to default/optimal values").SetValue(false)); //TODO
 
-            Menu.AddSubMenu(miscMenu);
+            _menu.AddSubMenu(miscMenu);
             var drawMenu = new Menu(MenuPrefix + " Harass", "dz191." + MenuName + ".drawings");
             {
                 drawMenu.AddItem(
@@ -501,19 +643,24 @@ namespace PennyJinxReborn
                 drawMenu.AddItem(
                     new MenuItem("dz191." + MenuName + ".drawings.rsprite", "R Sprite drawing").SetValue(false));
             }
-            Menu.AddSubMenu(drawMenu);
 
-            Menu.AddToMainMenu();
+            _menu.AddSubMenu(drawMenu);
+
+            _menu.AddToMainMenu();
         }
         #endregion
 
         #region Update/Draw/Various Delegates
+        /// <summary>
+        /// Called every tick.
+        /// </summary>
         internal static void OnUpdate()
         {
             if (ObjectManager.Player.IsDead)
             {
                 return;
             }
+
             switch (_orbwalker.ActiveMode)
             {
                 case Orbwalking.OrbwalkingMode.Combo:
@@ -529,23 +676,40 @@ namespace PennyJinxReborn
                     OnFarm();
                     break;
             }
+
             OnAuto();
         }
-        static void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
+
+        /// <summary>
+        /// Called when a gapcloser is registered.
+        /// </summary>
+        /// <param name="gapcloser">The gapcloser parameters</param>
+        internal static void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
         {
-            if (Menu.Item("dz191." + MenuName + ".settings.e.antigp").GetValue<bool>() && _spells[SpellSlot.E].IsReady() && gapcloser.Sender.IsValidTarget(_spells[SpellSlot.E].Range))
+            if (_menu.Item("dz191." + MenuName + ".settings.e.antigp").GetValue<bool>() && _spells[SpellSlot.E].IsReady() && gapcloser.Sender.IsValidTarget(_spells[SpellSlot.E].Range))
             {
                 _spells[SpellSlot.E].Cast(gapcloser.Sender);
             }
         }
-        static void Interrupter2_OnInterruptableTarget(Obj_AI_Hero sender, Interrupter2.InterruptableTargetEventArgs args)
+
+        /// <summary>
+        /// Called when a possible interrupt is registered.
+        /// </summary>
+        /// <param name="sender">The Interruptable target</param>
+        /// <param name="args">The interrupt data</param>
+        internal static void Interrupter2_OnInterruptableTarget(Obj_AI_Hero sender, Interrupter2.InterruptableTargetEventArgs args)
         {
-            if (Menu.Item("dz191." + MenuName + ".settings.e.interrupter").GetValue<bool>() && _spells[SpellSlot.E].IsReady() && sender.IsValidTarget(_spells[SpellSlot.E].Range) && args.DangerLevel >= Interrupter2.DangerLevel.High)
+            if (_menu.Item("dz191." + MenuName + ".settings.e.interrupter").GetValue<bool>() && _spells[SpellSlot.E].IsReady() && sender.IsValidTarget(_spells[SpellSlot.E].Range) && args.DangerLevel >= Interrupter2.DangerLevel.High)
             {
                 _spells[SpellSlot.E].Cast(sender);
             }
         }
-        static void OrbwalkingBeforeAttack(Orbwalking.BeforeAttackEventArgs args)
+
+        /// <summary>
+        /// Called before the attack of the orbwalker.
+        /// </summary>
+        /// <param name="args">The Event args</param>
+        internal static void OrbwalkingBeforeAttack(Orbwalking.BeforeAttackEventArgs args)
         {
             if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LastHit ||
                 _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LaneClear)
@@ -556,6 +720,10 @@ namespace PennyJinxReborn
                 }
             }
         }
+
+        /// <summary>
+        /// Used to Draw Ranges
+        /// </summary>
         internal static void OnDraw()
         {
 
@@ -563,16 +731,22 @@ namespace PennyJinxReborn
         #endregion
 
         #region Automatic Functions
+        /// <summary>
+        /// Called in OnUpdate, used for Automatic functions.
+        /// </summary>
         internal static void OnAuto()
         {
             AutoMinigunSwap();
             AutoE();
         }
 
+        /// <summary>
+        /// Used to AutoSwap to minigun.
+        /// </summary>
         internal static void AutoMinigunSwap()
         {
-            var swapMinigun = Menu.Item("dz191." + MenuName + ".settings.q.minigunnoenemies").GetValue<bool>();
-            var swapMinigunRange = Menu.Item("dz191." + MenuName + ".settings.q.rangeswitch").GetValue<Slider>().Value;
+            var swapMinigun = _menu.Item("dz191." + MenuName + ".settings.q.minigunnoenemies").GetValue<bool>();
+            var swapMinigunRange = _menu.Item("dz191." + MenuName + ".settings.q.rangeswitch").GetValue<Slider>().Value;
             if (ObjectManager.Player.CountEnemiesInRange(swapMinigunRange) == 0 && swapMinigun && !ObjectManager.Player.IsWindingUp)
             {
                 if (IsFishBone() && _spells[SpellSlot.Q].IsReady())
@@ -582,27 +756,42 @@ namespace PennyJinxReborn
             }
         }
 
+        /// <summary>
+        /// Used to AutoW.
+        /// </summary>
         internal static void AutoW()
         {
             
         }
 
+        /// <summary>
+        /// Used to Call the 2 AutoE Methods.
+        /// </summary>
         internal static void AutoE()
         {
             AutoEStunned();
             AutoESlowed();
         }
 
+        /// <summary>
+        /// Auto E Slowed enemies.
+        /// </summary>
         internal static void AutoESlowed()
         {
             
         }
 
+        /// <summary>
+        /// Auto E Immobile enemies.
+        /// </summary>
         internal static void AutoEStunned()
         {
             
         }
 
+        /// <summary>
+        /// Called when the user presses the manual R key.
+        /// </summary>
         internal static void ManualR()
         {
             
