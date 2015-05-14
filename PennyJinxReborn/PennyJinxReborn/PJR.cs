@@ -10,6 +10,7 @@ using SharpDX;
 
 namespace PennyJinxReborn
 {
+    // ReSharper disable once InconsistentNaming
     class PJR
     {
         public static Menu Menu;
@@ -25,6 +26,22 @@ namespace PennyJinxReborn
             { SpellSlot.E, new Spell(SpellSlot.E, 900f) },
             { SpellSlot.R, new Spell(SpellSlot.R, 2000f) }
         };
+
+        private static List<BuffType> EmpairedBuffTypes
+        {
+            get
+            {
+                return new List<BuffType>
+                {
+                    BuffType.Stun,
+                    BuffType.Snare,
+                    BuffType.Charm,
+                    BuffType.Fear,
+                    BuffType.Taunt,
+                    BuffType.Slow
+                };
+            }
+        }
 
         internal static void OnLoad()
         {
@@ -121,7 +138,6 @@ namespace PennyJinxReborn
                     }
                     break;
                 case 2:
-                    //Console.WriteLine("Im 2");
                     if (IsFishBone())
                     {
                         if (ObjectManager.Player.Distance(currentTarget) <= jinxBaseRange && !(currentTarget.Position.CountEnemiesInRange(qAoeRadius) >= minEnemiesAoeMode))
@@ -156,9 +172,49 @@ namespace PennyJinxReborn
             var wHitchance = GetHitchanceFromMenu("dz191." + MenuName + ".settings.w.hitchance");
             _spells[SpellSlot.W].CastIfHitchanceEquals(currentTarget, wHitchance);
         }
+
+        internal static void ELogic(Orbwalking.OrbwalkingMode currentMode)
+        {
+            var eEnabled = Menu.Item(String.Format("dz191." + MenuName + ".{0}.usee", currentMode).ToLowerInvariant()).GetValue<bool>();
+            if (!_spells[SpellSlot.E].IsReady() || !eEnabled)
+            {
+                return;
+            }
+            var eTarget = _orbwalker.GetTarget().IsValid<Obj_AI_Hero>()?_orbwalker.GetTarget() as Obj_AI_Hero:TargetSelector.GetTarget(_spells[SpellSlot.E].Range, TargetSelector.DamageType.Physical);
+            if (!eTarget.IsValidTarget())
+            {
+                return;
+            }
+            var onlyESlowed = Menu.Item("dz191." + MenuName + ".settings.e.onlyslow").GetValue<bool>();
+            var onlyEStunned = Menu.Item("dz191." + MenuName + ".settings.e.onlyimm").GetValue<bool>();
+            var eHitchance = GetHitchanceFromMenu("dz191." + MenuName + ".settings.e.hitchance");
+            var eMana = Menu.Item(String.Format("dz191." + MenuName + ".{0}.mm.e", currentMode).ToLowerInvariant()).GetValue<Slider>().Value;
+            var isTargetSlowed = IsLightlyEmpaired(eTarget);
+            var isTargetImmobile = IsHeavilyEmpaired(eTarget);
+            if ((isTargetSlowed && onlyESlowed) || (isTargetImmobile && onlyEStunned))
+            {
+                if (isTargetSlowed)
+                {
+                    var slowEndTime = GetSlowEndTime(eTarget);
+                    if (slowEndTime >= _spells[SpellSlot.E].Delay + 0.5f + Game.Ping / 2f)
+                    {
+                        _spells[SpellSlot.E].CastIfHitchanceEquals(eTarget, eHitchance);
+                    }
+                }
+                if (isTargetImmobile)
+                {
+                    var immobileEndTime = GetEmpairedEndTime(eTarget);
+                    if (immobileEndTime >= _spells[SpellSlot.E].Delay + 0.5f + Game.Ping / 2f)
+                    {
+                        _spells[SpellSlot.E].CastIfHitchanceEquals(eTarget, eHitchance);
+                    }
+                }
+            }
+        }
+
         internal static void RLogic(Orbwalking.OrbwalkingMode currentMode)
         {
-            var rEnabled = Menu.Item("dz191." + MenuName + ".combo.usew").GetValue<bool>();
+            var rEnabled = Menu.Item("dz191." + MenuName + ".combo.user").GetValue<bool>();
             if (!_spells[SpellSlot.R].IsReady() || !rEnabled)
             {
                 return;
@@ -169,7 +225,7 @@ namespace PennyJinxReborn
             {
                 return;
             }
-            var aaBuffer = Menu.Item("dz191." + MenuName + ".settings.r.preventoverkill").GetValue<bool>()?Menu.Item("dz191." + MenuName + ".settings.r.aa").GetValue<Slider>().Value:0f;
+            var aaBuffer = Menu.Item("dz191." + MenuName + ".settings.r.preventoverkill").GetValue<bool>() ? Menu.Item("dz191." + MenuName + ".settings.r.aa").GetValue<Slider>().Value : 0f;
             var wDamageBuffer = 0f;
             var aaDamageBuffer = 0f;
             var minRange = Menu.Item("dz191." + MenuName + ".settings.r.minrange").GetValue<Slider>().Value;
@@ -187,10 +243,10 @@ namespace PennyJinxReborn
                         wDamageBuffer = Menu.Item("dz191." + MenuName + ".settings.r.preventoverkill").GetValue<bool>() ? _spells[SpellSlot.W].GetDamage(rTarget) : 0f;
                     }
                 }
-                if (currentDistance < GetFishboneRange() && _spells[SpellSlot.Q].IsReady() &&
+                if (currentDistance < GetMinigunRange(rTarget) + GetFishboneRange() && _spells[SpellSlot.Q].IsReady() &&
                     !ObjectManager.Player.IsWindingUp && ObjectManager.Player.CanAttack && qEnabled)
                 {
-                    aaDamageBuffer = Menu.Item("dz191." + MenuName + ".settings.r.preventoverkill").GetValue<bool>()?(float)(ObjectManager.Player.GetAutoAttackDamage(rTarget) * aaBuffer):0f;
+                    aaDamageBuffer = Menu.Item("dz191." + MenuName + ".settings.r.preventoverkill").GetValue<bool>() ? (float)(ObjectManager.Player.GetAutoAttackDamage(rTarget) * aaBuffer) : 0f;
                 }
                 var targetPredictedHealth = rTarget.Health + 20;
                 if (targetPredictedHealth > wDamageBuffer + aaDamageBuffer &&
@@ -241,7 +297,32 @@ namespace PennyJinxReborn
                     return HitChance.High;
             }
         }
+        private static bool IsHeavilyEmpaired(Obj_AI_Hero enemy)
+        {
+            return (enemy.HasBuffOfType(BuffType.Stun) || enemy.HasBuffOfType(BuffType.Snare) ||
+                    enemy.HasBuffOfType(BuffType.Charm) || enemy.HasBuffOfType(BuffType.Fear) ||
+                    enemy.HasBuffOfType(BuffType.Taunt) || IsLightlyEmpaired(enemy));
+        }
 
+        private static bool IsLightlyEmpaired(Obj_AI_Hero enemy)
+        {
+            return (enemy.HasBuffOfType(BuffType.Slow));
+        }
+        private static float GetEmpairedEndTime(Obj_AI_Base target)
+        {
+            return target.Buffs.OrderByDescending(buff => buff.EndTime - Game.Time)
+                    .Where(buff => EmpairedBuffTypes.Contains(buff.Type))
+                    .Select(buff => buff.EndTime)
+                    .FirstOrDefault();
+        }
+        private static float GetSlowEndTime(Obj_AI_Base target)
+        {
+            return
+                target.Buffs.OrderByDescending(buff => buff.EndTime - Game.Time)
+                    .Where(buff => buff.Type.Equals(BuffType.Slow))
+                    .Select(buff => buff.EndTime)
+                    .FirstOrDefault();
+        }
         internal static float GetRealUltSpeed(Vector3 endPosition)
         {
             //Thanks to Beaving - BaseUlt3 - https://github.com/Beaving/LeagueSharp/blob/master/BaseUlt3/
@@ -267,7 +348,10 @@ namespace PennyJinxReborn
             Game.OnUpdate += args1 => OnUpdate();
             Drawing.OnDraw += args1 => OnDraw();
             Orbwalking.BeforeAttack += OrbwalkingBeforeAttack;
+            AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
+            Interrupter2.OnInterruptableTarget += Interrupter2_OnInterruptableTarget;
         }
+
         internal static void LoadSkills()
         {
             _spells[SpellSlot.W].SetSkillshot(0.6f, 60f, 3300f, true, SkillshotType.SkillshotLine);
@@ -337,7 +421,7 @@ namespace PennyJinxReborn
                 /** End of AOE Options*/
 
                 /** Q Switch no enemies in range*/
-                miscQMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.q.minigunnoenemies", "Switch to minigun if no enemies in \"X\" range").SetValue(false));
+                miscQMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.q.minigunnoenemies", "AutoSwitch to minigun if no enemies in \"X\" range").SetValue(false));
                 miscQMenu.AddItem(
                     new MenuItem("dz191." + MenuName + ".settings.q.rangeswitch", "^ \"X\" Range for Q to minigun switch").SetValue(
                         new Slider(650, 100, 1500)));
@@ -354,7 +438,7 @@ namespace PennyJinxReborn
                 /**End*/
 
                 /** Auto W*/
-                miscWMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.w.immobile", "Auto W Immobile").SetValue(true));
+                miscWMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.w.immobile", "Auto W Immobile").SetValue(true)); //TODO
                 miscWMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.w.autowmana", "Auto W Mana").SetValue(new Slider(30)));
                 /*End*/
 
@@ -366,17 +450,21 @@ namespace PennyJinxReborn
 
             var miscEMenu = new Menu("E Settings", "dz191." + MenuName + ".settings.e");
             {
+                //TODO
                 /**Interrupter and AntiGP*/
-                miscEMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.e.antigp", "Auto E Antigapcloser").SetValue(false));
-                miscEMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.e.interrupt", "Auto E Interrupter").SetValue(false));
+                miscEMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.e.antigp", "Auto E Antigapcloser").SetValue(false)); //Done
+                miscEMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.e.interrupt", "Auto E Interrupter").SetValue(false)); //Done
 
                 /**End*/
                 /** Auto E*/
                 miscEMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.e.slowed", "Auto E Slowed Enemies").SetValue(false));
-                miscEMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.e.immobile", "Auto E Immobile").SetValue(true));
+                miscEMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.e.immobile", "Auto E Immobile").SetValue(true)); 
                 miscEMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.e.tp", "Auto E Teleport").SetValue(true));
                 miscEMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.e.autoemana", "Auto E Mana").SetValue(new Slider(30)));
                 /*End*/
+
+                miscEMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.e.onlyslow", "Only E Slowed").SetValue(false));
+                miscEMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.e.onlyimm", "Only E Immobile").SetValue(false));
 
                 /** Hitchance Selector*/
                 miscEMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.e.hitchance", "E Hitchance").SetValue(new StringList(new[] { "Low", "Medium", "High", "Very High" }, 3)));
@@ -386,16 +474,16 @@ namespace PennyJinxReborn
 
             var miscRMenu = new Menu("R Settings", "dz191." + MenuName + ".settings.r");
             {
-                miscRMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.r.aa", "Autoattack buffer").SetValue(new Slider(2,0,4)));
-                miscRMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.r.minrange", "Minimum R range").SetValue(new Slider(750,65,1500)));
-                miscRMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.r.preventoverkill", "Prevent Overkill (W/AA)").SetValue(false));
-                miscRMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.r.manualr", "Manual R").SetValue(new KeyBind("T".ToCharArray()[0],KeyBindType.Press)));
+                miscRMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.r.aa", "Autoattack buffer").SetValue(new Slider(2,0,4))); //Done
+                miscRMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.r.minrange", "Minimum R range").SetValue(new Slider(750,65,1500))); //Done
+                miscRMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.r.preventoverkill", "Prevent Overkill (W/AA)").SetValue(false)); //Done
+                miscRMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.r.manualr", "Manual R").SetValue(new KeyBind("T".ToCharArray()[0],KeyBindType.Press))); //TODO
                 /** Hitchance Selector*/
-                miscRMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.r.hitchance", "R Hitchance").SetValue(new StringList(new[] { "Low", "Medium", "High", "Very High" }, 3)));
+                miscRMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.r.hitchance", "R Hitchance").SetValue(new StringList(new[] { "Low", "Medium", "High", "Very High" }, 3))); //Done
                 /**End*/
             }
             miscMenu.AddSubMenu(miscRMenu);
-            miscMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.reset", "Reset to default/optimal values").SetValue(false));
+            miscMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.reset", "Reset to default/optimal values").SetValue(false)); //TODO
 
             Menu.AddSubMenu(miscMenu);
             var drawMenu = new Menu(MenuPrefix + " Harass", "dz191." + MenuName + ".drawings");
@@ -418,9 +506,13 @@ namespace PennyJinxReborn
         }
         #endregion
 
-        #region Update/Draw/Etc
+        #region Update/Draw/Various Delegates
         internal static void OnUpdate()
         {
+            if (ObjectManager.Player.IsDead)
+            {
+                return;
+            }
             switch (_orbwalker.ActiveMode)
             {
                 case Orbwalking.OrbwalkingMode.Combo:
@@ -437,6 +529,20 @@ namespace PennyJinxReborn
                     break;
             }
             OnAuto();
+        }
+        static void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
+        {
+            if (Menu.Item("dz191." + MenuName + ".settings.e.antigp").GetValue<bool>() && _spells[SpellSlot.E].IsReady() && gapcloser.Sender.IsValidTarget(_spells[SpellSlot.E].Range))
+            {
+                _spells[SpellSlot.E].Cast(gapcloser.Sender);
+            }
+        }
+        static void Interrupter2_OnInterruptableTarget(Obj_AI_Hero sender, Interrupter2.InterruptableTargetEventArgs args)
+        {
+            if (Menu.Item("dz191." + MenuName + ".settings.e.interrupter").GetValue<bool>() && _spells[SpellSlot.E].IsReady() && sender.IsValidTarget(_spells[SpellSlot.E].Range) && args.DangerLevel >= Interrupter2.DangerLevel.High)
+            {
+                _spells[SpellSlot.E].Cast(sender);
+            }
         }
         static void OrbwalkingBeforeAttack(Orbwalking.BeforeAttackEventArgs args)
         {
@@ -459,7 +565,9 @@ namespace PennyJinxReborn
         internal static void OnAuto()
         {
             AutoMinigunSwap();
+            AutoE();
         }
+
         internal static void AutoMinigunSwap()
         {
             var swapMinigun = Menu.Item("dz191." + MenuName + ".settings.q.minigunnoenemies").GetValue<bool>();
@@ -472,14 +580,28 @@ namespace PennyJinxReborn
                 }
             }
         }
+
         internal static void AutoW()
         {
             
         }
+
         internal static void AutoE()
+        {
+            AutoEStunned();
+            AutoESlowed();
+        }
+
+        internal static void AutoESlowed()
         {
             
         }
+
+        internal static void AutoEStunned()
+        {
+            
+        }
+
         internal static void ManualR()
         {
             
