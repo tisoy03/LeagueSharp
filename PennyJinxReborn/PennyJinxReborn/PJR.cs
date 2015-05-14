@@ -27,7 +27,7 @@ namespace PennyJinxReborn
             { SpellSlot.R, new Spell(SpellSlot.R, 2000f) }
         };
 
-        private static List<BuffType> EmpairedBuffTypes
+        private static List<BuffType> ImpairedBuffTypes
         {
             get
             {
@@ -176,7 +176,8 @@ namespace PennyJinxReborn
         internal static void ELogic(Orbwalking.OrbwalkingMode currentMode)
         {
             var eEnabled = Menu.Item(String.Format("dz191." + MenuName + ".{0}.usee", currentMode).ToLowerInvariant()).GetValue<bool>();
-            if (!_spells[SpellSlot.E].IsReady() || !eEnabled)
+            var eMana = Menu.Item(String.Format("dz191." + MenuName + ".{0}.mm.e", currentMode).ToLowerInvariant()).GetValue<Slider>().Value;
+            if (!_spells[SpellSlot.E].IsReady() || !eEnabled || ObjectManager.Player.ManaPercent < eMana)
             {
                 return;
             }
@@ -188,9 +189,9 @@ namespace PennyJinxReborn
             var onlyESlowed = Menu.Item("dz191." + MenuName + ".settings.e.onlyslow").GetValue<bool>();
             var onlyEStunned = Menu.Item("dz191." + MenuName + ".settings.e.onlyimm").GetValue<bool>();
             var eHitchance = GetHitchanceFromMenu("dz191." + MenuName + ".settings.e.hitchance");
-            var eMana = Menu.Item(String.Format("dz191." + MenuName + ".{0}.mm.e", currentMode).ToLowerInvariant()).GetValue<Slider>().Value;
-            var isTargetSlowed = IsLightlyEmpaired(eTarget);
-            var isTargetImmobile = IsHeavilyEmpaired(eTarget);
+
+            var isTargetSlowed = IsLightlyImpaired(eTarget);
+            var isTargetImmobile = IsHeavilyImpaired(eTarget);
             if ((isTargetSlowed && onlyESlowed) || (isTargetImmobile && onlyEStunned))
             {
                 if (isTargetSlowed)
@@ -203,7 +204,7 @@ namespace PennyJinxReborn
                 }
                 if (isTargetImmobile)
                 {
-                    var immobileEndTime = GetEmpairedEndTime(eTarget);
+                    var immobileEndTime = GetImpairedEndTime(eTarget);
                     if (immobileEndTime >= _spells[SpellSlot.E].Delay + 0.5f + Game.Ping / 2f)
                     {
                         _spells[SpellSlot.E].CastIfHitchanceEquals(eTarget, eHitchance);
@@ -297,21 +298,21 @@ namespace PennyJinxReborn
                     return HitChance.High;
             }
         }
-        private static bool IsHeavilyEmpaired(Obj_AI_Hero enemy)
+        private static bool IsHeavilyImpaired(Obj_AI_Hero enemy)
         {
             return (enemy.HasBuffOfType(BuffType.Stun) || enemy.HasBuffOfType(BuffType.Snare) ||
                     enemy.HasBuffOfType(BuffType.Charm) || enemy.HasBuffOfType(BuffType.Fear) ||
-                    enemy.HasBuffOfType(BuffType.Taunt) || IsLightlyEmpaired(enemy));
+                    enemy.HasBuffOfType(BuffType.Taunt) || IsLightlyImpaired(enemy));
         }
 
-        private static bool IsLightlyEmpaired(Obj_AI_Hero enemy)
+        private static bool IsLightlyImpaired(Obj_AI_Hero enemy)
         {
             return (enemy.HasBuffOfType(BuffType.Slow));
         }
-        private static float GetEmpairedEndTime(Obj_AI_Base target)
+        private static float GetImpairedEndTime(Obj_AI_Base target)
         {
             return target.Buffs.OrderByDescending(buff => buff.EndTime - Game.Time)
-                    .Where(buff => EmpairedBuffTypes.Contains(buff.Type))
+                    .Where(buff => ImpairedBuffTypes.Contains(buff.Type))
                     .Select(buff => buff.EndTime)
                     .FirstOrDefault();
         }
