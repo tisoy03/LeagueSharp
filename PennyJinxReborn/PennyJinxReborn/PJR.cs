@@ -15,25 +15,20 @@
     internal class PJR
     {
         /// <summary>
-        /// The Menu variable.
-        /// </summary>
-        private static Menu _menu;
-        /// <summary>
-        /// The orbwalker instance we are using.
-        /// </summary>
-        private static Orbwalking.Orbwalker _orbwalker;
-        /// <summary>
         /// The assembly name, used for welcome messages.
         /// </summary>
         private const string AssemblyName = "PennyJinx Reborn";
+
         /// <summary>
         /// The assembly name used in the menu fields.
         /// </summary>
         private const string MenuName = "pennyjinx";
+
         /// <summary>
         /// The prefix of the submenus.
         /// </summary>
         private const string MenuPrefix = "[PJ]";
+
         // ReSharper disable once InconsistentNaming
         /// <summary>
         /// The Spells dictionary, containing the 4 spells.
@@ -46,6 +41,16 @@
             { SpellSlot.R, new Spell(SpellSlot.R, 2000f) }
         };
 
+        /// <summary>
+        /// The Menu variable.
+        /// </summary>
+        private static Menu _menu;
+
+        /// <summary>
+        /// The orbwalker instance we are using.
+        /// </summary>
+        private static Orbwalking.Orbwalker _orbwalker;
+        
         /// <summary>
         /// A list of Movement Impairing buffs.
         /// </summary>
@@ -242,7 +247,7 @@
                 return;
             }
 
-            var eTarget = _orbwalker.GetTarget().IsValid<Obj_AI_Hero>()?_orbwalker.GetTarget() as Obj_AI_Hero:TargetSelector.GetTarget(_spells[SpellSlot.E].Range, TargetSelector.DamageType.Physical);
+            var eTarget = _orbwalker.GetTarget().IsValid<Obj_AI_Hero>() ? _orbwalker.GetTarget() as Obj_AI_Hero : TargetSelector.GetTarget(_spells[SpellSlot.E].Range, TargetSelector.DamageType.Physical);
             if (!eTarget.IsValidTarget())
             {
                 return;
@@ -447,7 +452,7 @@
         /// <returns>Real ult speed</returns>
         internal static float GetRealUltSpeed(Vector3 endPosition)
         {
-            //Thanks to Beaving - BaseUlt3 - https://github.com/Beaving/LeagueSharp/blob/master/BaseUlt3/
+            ////Thanks to Beaving - BaseUlt3 - https://github.com/Beaving/LeagueSharp/blob/master/BaseUlt3/
             if (ObjectManager.Player.ServerPosition.Distance(endPosition) > 1350f)
             {
                 const float accelRate = 0.3f;
@@ -495,8 +500,8 @@
         /// </summary>
         internal static void LoadMenu()
         {
-            _menu = new Menu(AssemblyName,"dz191." + MenuName,true);
-            var orbwalkerMenu = new Menu(MenuPrefix + " Orbwalker", "dz191." + MenuName+".orbwalker");
+            _menu = new Menu(AssemblyName,"dz191." + MenuName , true);
+            var orbwalkerMenu = new Menu(MenuPrefix + " Orbwalker", "dz191." + MenuName + ".orbwalker");
             _orbwalker = new Orbwalking.Orbwalker(orbwalkerMenu);
             _menu.AddSubMenu(orbwalkerMenu);
             var tsMenu = new Menu(MenuPrefix + " TargetSelector", "dz191." + MenuName + ".targetselector");
