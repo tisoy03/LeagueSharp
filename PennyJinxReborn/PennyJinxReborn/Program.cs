@@ -2,6 +2,10 @@
 {
     using System;
     using LeagueSharp.Common;
+
+    /// <summary>
+    /// The main class in the Assembly.
+    /// </summary>
     internal class Program
     {
 

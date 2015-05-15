@@ -1,14 +1,13 @@
 ﻿namespace PennyJinxReborn
 {
     #region
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using LeagueSharp;
     using LeagueSharp.Common;
     using SharpDX;
     #endregion
-    // ReSharper disable once InconsistentNaming
+
     /// <summary>
     /// Penny Jinx Reborn main class
     /// </summary>
@@ -29,11 +28,10 @@
         /// </summary>
         private const string MenuPrefix = "[PJ]";
 
-        // ReSharper disable once InconsistentNaming
         /// <summary>
         /// The Spells dictionary, containing the 4 spells.
         /// </summary>
-        private static readonly Dictionary<SpellSlot, Spell> _spells = new Dictionary<SpellSlot, Spell>
+        private static readonly Dictionary<SpellSlot, Spell> Spells = new Dictionary<SpellSlot, Spell>
         {
             { SpellSlot.Q, new Spell(SpellSlot.Q) },
             { SpellSlot.W, new Spell(SpellSlot.W, 1450f) },
@@ -44,15 +42,15 @@
         /// <summary>
         /// The Menu variable.
         /// </summary>
-        private static Menu _menu;
+        private static Menu menu;
 
         /// <summary>
         /// The orbwalker instance we are using.
         /// </summary>
-        private static Orbwalking.Orbwalker _orbwalker;
+        private static Orbwalking.Orbwalker orbwalker;
         
         /// <summary>
-        /// A list of Movement Impairing buffs.
+        /// Gets a list of Movement Impairing buffs.
         /// </summary>
         private static List<BuffType> ImpairedBuffTypes
         {
@@ -79,6 +77,7 @@
             {
                 return;
             }
+
             LoadMenu();
             LoadSkills();
             LoadEvents();
@@ -86,9 +85,9 @@
         }
 
         /// <summary>
-        /// Determines wether or not the assembly should be loaded.
+        /// Determines whether or not the assembly should be loaded.
         /// </summary>
-        /// <returns>Wether or not the assembly should be loaded</returns>
+        /// <returns>Whether or not the assembly should be loaded</returns>
         internal static bool ShouldBeLoaded()
         {
             return ObjectManager.Player.ChampionName.Equals("Jinx");
@@ -100,10 +99,10 @@
         /// </summary>
         internal static void OnCombo()
         {
-            QSwap(_orbwalker.ActiveMode);
-            WLogic(_orbwalker.ActiveMode);
-            ELogic(_orbwalker.ActiveMode);
-            RLogic(_orbwalker.ActiveMode);
+            QSwap(orbwalker.ActiveMode);
+            WLogic(orbwalker.ActiveMode);
+            ELogic(orbwalker.ActiveMode);
+            RLogic(orbwalker.ActiveMode);
         }
 
         /// <summary>
@@ -111,8 +110,8 @@
         /// </summary>
         internal static void OnHarass()
         {
-            QSwap(_orbwalker.ActiveMode);
-            WLogic(_orbwalker.ActiveMode);
+            QSwap(orbwalker.ActiveMode);
+            WLogic(orbwalker.ActiveMode);
         }
 
         /// <summary>
@@ -130,29 +129,33 @@
         internal static void QSwap(Orbwalking.OrbwalkingMode currentMode)
         {
             ////Prevents AutoAttack cancelling
-            var qEnabled = _menu.Item(string.Format("dz191." + MenuName + ".{0}.useq", currentMode).ToLowerInvariant()).GetValue<bool>();
-            if (!_spells[SpellSlot.Q].IsReady() || ObjectManager.Player.IsWindingUp || !qEnabled || !ObjectManager.Player.CanAttack)
+            var qEnabled = menu.Item(string.Format("dz191." + MenuName + ".{0}.useq", currentMode).ToLowerInvariant()).GetValue<bool>();
+            if (!Spells[SpellSlot.Q].IsReady() || ObjectManager.Player.IsWindingUp || !qEnabled || !ObjectManager.Player.CanAttack)
             {
                 return;
             }
+
             var maxAaRange = GetMinigunRange(null) + GetFishboneRange() + 25f;
             var currentTarget = TargetSelector.GetTarget(maxAaRange, TargetSelector.DamageType.Physical);
-            var qMana = _menu.Item(string.Format("dz191." + MenuName + ".{0}.mm.q", currentMode).ToLowerInvariant()).GetValue<Slider>().Value;
+            var qMana = menu.Item(string.Format("dz191." + MenuName + ".{0}.mm.q", currentMode).ToLowerInvariant()).GetValue<Slider>().Value;
             if (!currentTarget.IsValidTarget(maxAaRange))
             {
                 return;
             }
+
             if (ObjectManager.Player.ManaPercent < qMana)
             {
                 if (IsFishBone())
                 {
-                    _spells[SpellSlot.Q].Cast();
+                    Spells[SpellSlot.Q].Cast();
                 }
+
                 return;
             }
-            var qSwapMode = _menu.Item("dz191." + MenuName + ".settings.q.qmode").GetValue<StringList>().SelectedIndex; ////0 = AOE 1 = Range 2 = Both
-            var minEnemiesAoeMode = _menu.Item("dz191." + MenuName + ".settings.q.aoeswitch").GetValue<Slider>().Value;
-            var qAoeRadius = _menu.Item("dz191." + MenuName + ".settings.q.aoeradius").GetValue<Slider>().Value;
+
+            var qSwapMode = menu.Item("dz191." + MenuName + ".settings.q.qmode").GetValue<StringList>().SelectedIndex; ////0 = AOE 1 = Range 2 = Both
+            var minEnemiesAoeMode = menu.Item("dz191." + MenuName + ".settings.q.aoeswitch").GetValue<Slider>().Value;
+            var qAoeRadius = menu.Item("dz191." + MenuName + ".settings.q.aoeradius").GetValue<Slider>().Value;
             var jinxBaseRange = GetMinigunRange(currentTarget);
             switch (qSwapMode)
             {
@@ -161,14 +164,14 @@
                     {
                         if (!IsFishBone())
                         {
-                            _spells[SpellSlot.Q].Cast();
+                            Spells[SpellSlot.Q].Cast();
                         }
                     }
                     else
                     {
                         if (IsFishBone())
                         {
-                            _spells[SpellSlot.Q].Cast();
+                            Spells[SpellSlot.Q].Cast();
                         }
                     }
 
@@ -178,14 +181,14 @@
                     {
                         if (ObjectManager.Player.Distance(currentTarget) <= jinxBaseRange)
                         {
-                            _spells[SpellSlot.Q].Cast();
+                            Spells[SpellSlot.Q].Cast();
                         }
                     }
                     else
                     {
                         if (ObjectManager.Player.Distance(currentTarget) > jinxBaseRange)
                         {
-                            _spells[SpellSlot.Q].Cast();
+                            Spells[SpellSlot.Q].Cast();
                         }
                     }
 
@@ -195,14 +198,14 @@
                     {
                         if (ObjectManager.Player.Distance(currentTarget) <= jinxBaseRange && !(currentTarget.Position.CountEnemiesInRange(qAoeRadius) >= minEnemiesAoeMode))
                         {
-                            _spells[SpellSlot.Q].Cast();
+                            Spells[SpellSlot.Q].Cast();
                         }
                     }
                     else
                     {
                         if (ObjectManager.Player.Distance(currentTarget) > jinxBaseRange || (currentTarget.Position.CountEnemiesInRange(qAoeRadius) >= minEnemiesAoeMode))
                         {
-                            _spells[SpellSlot.Q].Cast();
+                            Spells[SpellSlot.Q].Cast();
                         }
                     }
 
@@ -216,22 +219,22 @@
         /// <param name="currentMode">The current orbwalking mode.</param>
         internal static void WLogic(Orbwalking.OrbwalkingMode currentMode)
         {
-            var wEnabled = _menu.Item(string.Format("dz191." + MenuName + ".{0}.usew", currentMode).ToLowerInvariant()).GetValue<bool>();
-            if (!_spells[SpellSlot.W].IsReady() || !wEnabled)
+            var wEnabled = menu.Item(string.Format("dz191." + MenuName + ".{0}.usew", currentMode).ToLowerInvariant()).GetValue<bool>();
+            if (!Spells[SpellSlot.W].IsReady() || !wEnabled)
             {
                 return;
             }
 
-            var minWRange = _menu.Item("dz191." + MenuName + ".settings.w.minwrange").GetValue<Slider>().Value;
-            var currentTarget = TargetSelector.GetTarget(_spells[SpellSlot.W].Range, TargetSelector.DamageType.Physical);
-            var wMana = _menu.Item(string.Format("dz191." + MenuName + ".{0}.mm.w", currentMode).ToLowerInvariant()).GetValue<Slider>().Value;
-            if (currentTarget.IsValidTarget(minWRange) || !_spells[SpellSlot.W].CanCast(currentTarget) || ObjectManager.Player.ManaPercent < wMana || !currentTarget.IsValidTarget(_spells[SpellSlot.W].Range))
+            var minWRange = menu.Item("dz191." + MenuName + ".settings.w.minwrange").GetValue<Slider>().Value;
+            var currentTarget = TargetSelector.GetTarget(Spells[SpellSlot.W].Range, TargetSelector.DamageType.Physical);
+            var wMana = menu.Item(string.Format("dz191." + MenuName + ".{0}.mm.w", currentMode).ToLowerInvariant()).GetValue<Slider>().Value;
+            if (currentTarget.IsValidTarget(minWRange) || !Spells[SpellSlot.W].CanCast(currentTarget) || ObjectManager.Player.ManaPercent < wMana || !currentTarget.IsValidTarget(Spells[SpellSlot.W].Range))
             {
                 return;
             }
 
             var wHitchance = GetHitchanceFromMenu("dz191." + MenuName + ".settings.w.hitchance");
-            _spells[SpellSlot.W].CastIfHitchanceEquals(currentTarget, wHitchance);
+            Spells[SpellSlot.W].CastIfHitchanceEquals(currentTarget, wHitchance);
         }
 
         /// <summary>
@@ -240,21 +243,21 @@
         /// <param name="currentMode">The current orbwalking mode.</param>
         internal static void ELogic(Orbwalking.OrbwalkingMode currentMode)
         {
-            var eEnabled = _menu.Item(string.Format("dz191." + MenuName + ".{0}.usee", currentMode).ToLowerInvariant()).GetValue<bool>();
-            var eMana = _menu.Item(string.Format("dz191." + MenuName + ".{0}.mm.e", currentMode).ToLowerInvariant()).GetValue<Slider>().Value;
-            if (!_spells[SpellSlot.E].IsReady() || !eEnabled || ObjectManager.Player.ManaPercent < eMana)
+            var eEnabled = menu.Item(string.Format("dz191." + MenuName + ".{0}.usee", currentMode).ToLowerInvariant()).GetValue<bool>();
+            var eMana = menu.Item(string.Format("dz191." + MenuName + ".{0}.mm.e", currentMode).ToLowerInvariant()).GetValue<Slider>().Value;
+            if (!Spells[SpellSlot.E].IsReady() || !eEnabled || ObjectManager.Player.ManaPercent < eMana)
             {
                 return;
             }
 
-            var eTarget = _orbwalker.GetTarget().IsValid<Obj_AI_Hero>() ? _orbwalker.GetTarget() as Obj_AI_Hero : TargetSelector.GetTarget(_spells[SpellSlot.E].Range, TargetSelector.DamageType.Physical);
-            if (!eTarget.IsValidTarget())
+            var eTarget = orbwalker.GetTarget().IsValid<Obj_AI_Hero>() ? orbwalker.GetTarget() as Obj_AI_Hero : TargetSelector.GetTarget(Spells[SpellSlot.E].Range, TargetSelector.DamageType.Physical);
+            if (!eTarget.IsValidTarget() || eTarget == null)
             {
                 return;
             }
 
-            var onlyESlowed = _menu.Item("dz191." + MenuName + ".settings.e.onlyslow").GetValue<bool>();
-            var onlyEStunned = _menu.Item("dz191." + MenuName + ".settings.e.onlyimm").GetValue<bool>();
+            var onlyESlowed = menu.Item("dz191." + MenuName + ".settings.e.onlyslow").GetValue<bool>();
+            var onlyEStunned = menu.Item("dz191." + MenuName + ".settings.e.onlyimm").GetValue<bool>();
             var eHitchance = GetHitchanceFromMenu("dz191." + MenuName + ".settings.e.hitchance");
 
             var isTargetSlowed = IsLightlyImpaired(eTarget);
@@ -264,18 +267,18 @@
                 if (isTargetSlowed && eTarget.Path.Count() > 1)
                 {
                     var slowEndTime = GetSlowEndTime(eTarget);
-                    if (slowEndTime >= _spells[SpellSlot.E].Delay + 0.5f + Game.Ping / 2f)
+                    if (slowEndTime >= Spells[SpellSlot.E].Delay + 0.5f + Game.Ping / 2f)
                     {
-                        _spells[SpellSlot.E].CastIfHitchanceEquals(eTarget, eHitchance);
+                        Spells[SpellSlot.E].CastIfHitchanceEquals(eTarget, eHitchance);
                     }
                 }
 
                 if (isTargetImmobile)
                 {
                     var immobileEndTime = GetImpairedEndTime(eTarget);
-                    if (immobileEndTime >= _spells[SpellSlot.E].Delay + 0.5f + Game.Ping / 2f)
+                    if (immobileEndTime >= Spells[SpellSlot.E].Delay + 0.5f + Game.Ping / 2f)
                     {
-                        _spells[SpellSlot.E].CastIfHitchanceEquals(eTarget, eHitchance);
+                        Spells[SpellSlot.E].CastIfHitchanceEquals(eTarget, eHitchance);
                     }
                 }
             }
@@ -287,56 +290,56 @@
         /// <param name="currentMode">The current orbwalking mode.</param>
         internal static void RLogic(Orbwalking.OrbwalkingMode currentMode)
         {
-            var rEnabled = _menu.Item("dz191." + MenuName + ".combo.user").GetValue<bool>();
-            if (!_spells[SpellSlot.R].IsReady() || !rEnabled)
+            var rEnabled = menu.Item("dz191." + MenuName + ".combo.user").GetValue<bool>();
+            if (!Spells[SpellSlot.R].IsReady() || !rEnabled)
             {
                 return;
             }
 
-            var rMana = _menu.Item("dz191." + MenuName + ".combo.mm.r").GetValue<Slider>().Value;
-            var rTarget = TargetSelector.GetTarget(_spells[SpellSlot.R].Range, TargetSelector.DamageType.Physical);
-            if (rTarget.IsValidTarget(_spells[SpellSlot.R].Range) || !_spells[SpellSlot.R].CanCast(rTarget) || ObjectManager.Player.ManaPercent < rMana)
+            var rMana = menu.Item("dz191." + MenuName + ".combo.mm.r").GetValue<Slider>().Value;
+            var rTarget = TargetSelector.GetTarget(Spells[SpellSlot.R].Range, TargetSelector.DamageType.Physical);
+            if (rTarget.IsValidTarget(Spells[SpellSlot.R].Range) || !Spells[SpellSlot.R].CanCast(rTarget) || ObjectManager.Player.ManaPercent < rMana)
             {
                 return;
             }
 
-            var aaBuffer = _menu.Item("dz191." + MenuName + ".settings.r.preventoverkill").GetValue<bool>() ? _menu.Item("dz191." + MenuName + ".settings.r.aa").GetValue<Slider>().Value : 0f;
+            var aaBuffer = menu.Item("dz191." + MenuName + ".settings.r.preventoverkill").GetValue<bool>() ? menu.Item("dz191." + MenuName + ".settings.r.aa").GetValue<Slider>().Value : 0f;
             var wDamageBuffer = 0f;
             var aaDamageBuffer = 0f;
-            var minRange = _menu.Item("dz191." + MenuName + ".settings.r.minrange").GetValue<Slider>().Value;
-            var wEnabled = _menu.Item(string.Format("dz191." + MenuName + ".{0}.usew", currentMode).ToLowerInvariant()).GetValue<bool>();
-            var qEnabled = _menu.Item(string.Format("dz191." + MenuName + ".{0}.useq", currentMode).ToLowerInvariant()).GetValue<bool>();
+            var minRange = menu.Item("dz191." + MenuName + ".settings.r.minrange").GetValue<Slider>().Value;
+            var wEnabled = menu.Item(string.Format("dz191." + MenuName + ".{0}.usew", currentMode).ToLowerInvariant()).GetValue<bool>();
+            var qEnabled = menu.Item(string.Format("dz191." + MenuName + ".{0}.useq", currentMode).ToLowerInvariant()).GetValue<bool>();
             var currentDistance = rTarget.Distance(ObjectManager.Player.ServerPosition);
             if (currentDistance >= minRange)
             {
-                if (currentDistance < _spells[SpellSlot.W].Range && _spells[SpellSlot.W].CanCast(rTarget) && wEnabled)
+                if (currentDistance < Spells[SpellSlot.W].Range && Spells[SpellSlot.W].CanCast(rTarget) && wEnabled)
                 {
                     var wHitchance = GetHitchanceFromMenu("dz191." + MenuName + ".settings.w.hitchance");
-                    var wPrediction = _spells[SpellSlot.W].GetPrediction(rTarget);
+                    var wPrediction = Spells[SpellSlot.W].GetPrediction(rTarget);
                     if (wPrediction.Hitchance >= wHitchance)
                     {
-                        wDamageBuffer = _menu.Item("dz191." + MenuName + ".settings.r.preventoverkill").GetValue<bool>() ? _spells[SpellSlot.W].GetDamage(rTarget) : 0f;
+                        wDamageBuffer = menu.Item("dz191." + MenuName + ".settings.r.preventoverkill").GetValue<bool>() ? Spells[SpellSlot.W].GetDamage(rTarget) : 0f;
                     }
                 }
 
-                if (currentDistance < GetMinigunRange(rTarget) + GetFishboneRange() && _spells[SpellSlot.Q].IsReady() &&
+                if (currentDistance < GetMinigunRange(rTarget) + GetFishboneRange() && Spells[SpellSlot.Q].IsReady() &&
                     !ObjectManager.Player.IsWindingUp && ObjectManager.Player.CanAttack && qEnabled)
                 {
-                    aaDamageBuffer = _menu.Item("dz191." + MenuName + ".settings.r.preventoverkill").GetValue<bool>() ? (float)(ObjectManager.Player.GetAutoAttackDamage(rTarget) * aaBuffer) : 0f;
+                    aaDamageBuffer = menu.Item("dz191." + MenuName + ".settings.r.preventoverkill").GetValue<bool>() ? (float)(ObjectManager.Player.GetAutoAttackDamage(rTarget) * aaBuffer) : 0f;
                 }
 
                 var targetPredictedHealth = rTarget.Health + 20;
                 if (targetPredictedHealth > wDamageBuffer + aaDamageBuffer &&
-                    targetPredictedHealth < _spells[SpellSlot.R].GetDamage(rTarget))
+                    targetPredictedHealth < Spells[SpellSlot.R].GetDamage(rTarget))
                 {
                     var rHitchance = GetHitchanceFromMenu("dz191." + MenuName + ".settings.r.hitchance");
                     var actualSpeed = GetRealUltSpeed(rTarget.ServerPosition);
-                    _spells[SpellSlot.R].Speed = actualSpeed;
-                    var rPrediction = _spells[SpellSlot.R].GetPrediction(rTarget);
+                    Spells[SpellSlot.R].Speed = actualSpeed;
+                    var rPrediction = Spells[SpellSlot.R].GetPrediction(rTarget);
                     if (rPrediction.Hitchance >= rHitchance)
                     {
-                        _spells[SpellSlot.R].Cast(rPrediction.CastPosition);
-                        _spells[SpellSlot.R].Speed = 1700f;
+                        Spells[SpellSlot.R].Cast(rPrediction.CastPosition);
+                        Spells[SpellSlot.R].Speed = 1700f;
                     }
                 }
             }
@@ -346,7 +349,7 @@
 
         #region Utility Methods
         /// <summary>
-        /// Determines wether or not FishBone is active.
+        /// Determines whether or not FishBone is active.
         /// </summary>
         /// <returns>Range > 565</returns>
         internal static bool IsFishBone()
@@ -370,7 +373,7 @@
         /// <returns>Extra fishbone range</returns>
         internal static float GetFishboneRange()
         {
-            return 50f + 25f * _spells[SpellSlot.Q].Level;
+            return 50f + 25f * Spells[SpellSlot.Q].Level;
         }
 
         /// <summary>
@@ -380,7 +383,7 @@
         /// <returns>The Hitchance</returns>
         internal static HitChance GetHitchanceFromMenu(string menuValue)
         {
-            var possibleValue = _menu.Item(menuValue).GetValue<StringList>().SelectedIndex;
+            var possibleValue = menu.Item(menuValue).GetValue<StringList>().SelectedIndex;
             switch (possibleValue)
             {
                 case 0:
@@ -403,9 +406,7 @@
         /// <returns>Whether the target is heavily impaired</returns>
         private static bool IsHeavilyImpaired(Obj_AI_Hero enemy)
         {
-            return  enemy.HasBuffOfType(BuffType.Stun) || enemy.HasBuffOfType(BuffType.Snare) ||
-                    enemy.HasBuffOfType(BuffType.Charm) || enemy.HasBuffOfType(BuffType.Fear) ||
-                    enemy.HasBuffOfType(BuffType.Taunt) || IsLightlyImpaired(enemy);
+            return enemy.HasBuffOfType(BuffType.Stun) || enemy.HasBuffOfType(BuffType.Snare) || enemy.HasBuffOfType(BuffType.Charm) || enemy.HasBuffOfType(BuffType.Fear) || enemy.HasBuffOfType(BuffType.Taunt);
         }
 
         /// <summary>
@@ -455,7 +456,8 @@
             ////Thanks to Beaving - BaseUlt3 - https://github.com/Beaving/LeagueSharp/blob/master/BaseUlt3/
             if (ObjectManager.Player.ServerPosition.Distance(endPosition) > 1350f)
             {
-                const float accelRate = 0.3f;
+                // ReSharper disable once InconsistentNaming
+                const float AccelRate = 0.3f;
                 var accelSpace = ObjectManager.Player.ServerPosition.Distance(endPosition) - 1350f;
                 if (accelSpace > 150f)
                 {
@@ -463,11 +465,11 @@
                 }
 
                 var distanceDifference = ObjectManager.Player.ServerPosition.Distance(endPosition) - 1500f;
-                var realSpeed = (1350f * _spells[SpellSlot.R].Speed + accelSpace * (_spells[SpellSlot.R].Speed + accelRate * accelSpace) + distanceDifference * 2200f) / ObjectManager.Player.ServerPosition.Distance(endPosition);
+                var realSpeed = (1350f * Spells[SpellSlot.R].Speed + accelSpace * (Spells[SpellSlot.R].Speed + AccelRate * accelSpace) + distanceDifference * 2200f) / ObjectManager.Player.ServerPosition.Distance(endPosition);
                 return realSpeed;
             }
 
-            return _spells[SpellSlot.R].Speed;
+            return Spells[SpellSlot.R].Speed;
         }
 
         #endregion
@@ -490,9 +492,9 @@
         /// </summary>
         internal static void LoadSkills()
         {
-            _spells[SpellSlot.W].SetSkillshot(0.6f, 60f, 3300f, true, SkillshotType.SkillshotLine);
-            _spells[SpellSlot.E].SetSkillshot(1.2f, 1f, 1750f, false, SkillshotType.SkillshotCircle);
-            _spells[SpellSlot.R].SetSkillshot(0.6f, 140f, 1700f, false, SkillshotType.SkillshotLine);
+            Spells[SpellSlot.W].SetSkillshot(0.6f, 60f, 3300f, true, SkillshotType.SkillshotLine);
+            Spells[SpellSlot.E].SetSkillshot(1.2f, 1f, 1750f, false, SkillshotType.SkillshotCircle);
+            Spells[SpellSlot.R].SetSkillshot(0.6f, 140f, 1700f, false, SkillshotType.SkillshotLine);
         }
 
         /// <summary>
@@ -500,13 +502,13 @@
         /// </summary>
         internal static void LoadMenu()
         {
-            _menu = new Menu(AssemblyName,"dz191." + MenuName , true);
+            menu = new Menu(AssemblyName, "dz191." + MenuName, true);
             var orbwalkerMenu = new Menu(MenuPrefix + " Orbwalker", "dz191." + MenuName + ".orbwalker");
-            _orbwalker = new Orbwalking.Orbwalker(orbwalkerMenu);
-            _menu.AddSubMenu(orbwalkerMenu);
+            orbwalker = new Orbwalking.Orbwalker(orbwalkerMenu);
+            menu.AddSubMenu(orbwalkerMenu);
             var tsMenu = new Menu(MenuPrefix + " TargetSelector", "dz191." + MenuName + ".targetselector");
             TargetSelector.AddToMenu(tsMenu);
-            _menu.AddSubMenu(tsMenu);
+            menu.AddSubMenu(tsMenu);
             var comboMenu = new Menu(MenuPrefix + " Combo", "dz191." + MenuName + ".combo");
             {
                 comboMenu.AddItem(new MenuItem("dz191." + MenuName + ".combo.useq", "Use Q").SetValue(true));
@@ -525,7 +527,7 @@
             }
 
             comboMenu.AddSubMenu(comboManaManager);
-            _menu.AddSubMenu(comboMenu);
+            menu.AddSubMenu(comboMenu);
 
             var harassMenu = new Menu(MenuPrefix + " Harass", "dz191." + MenuName + ".mixed");
             {
@@ -541,7 +543,7 @@
             }
 
             harassMenu.AddSubMenu(harassManaManager);
-            _menu.AddSubMenu(harassMenu);
+            menu.AddSubMenu(harassMenu);
 
             var miscMenu = new Menu(MenuPrefix + " Skills Settings", "dz191." + MenuName + ".settings");
             var miscQMenu = new Menu("Q Settings", "dz191." + MenuName + ".settings.q");
@@ -549,7 +551,7 @@
                 /**Mode Selector*/
                 miscQMenu.AddItem(
                     new MenuItem("dz191." + MenuName + ".settings.q.qmode", "Q Switch Mode").SetValue(
-                        new StringList(new[] { "AOE", "Range", "Both" },2)));
+                        new StringList(new[] { "AOE", "Range", "Both" }, 2)));
                 /**End*/
 
                 /**AOE Options*/
@@ -583,7 +585,7 @@
                 /**End*/
 
                 /** Auto W*/
-                miscWMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.w.immobile", "Auto W Immobile").SetValue(true)); //TODO
+                miscWMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.w.immobile", "Auto W Immobile").SetValue(true)); ////TODO
                 miscWMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.w.autowmana", "Auto W Mana").SetValue(new Slider(30)));
                 /*End*/
 
@@ -596,10 +598,10 @@
 
             var miscEMenu = new Menu("E Settings", "dz191." + MenuName + ".settings.e");
             {
-                //TODO
+                ////TODO
                 /**Interrupter and AntiGP*/
-                miscEMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.e.antigp", "Auto E Antigapcloser").SetValue(false)); //Done
-                miscEMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.e.interrupt", "Auto E Interrupter").SetValue(false)); //Done
+                miscEMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.e.antigp", "Auto E Antigapcloser").SetValue(false)); ////Done
+                miscEMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.e.interrupt", "Auto E Interrupter").SetValue(false)); ////Done
 
                 /**End*/
                 /** Auto E*/
@@ -621,19 +623,19 @@
 
             var miscRMenu = new Menu("R Settings", "dz191." + MenuName + ".settings.r");
             {
-                miscRMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.r.aa", "Autoattack buffer").SetValue(new Slider(2,0,4))); //Done
-                miscRMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.r.minrange", "Minimum R range").SetValue(new Slider(750,65,1500))); //Done
-                miscRMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.r.preventoverkill", "Prevent Overkill (W/AA)").SetValue(false)); //Done
-                miscRMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.r.manualr", "Manual R").SetValue(new KeyBind("T".ToCharArray()[0],KeyBindType.Press))); //TODO
+                miscRMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.r.aa", "Autoattack buffer").SetValue(new Slider(2, 0, 4))); ////Done
+                miscRMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.r.minrange", "Minimum R range").SetValue(new Slider(750, 65, 1500))); ////Done
+                miscRMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.r.preventoverkill", "Prevent Overkill (W/AA)").SetValue(false)); ////Done
+                miscRMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.r.manualr", "Manual R").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press))); ////TODO
                 /** Hitchance Selector*/
-                miscRMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.r.hitchance", "R Hitchance").SetValue(new StringList(new[] { "Low", "Medium", "High", "Very High" }, 3))); //Done
+                miscRMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.r.hitchance", "R Hitchance").SetValue(new StringList(new[] { "Low", "Medium", "High", "Very High" }, 3))); ////Done
                 /**End*/
             }
 
             miscMenu.AddSubMenu(miscRMenu);
-            miscMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.reset", "Reset to default/optimal values").SetValue(false)); //TODO
+            miscMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.reset", "Reset to default/optimal values").SetValue(false)); ////TODO
 
-            _menu.AddSubMenu(miscMenu);
+            menu.AddSubMenu(miscMenu);
             var drawMenu = new Menu(MenuPrefix + " Harass", "dz191." + MenuName + ".drawings");
             {
                 drawMenu.AddItem(
@@ -649,9 +651,9 @@
                     new MenuItem("dz191." + MenuName + ".drawings.rsprite", "R Sprite drawing").SetValue(false));
             }
 
-            _menu.AddSubMenu(drawMenu);
+            menu.AddSubMenu(drawMenu);
 
-            _menu.AddToMainMenu();
+            menu.AddToMainMenu();
         }
         #endregion
 
@@ -666,7 +668,7 @@
                 return;
             }
 
-            switch (_orbwalker.ActiveMode)
+            switch (orbwalker.ActiveMode)
             {
                 case Orbwalking.OrbwalkingMode.Combo:
                     OnCombo();
@@ -691,9 +693,9 @@
         /// <param name="gapcloser">The gapcloser parameters</param>
         internal static void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
         {
-            if (_menu.Item("dz191." + MenuName + ".settings.e.antigp").GetValue<bool>() && _spells[SpellSlot.E].IsReady() && gapcloser.Sender.IsValidTarget(_spells[SpellSlot.E].Range))
+            if (menu.Item("dz191." + MenuName + ".settings.e.antigp").GetValue<bool>() && Spells[SpellSlot.E].IsReady() && gapcloser.Sender.IsValidTarget(Spells[SpellSlot.E].Range))
             {
-                _spells[SpellSlot.E].Cast(gapcloser.Sender);
+                Spells[SpellSlot.E].Cast(gapcloser.Sender);
             }
         }
 
@@ -704,9 +706,9 @@
         /// <param name="args">The interrupt data</param>
         internal static void Interrupter2_OnInterruptableTarget(Obj_AI_Hero sender, Interrupter2.InterruptableTargetEventArgs args)
         {
-            if (_menu.Item("dz191." + MenuName + ".settings.e.interrupter").GetValue<bool>() && _spells[SpellSlot.E].IsReady() && sender.IsValidTarget(_spells[SpellSlot.E].Range) && args.DangerLevel >= Interrupter2.DangerLevel.High)
+            if (menu.Item("dz191." + MenuName + ".settings.e.interrupter").GetValue<bool>() && Spells[SpellSlot.E].IsReady() && sender.IsValidTarget(Spells[SpellSlot.E].Range) && args.DangerLevel >= Interrupter2.DangerLevel.High)
             {
-                _spells[SpellSlot.E].Cast(sender);
+                Spells[SpellSlot.E].Cast(sender);
             }
         }
 
@@ -716,12 +718,12 @@
         /// <param name="args">The Event args</param>
         internal static void OrbwalkingBeforeAttack(Orbwalking.BeforeAttackEventArgs args)
         {
-            if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LastHit ||
-                _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LaneClear)
+            if (orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LastHit ||
+                orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LaneClear)
             {
                 if (IsFishBone())
                 {
-                    _spells[SpellSlot.Q].Cast();
+                    Spells[SpellSlot.Q].Cast();
                 }
             }
         }
@@ -750,13 +752,13 @@
         /// </summary>
         internal static void AutoMinigunSwap()
         {
-            var swapMinigun = _menu.Item("dz191." + MenuName + ".settings.q.minigunnoenemies").GetValue<bool>();
-            var swapMinigunRange = _menu.Item("dz191." + MenuName + ".settings.q.rangeswitch").GetValue<Slider>().Value;
+            var swapMinigun = menu.Item("dz191." + MenuName + ".settings.q.minigunnoenemies").GetValue<bool>();
+            var swapMinigunRange = menu.Item("dz191." + MenuName + ".settings.q.rangeswitch").GetValue<Slider>().Value;
             if (ObjectManager.Player.CountEnemiesInRange(swapMinigunRange) == 0 && swapMinigun && !ObjectManager.Player.IsWindingUp)
             {
-                if (IsFishBone() && _spells[SpellSlot.Q].IsReady())
+                if (IsFishBone() && Spells[SpellSlot.Q].IsReady())
                 {
-                    _spells[SpellSlot.Q].Cast();
+                    Spells[SpellSlot.Q].Cast();
                 }
             }
         }
@@ -766,7 +768,22 @@
         /// </summary>
         internal static void AutoW()
         {
-            
+            var autoWEnabled = menu.Item("dz191." + MenuName + ".settings.w.immobile").GetValue<bool>();
+            var autoWMana = menu.Item("dz191." + MenuName + ".settings.w.autowmana").GetValue<Slider>().Value;
+            if (!autoWEnabled || !Spells[SpellSlot.W].IsReady() || ObjectManager.Player.Mana < autoWMana)
+            {
+                return;
+            }
+
+            var minWRange = menu.Item("dz191." + MenuName + ".settings.w.minwrange").GetValue<Slider>().Value;
+            var currentTarget = TargetSelector.GetTarget(Spells[SpellSlot.W].Range, TargetSelector.DamageType.Physical);
+            if (currentTarget.IsValidTarget(minWRange) || !Spells[SpellSlot.W].CanCast(currentTarget) || !currentTarget.IsValidTarget(Spells[SpellSlot.W].Range))
+            {
+                return;
+            }
+
+            var wHitchance = GetHitchanceFromMenu("dz191." + MenuName + ".settings.w.hitchance");
+            Spells[SpellSlot.W].CastIfHitchanceEquals(currentTarget, wHitchance);
         }
 
         /// <summary>
@@ -783,7 +800,35 @@
         /// </summary>
         internal static void AutoESlowed()
         {
-            
+            var eEnabled = menu.Item("dz191." + MenuName + ".settings.e.slowed").GetValue<bool>();
+            var eMana = menu.Item("dz191." + MenuName + ".settings.e.autoemana").GetValue<Slider>().Value;
+            if (!Spells[SpellSlot.E].IsReady() || !eEnabled || ObjectManager.Player.ManaPercent < eMana)
+            {
+                return;
+            }
+
+            var eTarget = orbwalker.GetTarget().IsValid<Obj_AI_Hero>() ? orbwalker.GetTarget() as Obj_AI_Hero : TargetSelector.GetTarget(Spells[SpellSlot.E].Range, TargetSelector.DamageType.Physical);
+            if (!eTarget.IsValidTarget() || eTarget == null)
+            {
+                return;
+            }
+
+            var isTargetSlowed = IsLightlyImpaired(eTarget);
+            if (!isTargetSlowed)
+            {
+                return;
+            }
+
+            var eHitchance = GetHitchanceFromMenu("dz191." + MenuName + ".settings.e.hitchance");
+            if ( eTarget.Path.Count() > 1)
+            {
+                    var slowEndTime = GetSlowEndTime(eTarget);
+                    if (slowEndTime >= Spells[SpellSlot.E].Delay + 0.5f + Game.Ping / 2f)
+                    {
+                        Spells[SpellSlot.E].CastIfHitchanceEquals(eTarget, eHitchance);
+                    }
+
+            }
         }
 
         /// <summary>
@@ -791,7 +836,32 @@
         /// </summary>
         internal static void AutoEStunned()
         {
-            
+            var eEnabled = menu.Item("dz191." + MenuName + ".settings.e.immobile").GetValue<bool>();
+            var eMana = menu.Item("dz191." + MenuName + ".settings.e.autoemana").GetValue<Slider>().Value;
+            if (!Spells[SpellSlot.E].IsReady() || !eEnabled || ObjectManager.Player.ManaPercent < eMana)
+            {
+                return;
+            }
+
+            var eTarget = orbwalker.GetTarget().IsValid<Obj_AI_Hero>() ? orbwalker.GetTarget() as Obj_AI_Hero : TargetSelector.GetTarget(Spells[SpellSlot.E].Range, TargetSelector.DamageType.Physical);
+            if (!eTarget.IsValidTarget() || eTarget == null)
+            {
+                return;
+            }
+
+            var isTargetImmobile = IsHeavilyImpaired(eTarget);
+            if (!isTargetImmobile)
+            {
+                return;
+            }
+
+            var eHitchance = GetHitchanceFromMenu("dz191." + MenuName + ".settings.e.hitchance");
+            var immEndTime = GetImpairedEndTime(eTarget);
+            if (immEndTime >= Spells[SpellSlot.E].Delay + 0.5f + Game.Ping / 2f)
+            {
+                 Spells[SpellSlot.E].CastIfHitchanceEquals(eTarget, eHitchance);
+            }
+
         }
 
         /// <summary>
