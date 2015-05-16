@@ -81,6 +81,8 @@
             LoadMenu();
             LoadSkills();
             LoadEvents();
+            SpriteHandler.InitalizeSprite();
+
             Notifications.AddNotification(new Notification(AssemblyName + " Loaded!", 2750, true));
         }
 
@@ -636,7 +638,7 @@
             miscMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.reset", "Reset to default/optimal values").SetValue(false)); ////TODO
 
             menu.AddSubMenu(miscMenu);
-            var drawMenu = new Menu(MenuPrefix + " Harass", "dz191." + MenuName + ".drawings");
+            var drawMenu = new Menu(MenuPrefix + " Drawings", "dz191." + MenuName + ".drawings");
             {
                 drawMenu.AddItem(
                     new MenuItem("dz191." + MenuName + ".drawings.q", "Draw Q").SetValue(
@@ -881,6 +883,24 @@
         internal static Dictionary<SpellSlot, Spell> GetSpellsDictionary()
         {
             return Spells;
+        }
+
+        /// <summary>
+        /// Gets the menu instance.
+        /// </summary>
+        /// <returns>The Menu instance</returns>
+        internal static Menu GetMenu()
+        {
+            return menu;
+        }
+
+        /// <summary>
+        /// Gets the menu name.
+        /// </summary>
+        /// <returns>A string containing the Menu name.</returns>
+        internal static string GetMenuName()
+        {
+            return MenuName;
         }
         #endregion
     }
