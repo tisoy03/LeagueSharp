@@ -333,13 +333,13 @@
                     targetPredictedHealth < Spells[SpellSlot.R].GetDamage(rTarget))
                 {
                     var rHitchance = GetHitchanceFromMenu("dz191." + MenuName + ".settings.r.hitchance");
-                    //var actualSpeed = GetRealUltSpeed(rTarget.ServerPosition);
-                   //Spells[SpellSlot.R].Speed = actualSpeed;
+                    ////var actualSpeed = GetRealUltSpeed(rTarget.ServerPosition);
+                    ////Spells[SpellSlot.R].Speed = actualSpeed;
                     var rPrediction = Spells[SpellSlot.R].GetPrediction(rTarget);
                     if (rPrediction.Hitchance >= rHitchance)
                     {
                         Spells[SpellSlot.R].Cast(rPrediction.CastPosition);
-                        //Spells[SpellSlot.R].Speed = 1700f;
+                        ////Spells[SpellSlot.R].Speed = 1700f;
                     }
                 }
             }
@@ -873,5 +873,15 @@
         }
         #endregion
 
+        #region Getters/Setters
+        /// <summary>
+        /// Gets the Spells dictionary
+        /// </summary>
+        /// <returns>The Spell dictionary</returns>
+        internal static Dictionary<SpellSlot, Spell> GetSpellsDictionary()
+        {
+            return Spells;
+        }
+        #endregion
     }
 }
