@@ -333,13 +333,13 @@
                     targetPredictedHealth < Spells[SpellSlot.R].GetDamage(rTarget))
                 {
                     var rHitchance = GetHitchanceFromMenu("dz191." + MenuName + ".settings.r.hitchance");
-                    var actualSpeed = GetRealUltSpeed(rTarget.ServerPosition);
-                    Spells[SpellSlot.R].Speed = actualSpeed;
+                    //var actualSpeed = GetRealUltSpeed(rTarget.ServerPosition);
+                   //Spells[SpellSlot.R].Speed = actualSpeed;
                     var rPrediction = Spells[SpellSlot.R].GetPrediction(rTarget);
                     if (rPrediction.Hitchance >= rHitchance)
                     {
                         Spells[SpellSlot.R].Cast(rPrediction.CastPosition);
-                        Spells[SpellSlot.R].Speed = 1700f;
+                        //Spells[SpellSlot.R].Speed = 1700f;
                     }
                 }
             }
@@ -623,7 +623,7 @@
 
             var miscRMenu = new Menu("R Settings", "dz191." + MenuName + ".settings.r");
             {
-                miscRMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.r.aa", "Autoattack buffer").SetValue(new Slider(2, 0, 4))); ////Done
+                miscRMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.r.aa", "Autoattack buffer").SetValue(new Slider(1, 0, 4))); ////Done
                 miscRMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.r.minrange", "Minimum R range").SetValue(new Slider(750, 65, 1500))); ////Done
                 miscRMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.r.preventoverkill", "Prevent Overkill (W/AA)").SetValue(false)); ////Done
                 miscRMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.r.manualr", "Manual R").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press))); ////TODO
