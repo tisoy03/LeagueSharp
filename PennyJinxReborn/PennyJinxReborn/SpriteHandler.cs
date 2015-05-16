@@ -1,11 +1,10 @@
-﻿using SharpDX;
-
-namespace PennyJinxReborn
+﻿namespace PennyJinxReborn
 {
     #region
     using System.Linq;
     using LeagueSharp;
     using LeagueSharp.Common;
+    using SharpDX;
     #endregion
 
     /// <summary>
@@ -16,7 +15,7 @@ namespace PennyJinxReborn
         /// <summary>
         /// The R sprite instance.
         /// </summary>
-        private static Render.Sprite _sprite;
+        private static Render.Sprite sprite;
 
         /// <summary>
         /// Gets the current target we will draw the sprite on
@@ -25,12 +24,12 @@ namespace PennyJinxReborn
         {
             get
             {
-                var HeroList =
+                var heroList =
                     HeroManager.Enemies.FindAll(
                         h =>
                             h.Health + 20 < PJR.GetSpellsDictionary()[SpellSlot.R].GetDamage(h) &&
                             PJR.GetSpellsDictionary()[SpellSlot.R].CanCast(h)).ToList().OrderBy(h => h.Health);
-                return HeroList.Any() ? HeroList.First() : null;
+                return heroList.Any() ? heroList.First() : null;
             }
         }
 
@@ -41,16 +40,16 @@ namespace PennyJinxReborn
         {
             get
             {
-                return RTarget != null?
+                return RTarget != null ? 
                     new Vector2(
                         Drawing.WorldToScreen(RTarget.Position).X - RTarget.BoundingRadius * 2 +
                         RTarget.BoundingRadius / 2.5f,
-                        Drawing.WorldToScreen(RTarget.Position).Y - RTarget.BoundingRadius * 2) : new Vector2(0,0);
+                        Drawing.WorldToScreen(RTarget.Position).Y - RTarget.BoundingRadius * 2) : new Vector2();
             }
         }
 
         /// <summary>
-        /// Gets the Draw condition for the sprite.
+        /// Gets a value indicating whether the sprite should be drawn or not.
         /// </summary>
         private static bool DrawCondition
         {
@@ -62,13 +61,14 @@ namespace PennyJinxReborn
         /// </summary>
         internal static void InitalizeSprite()
         {
-            _sprite = new Render.Sprite(Properties.Resources.ScopeSprite, new Vector2());
+            sprite = new Render.Sprite(Properties.Resources.ScopeSprite, new Vector2());
             {
-                _sprite.Scale = new Vector2(0.65f, 0.65f);
-                _sprite.PositionUpdate = () => RTargetPosition;
-                _sprite.VisibleCondition = s => DrawCondition;
+                sprite.Scale = new Vector2(0.65f, 0.65f);
+                sprite.PositionUpdate = () => RTargetPosition;
+                sprite.VisibleCondition = s => DrawCondition;
             }
-            _sprite.Add();
+
+            sprite.Add();
         }
     }
 }
