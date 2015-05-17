@@ -48,7 +48,12 @@
         /// The orbwalker instance we are using.
         /// </summary>
         private static Orbwalking.Orbwalker orbwalker;
-        
+
+        /// <summary>
+        /// Used for delaying.
+        /// </summary>
+        private static float lastCheckTick;
+
         /// <summary>
         /// Gets a list of Movement Impairing buffs.
         /// </summary>
@@ -645,10 +650,10 @@
                         new Circle(true, System.Drawing.Color.Red)));
                 drawMenu.AddItem(
                     new MenuItem("dz191." + MenuName + ".drawings.w", "Draw W").SetValue(
-                        new Circle(true, System.Drawing.Color.Cyan)));
+                        new Circle(false, System.Drawing.Color.Cyan)));
                 drawMenu.AddItem(
                                     new MenuItem("dz191." + MenuName + ".drawings.e", "Draw E").SetValue(
-                                        new Circle(true, System.Drawing.Color.Yellow)));
+                                        new Circle(false, System.Drawing.Color.Yellow)));
                 drawMenu.AddItem(
                     new MenuItem("dz191." + MenuName + ".drawings.rsprite", "R Sprite drawing").SetValue(false));
             }
@@ -735,7 +740,27 @@
         /// </summary>
         internal static void OnDraw()
         {
+            var drawQ = menu.Item("dz191." + MenuName + ".drawings.q").GetValue<Circle>();
+            var drawW = menu.Item("dz191." + MenuName + ".drawings.w").GetValue<Circle>();
+            var drawE = menu.Item("dz191." + MenuName + ".drawings.e").GetValue<Circle>();
+            var qRange = IsFishBone()
+                ? 525f + ObjectManager.Player.BoundingRadius + 65f
+                : 525f + ObjectManager.Player.BoundingRadius + 65f + GetFishboneRange() + 20f;
 
+            if (drawQ.Active)
+            {
+                Render.Circle.DrawCircle(ObjectManager.Player.Position, qRange, drawQ.Color);
+            }
+
+            if (drawW.Active)
+            {
+                Render.Circle.DrawCircle(ObjectManager.Player.Position, Spells[SpellSlot.W].Range, drawW.Color);
+            }
+
+            if (drawE.Active)
+            {
+                Render.Circle.DrawCircle(ObjectManager.Player.Position, Spells[SpellSlot.E].Range, drawE.Color);
+            }
         }
         #endregion
 
@@ -747,6 +772,37 @@
         {
             AutoMinigunSwap();
             AutoE();
+            AutoManaManager(orbwalker.ActiveMode);
+        }
+
+        /// <summary>
+        /// Automatically manages the skill's mana cost.
+        /// </summary>
+        /// <param name="currentMode">The current orbwalking mode.</param>
+        private static void AutoManaManager(Orbwalking.OrbwalkingMode currentMode)
+        {
+            if (Game.ClockTime - lastCheckTick < 900 || !menu.Item(string.Format("dz191." + MenuName + ".{0}.mm.auto", currentMode).ToLowerInvariant()).GetValue<bool>())
+            {
+                return;
+            }
+
+            lastCheckTick = Game.ClockTime;
+
+            if (ObjectManager.Player.HealthPercent <= 25)
+            {
+                menu.Item(string.Format("dz191." + MenuName + ".{0}.mm.q", currentMode).ToLowerInvariant()).SetValue(0);
+                menu.Item(string.Format("dz191." + MenuName + ".{0}.mm.w", currentMode).ToLowerInvariant()).SetValue(0);
+                menu.Item(string.Format("dz191." + MenuName + ".{0}.mm.e", currentMode).ToLowerInvariant()).SetValue(0);
+                menu.Item(string.Format("dz191." + MenuName + ".{0}.mm.r", currentMode).ToLowerInvariant()).SetValue(0);
+            }
+            else
+            {
+                var mana = (int)(Spells[SpellSlot.Q].Instance.ManaCost * 2 * ObjectManager.Player.CountEnemiesInRange(GetMinigunRange(null) + GetFishboneRange() + 100) / ObjectManager.Player.MaxMana) * 100;
+                menu.Item(string.Format("dz191." + MenuName + ".{0}.mm.q", currentMode).ToLowerInvariant()).SetValue(mana != 0 ? mana : 10);
+                menu.Item(string.Format("dz191." + MenuName + ".{0}.mm.w", currentMode).ToLowerInvariant()).SetValue(mana != 0 ? (mana / 2) : 15);
+                menu.Item(string.Format("dz191." + MenuName + ".{0}.mm.e", currentMode).ToLowerInvariant()).SetValue(mana != 0 ? (int)(mana / 1.5) : 25);
+                menu.Item(string.Format("dz191." + MenuName + ".{0}.mm.r", currentMode).ToLowerInvariant()).SetValue(5);
+            }
         }
 
         /// <summary>
