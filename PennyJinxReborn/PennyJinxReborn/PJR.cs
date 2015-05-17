@@ -781,6 +781,11 @@
         /// <param name="currentMode">The current orbwalking mode.</param>
         private static void AutoManaManager(Orbwalking.OrbwalkingMode currentMode)
         {
+            if (currentMode != Orbwalking.OrbwalkingMode.Combo || currentMode != Orbwalking.OrbwalkingMode.Mixed)
+            {
+                return;
+            }
+
             if (Game.ClockTime - lastCheckTick < 900 || !menu.Item(string.Format("dz191." + MenuName + ".{0}.mm.auto", currentMode).ToLowerInvariant()).GetValue<bool>())
             {
                 return;
@@ -800,8 +805,11 @@
                 var mana = (int)(Spells[SpellSlot.Q].Instance.ManaCost * 2 * ObjectManager.Player.CountEnemiesInRange(GetMinigunRange(null) + GetFishboneRange() + 100) / ObjectManager.Player.MaxMana) * 100;
                 menu.Item(string.Format("dz191." + MenuName + ".{0}.mm.q", currentMode).ToLowerInvariant()).SetValue(mana != 0 ? mana : 10);
                 menu.Item(string.Format("dz191." + MenuName + ".{0}.mm.w", currentMode).ToLowerInvariant()).SetValue(mana != 0 ? (mana / 2) : 15);
-                menu.Item(string.Format("dz191." + MenuName + ".{0}.mm.e", currentMode).ToLowerInvariant()).SetValue(mana != 0 ? (int)(mana / 1.5) : 25);
-                menu.Item(string.Format("dz191." + MenuName + ".{0}.mm.r", currentMode).ToLowerInvariant()).SetValue(5);
+                if (currentMode != Orbwalking.OrbwalkingMode.Mixed)
+                {
+                    menu.Item(string.Format("dz191." + MenuName + ".{0}.mm.e", currentMode).ToLowerInvariant()).SetValue(mana != 0 ? (int)(mana / 1.5) : 25);
+                    menu.Item(string.Format("dz191." + MenuName + ".{0}.mm.r", currentMode).ToLowerInvariant()).SetValue(5);   
+                }
             }
         }
 
