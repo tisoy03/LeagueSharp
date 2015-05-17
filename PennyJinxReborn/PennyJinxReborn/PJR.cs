@@ -802,12 +802,15 @@
             }
             else
             {
-                var mana = (int)(Spells[SpellSlot.Q].Instance.ManaCost * 2 * ObjectManager.Player.CountEnemiesInRange(GetMinigunRange(null) + GetFishboneRange() + 100) / ObjectManager.Player.MaxMana) * 100;
-                menu.Item(string.Format("dz191." + MenuName + ".{0}.mm.q", currentMode).ToLowerInvariant()).SetValue(mana != 0 ? mana : 10);
-                menu.Item(string.Format("dz191." + MenuName + ".{0}.mm.w", currentMode).ToLowerInvariant()).SetValue(mana != 0 ? (mana / 2) : 15);
+                var Qmana = (int)(Spells[SpellSlot.Q].Instance.ManaCost * 4 * ObjectManager.Player.CountEnemiesInRange(GetMinigunRange(null) + GetFishboneRange() + 100) / ObjectManager.Player.MaxMana) * 100;
+                var WMana = (int) (Spells[SpellSlot.W].Instance.ManaCost / ObjectManager.Player.MaxMana) * 100;
+                var EMana = (int)(Spells[SpellSlot.E].Instance.ManaCost * 1.25 / ObjectManager.Player.MaxMana) * 100;
+
+                menu.Item(string.Format("dz191." + MenuName + ".{0}.mm.q", currentMode).ToLowerInvariant()).SetValue(Qmana != 0 ? Qmana : 10);
+                menu.Item(string.Format("dz191." + MenuName + ".{0}.mm.w", currentMode).ToLowerInvariant()).SetValue(WMana != 0 ? (WMana) : 15);
                 if (currentMode != Orbwalking.OrbwalkingMode.Mixed)
                 {
-                    menu.Item(string.Format("dz191." + MenuName + ".{0}.mm.e", currentMode).ToLowerInvariant()).SetValue(mana != 0 ? (int)(mana / 1.5) : 25);
+                    menu.Item(string.Format("dz191." + MenuName + ".{0}.mm.e", currentMode).ToLowerInvariant()).SetValue(EMana != 0 ? (EMana) : 25);
                     menu.Item(string.Format("dz191." + MenuName + ".{0}.mm.r", currentMode).ToLowerInvariant()).SetValue(5);   
                 }
             }
