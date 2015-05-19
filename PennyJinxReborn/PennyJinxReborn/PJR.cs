@@ -454,7 +454,7 @@
         }
 
         /// <summary>
-        /// Determines the real R speed using acceleration.
+        /// Determines the real R speed using acceleration. Not currently used.
         /// </summary>
         /// <param name="endPosition">The End Position (Target position)</param>
         /// <returns>Real ult speed</returns>
@@ -592,7 +592,7 @@
                 /**End*/
 
                 /** Auto W*/
-                miscWMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.w.immobile", "Auto W Immobile").SetValue(true)); ////TODO
+                miscWMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.w.immobile", "Auto W Immobile").SetValue(true)); ////Done
                 miscWMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.w.autowmana", "Auto W Mana").SetValue(new Slider(30)));
                 /*End*/
 
@@ -605,7 +605,7 @@
 
             var miscEMenu = new Menu("E Settings", "dz191." + MenuName + ".settings.e");
             {
-                ////TODO
+                ////Done
                 /**Interrupter and AntiGP*/
                 miscEMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.e.antigp", "Auto E Antigapcloser").SetValue(false)); ////Done
                 miscEMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.e.interrupt", "Auto E Interrupter").SetValue(false)); ////Done
@@ -633,7 +633,7 @@
                 miscRMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.r.aa", "Autoattack buffer").SetValue(new Slider(1, 0, 4))); ////Done
                 miscRMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.r.minrange", "Minimum R range").SetValue(new Slider(750, 65, 1500))); ////Done
                 miscRMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.r.preventoverkill", "Prevent Overkill (W/AA)").SetValue(false)); ////Done
-                miscRMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.r.manualr", "Manual R").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press))); ////TODO
+                miscRMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.r.manualr", "Manual R").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press))); ////Done
                 /** Hitchance Selector*/
                 miscRMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.r.hitchance", "R Hitchance").SetValue(new StringList(new[] { "Low", "Medium", "High", "Very High" }, 3))); ////Done
                 /**End*/
@@ -773,6 +773,7 @@
             AutoMinigunSwap();
             AutoE();
             AutoManaManager(orbwalker.ActiveMode);
+            ManualR();
         }
 
         /// <summary>
@@ -802,15 +803,15 @@
             }
             else
             {
-                var Qmana = (int)(Spells[SpellSlot.Q].Instance.ManaCost * 4 * ObjectManager.Player.CountEnemiesInRange(GetMinigunRange(null) + GetFishboneRange() + 100) / ObjectManager.Player.MaxMana) * 100;
-                var WMana = (int) (Spells[SpellSlot.W].Instance.ManaCost / ObjectManager.Player.MaxMana) * 100;
-                var EMana = (int)(Spells[SpellSlot.E].Instance.ManaCost * 1.25 / ObjectManager.Player.MaxMana) * 100;
+                var qMana = (int)(Spells[SpellSlot.Q].Instance.ManaCost * 4 * ObjectManager.Player.CountEnemiesInRange(GetMinigunRange(null) + GetFishboneRange() + 100) / ObjectManager.Player.MaxMana) * 100;
+                var wMana = (int) (Spells[SpellSlot.W].Instance.ManaCost / ObjectManager.Player.MaxMana) * 100;
+                var eMana = (int)(Spells[SpellSlot.E].Instance.ManaCost * 1.25 / ObjectManager.Player.MaxMana) * 100;
 
-                menu.Item(string.Format("dz191." + MenuName + ".{0}.mm.q", currentMode).ToLowerInvariant()).SetValue(Qmana != 0 ? Qmana : 10);
-                menu.Item(string.Format("dz191." + MenuName + ".{0}.mm.w", currentMode).ToLowerInvariant()).SetValue(WMana != 0 ? (WMana) : 15);
+                menu.Item(string.Format("dz191." + MenuName + ".{0}.mm.q", currentMode).ToLowerInvariant()).SetValue(qMana != 0 ? qMana : 10);
+                menu.Item(string.Format("dz191." + MenuName + ".{0}.mm.w", currentMode).ToLowerInvariant()).SetValue(wMana != 0 ? wMana : 15);
                 if (currentMode != Orbwalking.OrbwalkingMode.Mixed)
                 {
-                    menu.Item(string.Format("dz191." + MenuName + ".{0}.mm.e", currentMode).ToLowerInvariant()).SetValue(EMana != 0 ? (EMana) : 25);
+                    menu.Item(string.Format("dz191." + MenuName + ".{0}.mm.e", currentMode).ToLowerInvariant()).SetValue(eMana != 0 ? eMana : 25);
                     menu.Item(string.Format("dz191." + MenuName + ".{0}.mm.r", currentMode).ToLowerInvariant()).SetValue(5);   
                 }
             }
@@ -846,7 +847,7 @@
 
             var minWRange = menu.Item("dz191." + MenuName + ".settings.w.minwrange").GetValue<Slider>().Value;
             var currentTarget = TargetSelector.GetTarget(Spells[SpellSlot.W].Range, TargetSelector.DamageType.Physical);
-            if (currentTarget.IsValidTarget(minWRange) || !Spells[SpellSlot.W].CanCast(currentTarget) || !currentTarget.IsValidTarget(Spells[SpellSlot.W].Range))
+            if (currentTarget.IsValidTarget(minWRange) || !Spells[SpellSlot.W].CanCast(currentTarget) || !currentTarget.IsValidTarget(Spells[SpellSlot.W].Range) || !IsHeavilyImpaired(currentTarget))
             {
                 return;
             }
@@ -938,7 +939,24 @@
         /// </summary>
         internal static void ManualR()
         {
-            
+            var keybindActive = menu.Item("dz191." + MenuName + ".settings.r.manualr").GetValue<KeyBind>().Active;
+            if (keybindActive)
+            {
+                var rTarget = TargetSelector.GetTarget(Spells[SpellSlot.R].Range, TargetSelector.DamageType.Physical);
+                if (rTarget.IsValidTarget())
+                {
+                    var targetPredictedHealth = rTarget.Health + 20;
+                    if (targetPredictedHealth <= Spells[SpellSlot.R].GetDamage(rTarget))
+                    {
+                        var rHitchance = GetHitchanceFromMenu("dz191." + MenuName + ".settings.r.hitchance");
+                        var rPrediction = Spells[SpellSlot.R].GetPrediction(rTarget);
+                        if (rPrediction.Hitchance >= rHitchance)
+                        {
+                            Spells[SpellSlot.R].Cast(rPrediction.CastPosition);
+                        }
+                    }
+                }
+            }
         }
         #endregion
 
