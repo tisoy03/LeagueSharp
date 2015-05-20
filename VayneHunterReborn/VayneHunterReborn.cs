@@ -182,7 +182,7 @@ namespace VayneHunter_Reborn
         {
             if (MenuHelper.isMenuEnabled("dz191.vhr.misc.general.reveal"))
             {
-                if (obj.Sender.Distance(ObjectManager.Player) <= 600f && obj.IsStealthed)
+                if (obj.Sender.Distance(ObjectManager.Player) <= 600f && obj.IsStealthed && !obj.Sender.IsMe)
                 {
                     if (Items.HasItem(2043) && Items.CanUseItem(2043))
                     {
