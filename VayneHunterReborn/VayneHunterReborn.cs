@@ -454,6 +454,11 @@ namespace VayneHunter_Reborn
             {
                 var currentTarget = TargetSelector.GetTarget(
                     Orbwalking.GetRealAutoAttackRange(null) + 240f, TargetSelector.DamageType.Physical);
+                if (currentTarget.ServerPosition.Distance(ObjectManager.Player.ServerPosition) <=
+                    Orbwalking.GetRealAutoAttackRange(null))
+                {
+                    return;
+                }
                 if (currentTarget.Health + 10 <
                     ObjectManager.Player.GetAutoAttackDamage(currentTarget) +
                     _spells[SpellSlot.Q].GetDamage(currentTarget))
