@@ -19,6 +19,9 @@ namespace VayneHunter_Reborn
         /// TODO Log:
         /// Don't E target killable with X autoattacks
         /// Q to Gapclose if the target is outside of range but still killable by Q+AA
+        /// 
+        /// Rewrite most of the core part of the code, since it is so ugly.
+        /// 
         /// </summary>
         public static Menu Menu;
         public static Obj_AI_Hero Player = ObjectManager.Player;
@@ -110,7 +113,6 @@ namespace VayneHunter_Reborn
             Menu.AddSubMenu(drawMenu);
 
             Menu.AddToMainMenu();
-            //Game.PrintChat("<b><font color='#FF0000'>[VH]</font></b><font color='#FFFFFF'> Vayne Hunter Reborn loaded! Version: {0} </font>",Assembly.GetExecutingAssembly().GetName().Version);
             SetUpEvents();
             SetUpSkills();
             trinketSpell = new Spell(SpellSlot.Trinket);
@@ -152,6 +154,7 @@ namespace VayneHunter_Reborn
             }
         }
 
+        #region
         static void Obj_AI_Hero_OnPlayAnimation(Obj_AI_Base sender, GameObjectPlayAnimationEventArgs args)
         {
             return;
@@ -171,6 +174,7 @@ namespace VayneHunter_Reborn
                 });
             }
         }
+        #endregion
 
         static void Stealth_OnStealth(Stealth.OnStealthEventArgs obj)
         {
@@ -180,7 +184,7 @@ namespace VayneHunter_Reborn
                 {
                     if (Items.HasItem(2043) && Items.CanUseItem(2043))
                     {
-                        Items.UseItem(2043,obj.Sender.ServerPosition.Extend(ObjectManager.Player.ServerPosition, 400f));
+                        Items.UseItem(2043, obj.Sender.ServerPosition.Extend(ObjectManager.Player.ServerPosition, 400f));
                     }
                 }
             }
@@ -200,7 +204,6 @@ namespace VayneHunter_Reborn
                 case Orbwalking.OrbwalkingMode.Mixed:
                     Harrass();
                     break;
-
             }
             OnUpdateFunctions();
         }
@@ -212,6 +215,7 @@ namespace VayneHunter_Reborn
                 return;
             }
             _lastCheckTick = Environment.TickCount;
+
             #region Auto E
             if (MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.autoe") && _spells[SpellSlot.E].IsReady())
             {
@@ -296,7 +300,6 @@ namespace VayneHunter_Reborn
                     if (target.IsValidTarget(_spells[SpellSlot.E].Range) && (target is Obj_AI_Hero))
                     {
                         _spells[SpellSlot.E].Cast(target);
-                       //Notifications.AddNotification(new Notification("Condemned " + target.ChampionName, 1000));
                     }
                 }
             }
@@ -399,15 +402,6 @@ namespace VayneHunter_Reborn
             if (MenuHelper.isMenuEnabled("dz191.vhr.drawing.drawstun"))
             {
                 Obj_AI_Hero myTarget;
-                /**
-                if (CondemnCheck(ObjectManager.Player.ServerPosition, out myTarget))
-                {
-                    if (myTarget != null)
-                    {
-                        Drawing.DrawText(myTarget.Position.X, myTarget.Position.Y, Color.Aqua, "Stunnable!");
-                    }
-                }
-                 * */
             }
             if (MenuHelper.isMenuEnabled("dz191.vhr.drawing.drawspots"))
             {
@@ -577,7 +571,6 @@ namespace VayneHunter_Reborn
                                 CondemnNotification.Text = "Condemned " + target.ChampionName;
                                 _predictedEndPosition = extendedPosition;
                                 _predictedPosition = targetPosition;
-                                //Notifications.AddNotification(condemnNotification);
                                 tg = target;
                                 return true;
                             }
