@@ -17,8 +17,8 @@ namespace VayneHunter_Reborn
     {
         /// <summary>
         /// TODO Log:
-        /// Don't E target killable with X autoattacks
-        /// Q to Gapclose if the target is outside of range but still killable by Q+AA
+        /// Don't E target killable with X autoattacks DONE
+        /// Q to Gapclose if the target is outside of range but still killable by Q+AA  DONE
         /// 
         /// Rewrite most of the core part of the code, since it is so ugly.
         /// 
@@ -74,6 +74,7 @@ namespace VayneHunter_Reborn
             var miscQMenu = new Menu("Misc - Tumble", "dz191.vhr.misc.tumble");
             {
                 miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.tumble.smartq", "Try to QE First").SetValue(false));
+                miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.tumble.qinrange", "Q In Range if Enemy Health < Q Dmg").SetValue(true));
                 miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.tumble.noqenemies", "Don't Q into enemies").SetValue(true));
                 miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.tumble.noaastealth", "Don't AA while stealthed").SetValue(false));
                 miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.tumble.qspam", "Ignore Q checks").SetValue(false));
@@ -92,6 +93,7 @@ namespace VayneHunter_Reborn
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.noeturret", "No E Under enemy turret").SetValue(true));
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.lowlifepeel", "Peel with E when low").SetValue(false));
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.onlystuncurrent", "Only stun current target").SetValue(false));
+                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.noeaa", "Don't E if Target can be killed in X AA").SetValue(new Slider(1,0,4)));
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.trinketbush", "Trinket Bush on Condemn").SetValue(true));
             }
             var miscGeneralSubMenu = new Menu("Misc - General", "dz191.vhr.misc.general");
@@ -303,6 +305,10 @@ namespace VayneHunter_Reborn
                     }
                 }
             }
+            if (_spells[SpellSlot.Q].IsEnabledAndReady(Mode.Combo))
+            {
+                CheckAndCastKSQ();
+            }
         }
 
         private static void Harrass()
@@ -441,7 +447,30 @@ namespace VayneHunter_Reborn
         
 
         #region Tumble Region
-        static private void CastQ(Obj_AI_Base target)
+
+        private static void CheckAndCastKSQ()
+        {
+            if (MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.qinrange") && _spells[SpellSlot.Q].IsReady())
+            {
+                var currentTarget = TargetSelector.GetTarget(
+                    Orbwalking.GetRealAutoAttackRange(null) + 240f, TargetSelector.DamageType.Physical);
+                if (currentTarget.Health + 10 <
+                    ObjectManager.Player.GetAutoAttackDamage(currentTarget) +
+                    _spells[SpellSlot.Q].GetDamage(currentTarget))
+                {
+                    var extendedPosition = ObjectManager.Player.ServerPosition.Extend(
+                        currentTarget.ServerPosition, 300f);
+                    if (Helpers.OkToQ(extendedPosition))
+                    {
+                        _spells[SpellSlot.Q].Cast(extendedPosition);
+                        Orbwalking.ResetAutoAttackTimer();
+                        Orbwalker.ForceTarget(currentTarget);
+                    }
+                }
+            }
+        }
+
+        private static void CastQ(Obj_AI_Base target)
         {
             if (Environment.TickCount - _spells[SpellSlot.E].LastCastAttemptT <= 265)
             {
@@ -560,6 +589,13 @@ namespace VayneHunter_Reborn
                                     tg = null;
                                     return false;
                                 }
+                                if (target.Health + 10 <=
+                                    ObjectManager.Player.GetAutoAttackDamage(target) *
+                                    MenuHelper.getSliderValue("dz191.vhr.misc.condemn.noeaa"))
+                                {
+                                    tg = null;
+                                    return false;
+                                }
                                 if (MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.trinketbush") &&
                                     NavMesh.IsWallOfGrass(extendedPosition,25) && trinketSpell != null)
                                 {
@@ -571,6 +607,7 @@ namespace VayneHunter_Reborn
                                 CondemnNotification.Text = "Condemned " + target.ChampionName;
                                 _predictedEndPosition = extendedPosition;
                                 _predictedPosition = targetPosition;
+                                
                                 tg = target;
                                 return true;
                             }
@@ -595,7 +632,13 @@ namespace VayneHunter_Reborn
                                 tg = null;
                                 return false;
                             }
-
+                            if (target.Health + 10 <=
+                                    ObjectManager.Player.GetAutoAttackDamage(target) *
+                                    MenuHelper.getSliderValue("dz191.vhr.misc.condemn.noeaa"))
+                            {
+                                tg = null;
+                                return false;
+                            }
                             tg = target;
                             return true;
                         }
@@ -615,6 +658,13 @@ namespace VayneHunter_Reborn
                             {
                                 if (MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.onlystuncurrent") &&
                                     !en.Equals(Orbwalker.GetTarget()))
+                                {
+                                    tg = null;
+                                    return false;
+                                }
+                                if (en.Health + 10 <=
+                                    ObjectManager.Player.GetAutoAttackDamage(en) *
+                                    MenuHelper.getSliderValue("dz191.vhr.misc.condemn.noeaa"))
                                 {
                                     tg = null;
                                     return false;
