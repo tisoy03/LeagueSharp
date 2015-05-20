@@ -15,6 +15,11 @@ namespace VayneHunter_Reborn
 {
     class VayneHunterReborn
     {
+        /// <summary>
+        /// TODO Log:
+        /// Don't E target killable with X autoattacks
+        /// Q to Gapclose if the target is outside of range but still killable by Q+AA
+        /// </summary>
         public static Menu Menu;
         public static Obj_AI_Hero Player = ObjectManager.Player;
         public static Orbwalking.Orbwalker Orbwalker;

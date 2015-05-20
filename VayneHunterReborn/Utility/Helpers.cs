@@ -34,7 +34,7 @@ namespace VayneHunter_Reborn.Utility
         public static bool IsPlayerFaded()
         {
            // return false;
-            return ObjectManager.Player.HasBuff("vaynetumblefade", true) && !ObjectManager.Player.UnderTurret(true);
+            return (ObjectManager.Player.HasBuff("vaynetumblefade", true) && !ObjectManager.Player.UnderTurret(true)) || !ObjectManager.Player.IsVisible;
         }
         public static void MoveToLimited(Vector3 where)
         {
