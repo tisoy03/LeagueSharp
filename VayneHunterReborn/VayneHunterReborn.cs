@@ -359,12 +359,7 @@ namespace VayneHunter_Reborn
                 return;
             }
             var tg = (Obj_AI_Base) target;
-            if (MenuHelper.getKeybindValue("dz191.vhr.misc.condemn.enextauto") &&
-                _spells[SpellSlot.E].CanCast(tg) && (tg is Obj_AI_Hero))
-            {
-                _spells[SpellSlot.E].Cast(tg);
-                Menu.Item("dz191.vhr.misc.condemn.enextauto").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Toggle));
-            }
+            
             switch (Orbwalker.ActiveMode)
             {
                 case Orbwalking.OrbwalkingMode.Combo:
@@ -387,6 +382,12 @@ namespace VayneHunter_Reborn
                     break;
                 default:
                     return;
+            }
+            if (MenuHelper.getKeybindValue("dz191.vhr.misc.condemn.enextauto") &&
+                _spells[SpellSlot.E].CanCast(tg) && (tg is Obj_AI_Hero))
+            {
+                _spells[SpellSlot.E].Cast(tg);
+                Menu.Item("dz191.vhr.misc.condemn.enextauto").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Toggle));
             }
         }
 
@@ -477,10 +478,6 @@ namespace VayneHunter_Reborn
 
         private static void CastQ(Obj_AI_Base target)
         {
-            if (Environment.TickCount - _spells[SpellSlot.E].LastCastAttemptT <= 265)
-            {
-                return;
-            }
             var myPosition = Game.CursorPos;
             if (MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.smartq") && _spells[SpellSlot.E].IsReady()) 
             {
@@ -512,9 +509,9 @@ namespace VayneHunter_Reborn
                 return;
             }
             var posAfterTumble =
-                ObjectManager.Player.ServerPosition.To2D().Extend(Game.CursorPos.To2D(), 300).To3D();
+                ObjectManager.Player.ServerPosition.To2D().Extend(Game.CursorPos.To2D(), 300f).To3D();
             var distanceAfterTumble = Vector3.DistanceSquared(posAfterTumble, target.ServerPosition);
-            if ((distanceAfterTumble < 550 * 550 && distanceAfterTumble > 100 * 100) || (MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.qspam")))
+            if ((distanceAfterTumble <= 550 * 550 && distanceAfterTumble >= 100 * 100) || (MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.qspam")))
             {
                 if (!Helpers.OkToQ2(posAfterTumble) && MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.noqenemies"))
                 {
@@ -533,7 +530,7 @@ namespace VayneHunter_Reborn
                 return;
             }
             var posAfterTumble =
-                ObjectManager.Player.ServerPosition.To2D().Extend(pos.To2D(), 300).To3D();
+                ObjectManager.Player.ServerPosition.To2D().Extend(pos.To2D(), 300f).To3D();
             var distanceAfterTumble = Vector3.DistanceSquared(posAfterTumble, target.ServerPosition);
             if ((distanceAfterTumble < 550 * 550 && distanceAfterTumble > 100 * 100) || (MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.qspam")))
             {
@@ -582,8 +579,6 @@ namespace VayneHunter_Reborn
                         {
                             var v3 = (targetPosition - fromPosition).Normalized();
                             var extendedPosition = targetPosition + v3 * (numberOfChecks * i); 
-                            //var extendedPosition2 = targetPosition.Extend(fromPosition, -(i * target.BoundingRadius + target.BoundingRadius/4));
-                            //var extendedPosition3 = targetPosition.Extend(fromPosition, -(i * target.BoundingRadius - target.BoundingRadius / 4));
                             var underTurret = MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.condemnturret") && (Helpers.UnderAllyTurret(finalPosition) || Helpers.IsFountain(finalPosition));
                             var j4Flag = MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.condemnflag") && (Helpers.IsJ4FlagThere(extendedPosition, target));
                             if ((extendedPosition.IsWall() || j4Flag) && (target.Path.Count() < 2) && !target.IsDashing())

@@ -64,7 +64,7 @@ namespace VayneHunter_Reborn.Utility
 
         public static bool OkToQ2(Vector3 Position)
         {
-            if (Position.CountEnemiesInRange(300f) > 1)
+            if (Position.CountEnemiesInRange(360f) >= 1)
             {
                 return false;
             }
