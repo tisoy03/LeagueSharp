@@ -640,7 +640,7 @@
             }
 
             miscMenu.AddSubMenu(miscRMenu);
-            miscMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.reset", "Reset to default/optimal values").SetValue(false)); ////TODO
+            ////miscMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.reset", "Reset to default/optimal values").SetValue(false)); ////TODO
 
             menu.AddSubMenu(miscMenu);
             var drawMenu = new Menu(MenuPrefix + " Drawings", "dz191." + MenuName + ".drawings");

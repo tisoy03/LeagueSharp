@@ -53,7 +53,7 @@
         /// </summary>
         private static bool DrawCondition
         {
-              get { return RTarget != null && PJR.GetSpellsDictionary()[SpellSlot.R].IsReady() && PJR.GetMenu().Item("dz191." + PJR.GetMenuName() + ".drawings.rsprite").GetValue<bool>(); }
+              get { return RTarget != null && Render.OnScreen(Drawing.WorldToScreen(RTarget.Position)) && PJR.GetSpellsDictionary()[SpellSlot.R].IsReady() && PJR.GetMenu().Item("dz191." + PJR.GetMenuName() + ".drawings.rsprite").GetValue<bool>(); }
         }
 
         /// <summary>
