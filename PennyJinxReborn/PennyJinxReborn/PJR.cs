@@ -271,7 +271,7 @@
             var isTargetImmobile = IsHeavilyImpaired(eTarget);
             if ((isTargetSlowed && onlyESlowed) || (isTargetImmobile && onlyEStunned))
             {
-                if (isTargetSlowed && eTarget.Path.Count() > 1)
+                if (isTargetSlowed && eTarget.Path.Count() > 1 && !onlyEStunned)
                 {
                     var slowEndTime = GetSlowEndTime(eTarget);
                     if (slowEndTime >= Spells[SpellSlot.E].Delay + 0.5f + Game.Ping / 2f)
@@ -288,10 +288,6 @@
                         Spells[SpellSlot.E].CastIfHitchanceEquals(eTarget, eHitchance);
                     }
                 }
-            }
-            if((!onlyESlowed && !onlyEStunned))
-            {
-                Spells[SpellSlot.E].CastIfHitchanceEquals(eTarget, eHitchance);
             }
         }
 
@@ -592,7 +588,7 @@
             var miscWMenu = new Menu("W Settings", "dz191." + MenuName + ".settings.w");
             {
                 /**Minimum W Range*/
-                miscWMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.w.minwrange", "Combo/Harass: Minimum W Range").SetValue(new Slider(188, 65, 800)));
+                miscWMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.w.minwrange", "Combo/Harass: Minimum W Range").SetValue(new Slider(400, 65, 800)));
                 /**End*/
 
                 /** Auto W*/
@@ -622,8 +618,8 @@
                 miscEMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.e.autoemana", "Auto E Mana").SetValue(new Slider(30)));
                 /*End*/
 
-                miscEMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.e.onlyslow", "Combo: Only E Slowed").SetValue(false));
-                miscEMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.e.onlyimm", "Combo: Only E Immobile").SetValue(false));
+                miscEMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.e.onlyslow", "Combo: Only E Slowed").SetValue(true));
+                miscEMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.e.onlyimm", "Combo: Only E Immobile").SetValue(true));
 
                 /** Hitchance Selector*/
                 miscEMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.e.hitchance", "E Hitchance").SetValue(new StringList(new[] { "Low", "Medium", "High", "Very High" }, 3)));
