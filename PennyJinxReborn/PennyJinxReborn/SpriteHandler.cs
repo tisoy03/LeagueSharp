@@ -24,6 +24,7 @@
         {
             get
             {
+                return ObjectManager.Player;
                 var heroList =
                     HeroManager.Enemies.FindAll(
                         h =>
@@ -53,7 +54,8 @@
         /// </summary>
         private static bool DrawCondition
         {
-            get { return PJR.GetSpellsDictionary()[SpellSlot.R].IsReady() && RTarget != null && RTargetPosition.IsOnScreen() && PJR.GetMenu().Item("dz191." + PJR.GetMenuName() + ".drawings.rsprite").GetValue<bool>(); }
+            get { return true; }
+         //   get { return PJR.GetSpellsDictionary()[SpellSlot.R].IsReady() && RTarget != null && RTargetPosition.IsOnScreen() && PJR.GetMenu().Item("dz191." + PJR.GetMenuName() + ".drawings.rsprite").GetValue<bool>(); }
         }
 
         /// <summary>
