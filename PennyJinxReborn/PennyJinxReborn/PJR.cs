@@ -730,11 +730,11 @@
             {
                 if (IsFishBone())
                 {
-                    var AOERadius =
+                    var aoeRadius =
                         (float) menu.Item("dz191." + MenuName + ".settings.q.aoeradius").GetValue<Slider>().Value;
                     var minMinions = menu.Item("dz191." + MenuName + ".settings.q.farmminions").GetValue<Slider>().Value;
                     var minionsInRange = MinionManager.GetMinions(
-                        args.Target.Position, AOERadius, MinionTypes.All, MinionTeam.NotAlly);
+                        args.Target.Position, aoeRadius, MinionTypes.All, MinionTeam.NotAlly);
                     if (minionsInRange.Count < minMinions)
                     {
                         Spells[SpellSlot.Q].Cast();
@@ -742,11 +742,11 @@
                 }
                 else
                 {
-                    var AOERadius =
+                    var aoeRadius =
                         (float)menu.Item("dz191." + MenuName + ".settings.q.aoeradius").GetValue<Slider>().Value;
                     var minMinions = menu.Item("dz191." + MenuName + ".settings.q.farmminions").GetValue<Slider>().Value;
                     var minionsInRange = MinionManager.GetMinions(
-                        args.Target.Position, AOERadius, MinionTypes.All, MinionTeam.NotAlly);
+                        args.Target.Position, aoeRadius, MinionTypes.All, MinionTeam.NotAlly);
                     if (minionsInRange.Count >= minMinions)
                     {
                         Spells[SpellSlot.Q].Cast();
