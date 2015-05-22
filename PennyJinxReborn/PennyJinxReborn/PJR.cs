@@ -558,12 +558,16 @@
                         new StringList(new[] { "AOE", "Range", "Both" }, 2)));
                 /**End*/
 
+                /**Use Q Farm */
+                miscQMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.q.farm", "Switch Q LastHit/Laneclear").SetValue(false));
+                miscQMenu.AddItem(
+                    new MenuItem("dz191." + MenuName + ".settings.q.farmminions", "Min AOE Minions for Q Farm Switch").SetValue(
+                        new Slider(2, 1, 5)));
+                /**End*/
+
                 /**AOE Options*/
                 miscQMenu.AddItem(
                     new MenuItem("dz191." + MenuName + ".settings.q.aoeswitch", "Min enemies for AOE switch").SetValue(
-                        new Slider(2, 1, 5)));
-                miscQMenu.AddItem(
-                    new MenuItem("dz191." + MenuName + ".settings.q.farmminions", "Min AOE Minions for Q Farm Switch").SetValue(
                         new Slider(2, 1, 5)));
                 miscQMenu.AddItem(
                     new MenuItem("dz191." + MenuName + ".settings.q.aoeradius", "AOE Radius").SetValue(
@@ -576,7 +580,6 @@
                     new MenuItem("dz191." + MenuName + ".settings.q.rangeswitch", "^ \"X\" Range for Q to minigun switch").SetValue(
                         new Slider(650, 100, 1500)));
                 /**End*/
-
 
             }
 
@@ -722,6 +725,11 @@
         /// <param name="args">The Event args</param>
         internal static void OrbwalkingBeforeAttack(Orbwalking.BeforeAttackEventArgs args)
         {
+            if (!menu.Item("dz191." + MenuName + ".settings.q.farm").GetValue<bool>())
+            {
+                return;
+            }
+
             if (orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LastHit ||
                 orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LaneClear)
             {
