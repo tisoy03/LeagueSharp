@@ -319,34 +319,31 @@
             var currentDistance = rTarget.Distance(ObjectManager.Player.ServerPosition);
             if (currentDistance >= minRange)
             {
-                if (currentDistance < Spells[SpellSlot.W].Range && Spells[SpellSlot.W].CanCast(rTarget) && wEnabled)
+                if (currentDistance < Spells[SpellSlot.W].Range && Spells[SpellSlot.W].CanCast(rTarget) && wEnabled && menu.Item("dz191." + MenuName + ".settings.r.preventoverkill").GetValue<bool>())
                 {
                     var wHitchance = GetHitchanceFromMenu("dz191." + MenuName + ".settings.w.hitchance");
                     var wPrediction = Spells[SpellSlot.W].GetPrediction(rTarget);
                     if (wPrediction.Hitchance >= wHitchance)
                     {
-                        wDamageBuffer = menu.Item("dz191." + MenuName + ".settings.r.preventoverkill").GetValue<bool>() ? Spells[SpellSlot.W].GetDamage(rTarget) : 0f;
+                        wDamageBuffer = Spells[SpellSlot.W].GetDamage(rTarget);
                     }
                 }
 
                 if (currentDistance < GetMinigunRange(rTarget) + GetFishboneRange() && Spells[SpellSlot.Q].IsReady() &&
-                    !ObjectManager.Player.IsWindingUp && ObjectManager.Player.CanAttack && qEnabled)
+                    !ObjectManager.Player.IsWindingUp && ObjectManager.Player.CanAttack && qEnabled && menu.Item("dz191." + MenuName + ".settings.r.preventoverkill").GetValue<bool>())
                 {
-                    aaDamageBuffer = menu.Item("dz191." + MenuName + ".settings.r.preventoverkill").GetValue<bool>() ? (float)(ObjectManager.Player.GetAutoAttackDamage(rTarget) * aaBuffer) : 0f;
+                    aaDamageBuffer = (float)(ObjectManager.Player.GetAutoAttackDamage(rTarget) * aaBuffer);
                 }
 
                 var targetPredictedHealth = rTarget.Health + 20;
                 if (targetPredictedHealth > wDamageBuffer + aaDamageBuffer &&
-                    targetPredictedHealth < Spells[SpellSlot.R].GetDamage(rTarget))
+                    targetPredictedHealth <= Spells[SpellSlot.R].GetDamage(rTarget))
                 {
                     var rHitchance = GetHitchanceFromMenu("dz191." + MenuName + ".settings.r.hitchance");
-                    ////var actualSpeed = GetRealUltSpeed(rTarget.ServerPosition);
-                    ////Spells[SpellSlot.R].Speed = actualSpeed;
                     var rPrediction = Spells[SpellSlot.R].GetPrediction(rTarget);
                     if (rPrediction.Hitchance >= rHitchance)
                     {
                         Spells[SpellSlot.R].Cast(rPrediction.CastPosition);
-                        ////Spells[SpellSlot.R].Speed = 1700f;
                     }
                 }
             }
