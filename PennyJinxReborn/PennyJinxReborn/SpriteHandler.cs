@@ -24,7 +24,6 @@
         {
             get
             {
-                return ObjectManager.Player;
                 var heroList =
                     HeroManager.Enemies.FindAll(
                         h =>
