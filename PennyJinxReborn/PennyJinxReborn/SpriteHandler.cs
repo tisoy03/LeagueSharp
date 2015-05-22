@@ -24,7 +24,7 @@
         {
             get
             {
-                return ObjectManager.Player;
+                //return ObjectManager.Player;
                 var heroList =
                     HeroManager.Enemies.FindAll(
                         h =>
@@ -44,7 +44,7 @@
                 return RTarget != null ? 
                     new Vector2(
                         Drawing.WorldToScreen(RTarget.Position).X - RTarget.BoundingRadius * 2 +
-                        RTarget.BoundingRadius / 2.5f,
+                        RTarget.BoundingRadius / 1.5f,
                         Drawing.WorldToScreen(RTarget.Position).Y - RTarget.BoundingRadius * 2) : new Vector2();
             }
         }
@@ -54,8 +54,8 @@
         /// </summary>
         private static bool DrawCondition
         {
-            get { return true; }
-         //   get { return PJR.GetSpellsDictionary()[SpellSlot.R].IsReady() && RTarget != null && RTargetPosition.IsOnScreen() && PJR.GetMenu().Item("dz191." + PJR.GetMenuName() + ".drawings.rsprite").GetValue<bool>(); }
+              get { return true; }
+             //// get { return PJR.GetSpellsDictionary()[SpellSlot.R].IsReady() && RTarget != null && RTargetPosition.IsOnScreen() && PJR.GetMenu().Item("dz191." + PJR.GetMenuName() + ".drawings.rsprite").GetValue<bool>(); }
         }
 
         /// <summary>
@@ -65,7 +65,7 @@
         {
             sprite = new Render.Sprite(Properties.Resources.ScopeSprite, new Vector2());
             {
-                sprite.Scale = new Vector2(0.65f, 0.65f);
+                sprite.Scale = new Vector2(1.0f, 1.0f);
                 sprite.PositionUpdate = () => RTargetPosition;
                 sprite.VisibleCondition = s => DrawCondition;
             }
