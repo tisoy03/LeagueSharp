@@ -561,13 +561,13 @@
                 /**Use Q Farm */
                 miscQMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.q.farm", "Switch Q LastHit/Laneclear").SetValue(false));
                 miscQMenu.AddItem(
-                    new MenuItem("dz191." + MenuName + ".settings.q.farmminions", "Min AOE Minions for Q Farm Switch").SetValue(
+                    new MenuItem("dz191." + MenuName + ".settings.q.farmminions", "Min. AOE Minions for Q Farm Switch").SetValue(
                         new Slider(2, 1, 5)));
                 /**End*/
 
                 /**AOE Options*/
                 miscQMenu.AddItem(
-                    new MenuItem("dz191." + MenuName + ".settings.q.aoeswitch", "Min enemies for AOE switch").SetValue(
+                    new MenuItem("dz191." + MenuName + ".settings.q.aoeswitch", "Min. enemies for AOE switch").SetValue(
                         new Slider(2, 1, 5)));
                 miscQMenu.AddItem(
                     new MenuItem("dz191." + MenuName + ".settings.q.aoeradius", "AOE Radius").SetValue(
@@ -578,7 +578,7 @@
                 miscQMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.q.minigunnoenemies", "AutoSwitch to minigun if no enemies in \"X\" range").SetValue(false));
                 miscQMenu.AddItem(
                     new MenuItem("dz191." + MenuName + ".settings.q.rangeswitch", "^ \"X\" Range for Q to minigun switch").SetValue(
-                        new Slider(650, 100, 1500)));
+                        new Slider(800, 100, 1500)));
                 /**End*/
 
             }
@@ -614,7 +614,7 @@
                 /** Auto E*/
                 miscEMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.e.slowed", "Auto E Slowed Enemies").SetValue(false));
                 miscEMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.e.immobile", "Auto E Immobile").SetValue(true)); 
-                miscEMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.e.tp", "Auto E Teleport").SetValue(true));
+                ////miscEMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.e.tp", "Auto E Teleport").SetValue(true));
                 miscEMenu.AddItem(new MenuItem("dz191." + MenuName + ".settings.e.autoemana", "Auto E Mana").SetValue(new Slider(30)));
                 /*End*/
 
