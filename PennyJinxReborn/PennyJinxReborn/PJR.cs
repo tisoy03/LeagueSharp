@@ -340,11 +340,7 @@
                     targetPredictedHealth <= Spells[SpellSlot.R].GetDamage(rTarget))
                 {
                     var rHitchance = GetHitchanceFromMenu("dz191." + MenuName + ".settings.r.hitchance");
-                    var rPrediction = Spells[SpellSlot.R].GetPrediction(rTarget);
-                    if (rPrediction.Hitchance >= rHitchance)
-                    {
-                        Spells[SpellSlot.R].Cast(rPrediction.CastPosition);
-                    }
+                    Spells[SpellSlot.R].CastIfHitchanceEquals(rTarget, rHitchance);
                 }
             }
         }
@@ -974,11 +970,7 @@
                     if (targetPredictedHealth <= Spells[SpellSlot.R].GetDamage(rTarget))
                     {
                         var rHitchance = GetHitchanceFromMenu("dz191." + MenuName + ".settings.r.hitchance");
-                        var rPrediction = Spells[SpellSlot.R].GetPrediction(rTarget);
-                        if (rPrediction.Hitchance >= rHitchance)
-                        {
-                            Spells[SpellSlot.R].Cast(rPrediction.CastPosition);
-                        }
+                        Spells[SpellSlot.R].CastIfHitchanceEquals(rTarget, rHitchance);
                     }
                 }
             }
