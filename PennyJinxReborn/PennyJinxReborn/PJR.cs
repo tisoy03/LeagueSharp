@@ -271,7 +271,7 @@
             var isTargetImmobile = IsHeavilyImpaired(eTarget);
             if ((isTargetSlowed && onlyESlowed) || (isTargetImmobile && onlyEStunned))
             {
-                if (isTargetSlowed && eTarget.Path.Count() > 1 && !onlyEStunned)
+                if (isTargetSlowed && eTarget.Path.Count() > 1)
                 {
                     var slowEndTime = GetSlowEndTime(eTarget);
                     if (slowEndTime >= Spells[SpellSlot.E].Delay + 0.5f + Game.Ping / 2f)
