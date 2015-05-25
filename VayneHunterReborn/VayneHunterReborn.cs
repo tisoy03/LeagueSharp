@@ -73,6 +73,7 @@ namespace VayneHunter_Reborn
             var miscMenu = new Menu("[VHR] Misc", "dz191.vhr.misc");
             var miscQMenu = new Menu("Misc - Tumble", "dz191.vhr.misc.tumble");
             {
+                miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.qlogic", "Q Logic").SetValue(new StringList(new[] { "Normal", "Away from enemies" })));
                 miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.tumble.smartq", "Try to QE First").SetValue(false));
                 miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.tumble.qinrange", "Q In Range if Enemy Health < Q Dmg").SetValue(true));
                 miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.tumble.noqenemies", "Don't Q into enemies").SetValue(true));
@@ -523,6 +524,7 @@ namespace VayneHunter_Reborn
                 _spells[SpellSlot.Q].Cast(Game.CursorPos);
             }
         }
+
         static void CastTumble(Vector3 pos, Obj_AI_Base target)
         {
             if (!_spells[SpellSlot.Q].IsReady())
@@ -532,16 +534,51 @@ namespace VayneHunter_Reborn
             var posAfterTumble =
                 ObjectManager.Player.ServerPosition.To2D().Extend(pos.To2D(), 300f).To3D();
             var distanceAfterTumble = Vector3.DistanceSquared(posAfterTumble, target.ServerPosition);
-            if ((distanceAfterTumble < 550 * 550 && distanceAfterTumble > 100 * 100) || (MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.qspam")))
+            if ((distanceAfterTumble < 550 * 550 && distanceAfterTumble > 100 * 100) ||
+                (MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.qspam")))
             {
-                if (!Helpers.OkToQ2(posAfterTumble) && MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.noqenemies"))
+
+                switch (Menu.Item("dz191.vhr.misc.condemn.qlogic").GetValue<StringList>().SelectedIndex)
                 {
-                    if(!(MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.qspam")))
-                    {
-                          return;
-                    }
+                    case 0:
+                        if (!Helpers.OkToQ2(posAfterTumble) &&
+                            MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.noqenemies"))
+                        {
+                            if (!(MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.qspam")))
+                            {
+                                return;
+                            }
+                        }
+                        _spells[SpellSlot.Q].Cast(pos);
+                        break;
+                    case 1:
+                        if (PositionalHelper.MeleeEnemiesTowardsMe.Any() &&
+                            !PositionalHelper.MeleeEnemiesTowardsMe.All(m => m.HealthPercent <= 15))
+                        {
+                            var Closest =
+                                PositionalHelper.MeleeEnemiesTowardsMe.OrderBy(m => m.Distance(ObjectManager.Player))
+                                    .First();
+                            var whereToQ = Closest.ServerPosition.Extend(
+                                ObjectManager.Player.ServerPosition, Closest.Distance(ObjectManager.Player) + 300f);
+                            if ((Helpers.OkToQ2(whereToQ) || (!Helpers.OkToQ2(whereToQ) && MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.qspam"))) && !whereToQ.UnderTurret(true))
+                            {
+                                _spells[SpellSlot.Q].Cast(whereToQ);
+                                return;
+                            }
+
+                            if (!Helpers.OkToQ2(posAfterTumble) &&
+                                MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.noqenemies"))
+                            {
+                                if (!(MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.qspam")))
+                                {
+                                    return;
+                                }
+                            }
+
+                            _spells[SpellSlot.Q].Cast(pos);
+                        }
+                        break;
                 }
-                _spells[SpellSlot.Q].Cast(pos);
             }
         }
 

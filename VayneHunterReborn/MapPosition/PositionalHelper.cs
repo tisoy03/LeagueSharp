@@ -37,6 +37,7 @@ namespace VayneHunter_Reborn.MapPosition
                             m.CountAlliesInRange(m.IsMelee() ? m.AttackRange * 1.5f : m.AttackRange + RangeOffsetAlly * 1.5f) > 0);
             }
         }
+
         private static IEnumerable<Obj_AI_Hero> EnemiesClose
         {
             get
@@ -46,6 +47,16 @@ namespace VayneHunter_Reborn.MapPosition
                         m =>
                             m.Distance(ObjectManager.Player) <= Range && m.IsValidTarget(Range, false) &&
                             m.CountEnemiesInRange(m.IsMelee()?m.AttackRange*1.5f:m.AttackRange + RangeOffsetEnemy*1.5f) > 0);
+            }
+        }
+
+        public static IEnumerable<Obj_AI_Hero> MeleeEnemiesTowardsMe
+        {
+            get
+            {
+                return
+                    HeroManager.Enemies.FindAll(
+                        m => m.IsMelee() && m.Distance(ObjectManager.Player) <= m.AttackRange + m.BoundingRadius && (m.ServerPosition.To2D() + (m.BoundingRadius+25f) * m.Direction.To2D().Perpendicular()).Distance(ObjectManager.Player.ServerPosition.To2D()) <= m.Distance(ObjectManager.Player) && m.IsValidTarget(Range, false));
             }
         }
 
