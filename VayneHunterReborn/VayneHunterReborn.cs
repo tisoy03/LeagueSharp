@@ -560,23 +560,25 @@ namespace VayneHunter_Reborn
                                     .First();
                             var whereToQ = Closest.ServerPosition.Extend(
                                 ObjectManager.Player.ServerPosition, Closest.Distance(ObjectManager.Player) + 300f);
-                            if ((Helpers.OkToQ2(whereToQ) || (!Helpers.OkToQ2(whereToQ) && MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.qspam"))) && !whereToQ.UnderTurret(true))
+                            if ((Helpers.OkToQ2(whereToQ) ||
+                                 (!Helpers.OkToQ2(whereToQ) && MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.qspam"))) &&
+                                !whereToQ.UnderTurret(true))
                             {
                                 _spells[SpellSlot.Q].Cast(whereToQ);
                                 return;
                             }
-
-                            if (!Helpers.OkToQ2(posAfterTumble) &&
-                                MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.noqenemies"))
-                            {
-                                if (!(MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.qspam")))
-                                {
-                                    return;
-                                }
-                            }
-
-                            _spells[SpellSlot.Q].Cast(pos);
                         }
+
+                        if (!Helpers.OkToQ2(posAfterTumble) &&
+                            MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.noqenemies"))
+                        {
+                            if (!(MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.qspam")))
+                            {
+                                return;
+                            }
+                        }
+
+                        _spells[SpellSlot.Q].Cast(pos);
                         break;
                 }
             }
