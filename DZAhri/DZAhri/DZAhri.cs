@@ -245,7 +245,7 @@ namespace DZAhri
         }
         static void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
         {
-            if (Helpers.IsMenuEnabled("dz191.ahri.misc.egp") && gapcloser.Sender.IsValidTarget() && _spells[SpellSlot.E].IsReady())
+            if (Helpers.IsMenuEnabled("dz191.ahri.misc.egp") && gapcloser.Sender.IsValidTarget(_spells[SpellSlot.E].Range) && _spells[SpellSlot.E].IsReady())
             {
                 _spells[SpellSlot.E].Cast(gapcloser.Sender);
             }
