@@ -38,14 +38,12 @@ namespace DZAhri
             SetUpMenu();
             SetUpSpells();
             SetUpEvents();
-            Game.PrintChat("DZAhri Loaded!");
-            Game.PrintChat("iJabba is the boss, and i love him!");
         }
 
         #region Modes Menu
         private static void Combo()
         {
-            if (ObjectManager.Player.ManaPercentage() < Menu.Item("dz191.ahri.combo.mana").GetValue<Slider>().Value || ObjectManager.Player.IsDead)
+            if (ObjectManager.Player.ManaPercent < Menu.Item("dz191.ahri.combo.mana").GetValue<Slider>().Value || ObjectManager.Player.IsDead)
             {
                 return;
             }
@@ -58,17 +56,37 @@ namespace DZAhri
             }
             if (target.IsValidTarget())
             {
-                if (!target.IsCharmed() && Helpers.IsMenuEnabled("dz191.ahri.combo.usee") && _spells[SpellSlot.E].IsReady() && _spells[SpellSlot.Q].IsReady())
+                switch (Menu.Item("dz191.ahri.combo.mode").GetValue<StringList>().SelectedIndex)
                 {
-                    _spells[SpellSlot.E].CastIfHitchanceEquals(target, HitChance.High);
-                }
-                if (Helpers.IsMenuEnabled("dz191.ahri.combo.useq") && _spells[SpellSlot.Q].IsReady() && (!_spells[SpellSlot.E].IsReady() || ObjectManager.Player.ManaPercent <= 25))
-                {
-                    _spells[SpellSlot.Q].CastIfHitchanceEquals(target, HitChance.High);
-                }
-                if (Helpers.IsMenuEnabled("dz191.ahri.combo.usew") && _spells[SpellSlot.W].IsReady() && ObjectManager.Player.Distance(target) <= _spells[SpellSlot.W].Range && (target.IsCharmed() || (_spells[SpellSlot.W].GetDamage(target) + _spells[SpellSlot.Q].GetDamage(target) > target.Health + 25)))
-                {
-                    _spells[SpellSlot.W].Cast();
+                    case 0:
+                        if (!target.IsCharmed() && Helpers.IsMenuEnabled("dz191.ahri.combo.usee") && _spells[SpellSlot.E].IsReady() && _spells[SpellSlot.Q].IsReady())
+                        {
+                            _spells[SpellSlot.E].CastIfHitchanceEquals(target, HitChance.High);
+                        }
+                        if (Helpers.IsMenuEnabled("dz191.ahri.combo.useq") && _spells[SpellSlot.Q].IsReady() && (!_spells[SpellSlot.E].IsReady() || ObjectManager.Player.ManaPercent <= 25))
+                        {
+                            _spells[SpellSlot.Q].CastIfHitchanceEquals(target, HitChance.High);
+                        }
+                        if (Helpers.IsMenuEnabled("dz191.ahri.combo.usew") && _spells[SpellSlot.W].IsReady() && ObjectManager.Player.Distance(target) <= _spells[SpellSlot.W].Range && (target.IsCharmed() || (_spells[SpellSlot.W].GetDamage(target) + _spells[SpellSlot.Q].GetDamage(target) > target.Health + 25)))
+                        {
+                            _spells[SpellSlot.W].Cast();
+                        }
+                        break;
+                    case 1:
+                        if (!target.IsCharmed() && Helpers.IsMenuEnabled("dz191.ahri.combo.usee") && _spells[SpellSlot.E].IsReady() && _spells[SpellSlot.Q].IsReady())
+                        {
+                            _spells[SpellSlot.E].CastIfHitchanceEquals(target, HitChance.High);
+                        }
+                        if (Helpers.IsMenuEnabled("dz191.ahri.combo.useq") && _spells[SpellSlot.Q].IsReady())
+                        {
+                            _spells[SpellSlot.Q].CastIfHitchanceEquals(target, HitChance.High);
+                        }
+                        if (Helpers.IsMenuEnabled("dz191.ahri.combo.usew") && _spells[SpellSlot.W].IsReady() && ObjectManager.Player.Distance(target) <= _spells[SpellSlot.W].Range && ((_spells[SpellSlot.W].GetDamage(target) + _spells[SpellSlot.Q].GetDamage(target) > target.Health + 25)))
+                        {
+                            _spells[SpellSlot.W].Cast();
+                        }
+                        break;
+
                 }
                 HandleRCombo(target);
             }
@@ -76,7 +94,7 @@ namespace DZAhri
 
         private static void Harass()
         {
-            if (ObjectManager.Player.ManaPercentage() < Menu.Item("dz191.ahri.harass.mana").GetValue<Slider>().Value || ObjectManager.Player.IsDead)
+            if (ObjectManager.Player.ManaPercent < Menu.Item("dz191.ahri.harass.mana").GetValue<Slider>().Value || ObjectManager.Player.IsDead)
             {
                 return;
             }
@@ -110,7 +128,7 @@ namespace DZAhri
 
         private static void LastHit()
         {
-            if (ObjectManager.Player.ManaPercentage() < Menu.Item("dz191.ahri.farm.mana").GetValue<Slider>().Value)
+            if (ObjectManager.Player.ManaPercent < Menu.Item("dz191.ahri.farm.mana").GetValue<Slider>().Value)
             {
                 return;
             }
@@ -127,7 +145,7 @@ namespace DZAhri
 
         private static void Laneclear()
         {
-            if (ObjectManager.Player.ManaPercentage() < Menu.Item("dz191.ahri.farm.mana").GetValue<Slider>().Value)
+            if (ObjectManager.Player.ManaPercent < Menu.Item("dz191.ahri.farm.mana").GetValue<Slider>().Value)
             {
                 return;
             }
@@ -208,7 +226,7 @@ namespace DZAhri
             if (Helpers.IsMenuEnabled("dz191.ahri.combo.autoq2"))
             {
                 var qMana = Menu.Item("dz191.ahri.combo.autoq2mana").GetValue<Slider>().Value;
-                if (ObjectManager.Player.ManaPercentage() >= qMana && _spells[SpellSlot.Q].IsReady())
+                if (ObjectManager.Player.ManaPercent >= qMana && _spells[SpellSlot.Q].IsReady())
                 {
                     var target = TargetSelector.GetTarget(_spells[SpellSlot.Q].Range, TargetSelector.DamageType.Magical);
                     if (ObjectManager.Player.Distance(target) >= _spells[SpellSlot.Q].Range * 0.7f)
@@ -292,6 +310,7 @@ namespace DZAhri
                 comboMenu.AddItem(new MenuItem("dz191.ahri.combo.user", "Use R Combo").SetValue(true));
                 comboMenu.AddItem(new MenuItem("dz191.ahri.combo.initr", "Don't Initiate with R").SetValue(false)); //Done
                 comboMenu.AddItem(new MenuItem("dz191.ahri.combo.mana", "Min Combo Mana").SetValue(new Slider(20)));
+                comboMenu.AddItem(new MenuItem("dz191.ahri.combo.mode", "Combo Mode").SetValue(new StringList(new []{"Wait for Charm","Don't Wait for Charm"})));
             }
             Menu.AddSubMenu(comboMenu);
 
