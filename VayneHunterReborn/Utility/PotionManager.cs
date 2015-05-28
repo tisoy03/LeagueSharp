@@ -162,7 +162,7 @@ namespace VayneHunter_Reborn.Utility
             var HPIds = new List<int>();
             foreach (var pot in Potions)
             {
-                if (pot.Type == PotionType.Health || pot.Type == PotionType.Flask && Items.HasItem((int)pot.ItemId))
+                if ((pot.Type == PotionType.Health || pot.Type == PotionType.Flask) && Items.HasItem((int)pot.ItemId))
                 {
                     HPIds.Add((int)pot.ItemId);
                 }
@@ -175,7 +175,7 @@ namespace VayneHunter_Reborn.Utility
             var ManaIds = new List<int>();
             foreach (var pot in Potions)
             {
-                if (pot.Type == PotionType.Mana || pot.Type == PotionType.Flask && Items.HasItem((int)pot.ItemId))
+                if ((pot.Type == PotionType.Mana || pot.Type == PotionType.Flask) && Items.HasItem((int)pot.ItemId))
                 {
                     ManaIds.Add((int)pot.ItemId);
                 }
