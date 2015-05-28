@@ -203,6 +203,7 @@
                 }
             }
         }
+
         static void Game_OnGameUpdate(EventArgs args)
         {
             if (ObjectManager.Player.IsDead)
@@ -219,6 +220,7 @@
                     Harrass();
                     break;
             }
+
             OnUpdateFunctions();
         }
 
@@ -228,6 +230,7 @@
             {
                 return;
             }
+
             _lastCheckTick = Environment.TickCount;
 
             #region Auto E
@@ -639,6 +642,7 @@
                                     tg = null;
                                     return false;
                                 }
+
                                 if (target.Health + 10 <=
                                     ObjectManager.Player.GetAutoAttackDamage(target) *
                                     MenuHelper.getSliderValue("dz191.vhr.misc.condemn.noeaa"))
@@ -646,6 +650,7 @@
                                     tg = null;
                                     return false;
                                 }
+
                                 if (MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.trinketbush") &&
                                     NavMesh.IsWallOfGrass(extendedPosition,25) && trinketSpell != null)
                                 {
@@ -654,6 +659,7 @@
                                         ObjectManager.Player.ServerPosition.Distance(extendedPosition) - 25f);
                                     LeagueSharp.Common.Utility.DelayAction.Add(250,() => trinketSpell.Cast(wardPosition));
                                 }
+
                                 CondemnNotification.Text = "Condemned " + target.ChampionName;
                                 _predictedEndPosition = extendedPosition;
                                 _predictedPosition = targetPosition;
@@ -682,6 +688,7 @@
                                 tg = null;
                                 return false;
                             }
+
                             if (target.Health + 10 <=
                                     ObjectManager.Player.GetAutoAttackDamage(target) *
                                     MenuHelper.getSliderValue("dz191.vhr.misc.condemn.noeaa"))
@@ -689,6 +696,7 @@
                                 tg = null;
                                 return false;
                             }
+
                             tg = target;
                             return true;
                         }
@@ -712,6 +720,7 @@
                                     tg = null;
                                     return false;
                                 }
+
                                 if (en.Health + 10 <=
                                     ObjectManager.Player.GetAutoAttackDamage(en) *
                                     MenuHelper.getSliderValue("dz191.vhr.misc.condemn.noeaa"))
@@ -719,6 +728,7 @@
                                     tg = null;
                                     return false;
                                 }
+
                                 if (MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.trinketbush") &&
                                     NavMesh.IsWallOfGrass(loc3, 25) && trinketSpell != null)
                                 {
@@ -727,6 +737,7 @@
                                         ObjectManager.Player.ServerPosition.Distance(loc3) - 25f);
                                     LeagueSharp.Common.Utility.DelayAction.Add(250, () => trinketSpell.Cast(wardPosition));
                                 }
+
                                 tg = en;
                                 return true; 
                             }
