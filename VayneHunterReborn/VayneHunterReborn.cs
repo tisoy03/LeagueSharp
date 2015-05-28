@@ -1,18 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Runtime;
-using LeagueSharp;
-using LeagueSharp.Common;
-using SharpDX;
-using VayneHunter_Reborn.MapPosition;
-using VayneHunter_Reborn.Utility;
-using Color = System.Drawing.Color;
-using Geometry = LeagueSharp.Common.Geometry;
-
-namespace VayneHunter_Reborn
+﻿namespace VayneHunter_Reborn
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using LeagueSharp;
+    using LeagueSharp.Common;
+    using SharpDX;
+    using MapPosition;
+    using Utility;
+
+    using Color = System.Drawing.Color;
+    using Geometry = LeagueSharp.Common.Geometry;
+
     class VayneHunterReborn
     {
         /// <summary>
@@ -47,7 +46,9 @@ namespace VayneHunter_Reborn
             {
                 return;
             }
+
             Menu = new Menu("VayneHunter Reborn","VHR",true);
+
             var owMenu = new Menu("[VHR] Orbwalker", "dz191.vhr.orbwalker");
             Orbwalker = new Orbwalking.Orbwalker(owMenu);
             Menu.AddSubMenu(owMenu);
@@ -61,10 +62,12 @@ namespace VayneHunter_Reborn
             comboMenu.AddManaManager(Mode.Combo, new[] { SpellSlot.Q, SpellSlot.E, SpellSlot.R }, new[] { 0,0,0 });
             comboMenu.AddItem(new MenuItem("dz191.vhr.combo.r.minenemies", "Min R Enemies").SetValue(new Slider(2, 1, 5)));
             Menu.AddSubMenu(comboMenu);
+
             var harassMenu = new Menu("[VHR] Harass", "dz191.vhr.harass");
             harassMenu.AddModeMenu(Mode.Harrass, new[] { SpellSlot.Q, SpellSlot.E }, new[] { true, true });
             harassMenu.AddManaManager(Mode.Harrass, new[] { SpellSlot.Q, SpellSlot.E}, new[] { 25, 20 });
             Menu.AddSubMenu(harassMenu);
+
             var farmMenu = new Menu("[VHR] Farm", "dz191.vhr.farm");
             farmMenu.AddModeMenu(Mode.Farm, new[] { SpellSlot.Q}, new[] { true, true });
             farmMenu.AddManaManager(Mode.Farm, new[] { SpellSlot.Q }, new[] { 40 });
@@ -75,28 +78,33 @@ namespace VayneHunter_Reborn
             {
                 miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.qlogic", "Q Logic").SetValue(new StringList(new[] { "Normal", "Away from enemies" })));
                 miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.tumble.smartq", "Try to QE First").SetValue(false));
-                miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.tumble.qinrange", "Q In Range if Enemy Health < Q Dmg").SetValue(true));
-                miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.tumble.noqenemies", "Don't Q into enemies").SetValue(true));
                 miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.tumble.noaastealth", "Don't AA while stealthed").SetValue(false));
+                miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.tumble.noqenemies", "Don't Q into enemies").SetValue(true));
+
                 miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.tumble.qspam", "Ignore Q checks").SetValue(false));
-                miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.tumble.walltumble", "Tumble Over Wall").SetValue(new KeyBind("Y".ToCharArray()[0],KeyBindType.Press)));
+                miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.tumble.qinrange", "Q In Range if Enemy Health < Q+AA Dmg").SetValue(true));
+                miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.tumble.walltumble", "Tumble Over Wall (WallTumble)").SetValue(new KeyBind("Y".ToCharArray()[0],KeyBindType.Press)));
             }
+
             var miscEMenu = new Menu("Misc - Condemn", "dz191.vhr.misc.condemn");
             {
-                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.enextauto", "E Next Auto").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Toggle)));
-                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.condemnmethod", "Condemn Method").SetValue(new StringList(new []{"VH Reborn","Marksman/Gosu", "VH Rework"})));
+                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.condemnmethod", "Condemn Method").SetValue(new StringList(new[] { "VH Reborn", "Marksman/Gosu", "VH Rework" })));
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.pushdistance", "E Push Dist").SetValue(new Slider(375, 350, 500)));
-                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.condemnturret", "Try to Condemn to turret").SetValue(false));
-                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.condemnflag", "Condemn to J4 flag").SetValue(true));
+                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.enextauto", "E Next Auto").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Toggle)));
+                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.onlystuncurrent", "Only stun current target").SetValue(false));
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.autoe", "Auto E").SetValue(false));
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.eks", "Smart E Ks").SetValue(false));
-                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.ethird", "E 3rd proc in Harass").SetValue(false));
-                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.noeturret", "No E Under enemy turret").SetValue(true));
-                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.lowlifepeel", "Peel with E when low").SetValue(false));
-                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.onlystuncurrent", "Only stun current target").SetValue(false));
-                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.noeaa", "Don't E if Target can be killed in X AA").SetValue(new Slider(1,0,4)));
+                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.noeaa", "Don't E if Target can be killed in X AA").SetValue(new Slider(1, 0, 4)));
+
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.trinketbush", "Trinket Bush on Condemn").SetValue(true));
+                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.ethird", "E 3rd proc in Harass").SetValue(false));
+                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.lowlifepeel", "Peel with E when low").SetValue(false));
+
+                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.condemnturret", "Try to Condemn to turret").SetValue(false));
+                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.condemnflag", "Condemn to J4 flag").SetValue(true));
+                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.noeturret", "No E Under enemy turret").SetValue(true));
             }
+
             var miscGeneralSubMenu = new Menu("Misc - General", "dz191.vhr.misc.general");
             {
                 miscGeneralSubMenu.AddItem(new MenuItem("dz191.vhr.misc.general.antigp", "Anti Gapcloser")).SetValue(true);
@@ -104,8 +112,10 @@ namespace VayneHunter_Reborn
                 miscGeneralSubMenu.AddItem(new MenuItem("dz191.vhr.misc.general.specialfocus", "Focus targets with 2 W marks").SetValue(false));
                 miscGeneralSubMenu.AddItem(new MenuItem("dz191.vhr.misc.general.reveal", "Stealth Reveal (Pink Ward)").SetValue(false));
             }
+
             miscMenu.AddSubMenu(miscQMenu);
             miscMenu.AddSubMenu(miscEMenu);
+
             miscMenu.AddSubMenu(miscGeneralSubMenu);
             Menu.AddSubMenu(miscMenu);
 
@@ -118,6 +128,7 @@ namespace VayneHunter_Reborn
             Menu.AddToMainMenu();
             SetUpEvents();
             SetUpSkills();
+
             trinketSpell = new Spell(SpellSlot.Trinket);
         }
 
