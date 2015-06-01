@@ -111,6 +111,8 @@
                 miscGeneralSubMenu.AddItem(new MenuItem("dz191.vhr.misc.general.interrupt", "Interrupter").SetValue(true));
                 miscGeneralSubMenu.AddItem(new MenuItem("dz191.vhr.misc.general.specialfocus", "Focus targets with 2 W marks").SetValue(false));
                 miscGeneralSubMenu.AddItem(new MenuItem("dz191.vhr.misc.general.reveal", "Stealth Reveal (Pink Ward)").SetValue(false));
+                miscGeneralSubMenu.AddItem(new MenuItem("dz191.vhr.misc.general.disablemovement", "Disable Orbwalker Movement").SetValue(false));
+
             }
 
             miscMenu.AddSubMenu(miscQMenu);
@@ -300,6 +302,9 @@
             }
             #endregion
 
+            #region Disable Movement
+            Orbwalker.SetMovement(!MenuHelper.isMenuEnabled("dz191.vhr.misc.general.disablemovement"));
+            #endregion
         }
 
         private static void Combo()
