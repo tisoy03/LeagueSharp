@@ -1,7 +1,6 @@
-﻿using System.Reflection;
-
-namespace VayneHunter_Reborn
+﻿namespace VayneHunter_Reborn
 {
+    #region References
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -13,17 +12,16 @@ namespace VayneHunter_Reborn
 
     using Color = System.Drawing.Color;
     using Geometry = LeagueSharp.Common.Geometry;
+    using System.Reflection;
+    #endregion
 
     class VayneHunterReborn
     {
         /// <summary>
         /// TODO Log:
-        /// Don't E target killable with X autoattacks DONE
-        /// Q to Gapclose if the target is outside of range but still killable by Q+AA  DONE
-        /// 
         /// Rewrite most of the core part of the code, since it is so ugly.
-        /// 
         /// </summary>
+       
         public static Menu Menu;
         public static Obj_AI_Hero Player = ObjectManager.Player;
         public static Orbwalking.Orbwalker Orbwalker;
@@ -31,6 +29,7 @@ namespace VayneHunter_Reborn
         private static Vector3 _predictedEndPosition;
         private static float _lastCheckTick;
         private static float _lastCheckTick2;
+
         private static readonly Dictionary<SpellSlot, Spell> _spells = new Dictionary<SpellSlot, Spell>
         {
             { SpellSlot.Q, new Spell(SpellSlot.Q) },
@@ -42,6 +41,9 @@ namespace VayneHunter_Reborn
         private static Spell trinketSpell;
         private static readonly Notification CondemnNotification = new Notification("Condemned",5500);
 
+        /// <summary>
+        /// Method Called when the Assembly is loaded.
+        /// </summary>
         public static void OnLoad()
         {
             if (ObjectManager.Player.ChampionName != "Vayne")
@@ -49,7 +51,17 @@ namespace VayneHunter_Reborn
                 return;
             }
 
-            Menu = new Menu("VayneHunter Reborn","VHR",true);
+            SetUpMenu();
+            SetUpEvents();
+            SetUpSkills();
+        }
+
+        /// <summary>
+        /// Sets up the Menu
+        /// </summary>
+        private static void SetUpMenu()
+        {
+            Menu = new Menu("VayneHunter Reborn", "VHR", true);
 
             var owMenu = new Menu("[VHR] Orbwalker", "dz191.vhr.orbwalker");
             Orbwalker = new Orbwalking.Orbwalker(owMenu);
@@ -60,21 +72,21 @@ namespace VayneHunter_Reborn
             Menu.AddSubMenu(tgMenu);
 
             var comboMenu = new Menu("[VHR] Combo", "dz191.vhr.combo");
-            comboMenu.AddModeMenu(Mode.Combo,new []{SpellSlot.Q,SpellSlot.E,SpellSlot.R},new []{true,true,false});
-            comboMenu.AddManaManager(Mode.Combo, new[] { SpellSlot.Q, SpellSlot.E, SpellSlot.R }, new[] { 0,0,0 });
+            comboMenu.AddModeMenu(Mode.Combo, new[] { SpellSlot.Q, SpellSlot.E, SpellSlot.R }, new[] { true, true, false });
+            comboMenu.AddManaManager(Mode.Combo, new[] { SpellSlot.Q, SpellSlot.E, SpellSlot.R }, new[] { 0, 0, 0 });
             comboMenu.AddItem(new MenuItem("dz191.vhr.combo.r.minenemies", "Min R Enemies").SetValue(new Slider(2, 1, 5)));
             Menu.AddSubMenu(comboMenu);
 
             var harassMenu = new Menu("[VHR] Harass", "dz191.vhr.harass");
             harassMenu.AddModeMenu(Mode.Harrass, new[] { SpellSlot.Q, SpellSlot.E }, new[] { true, true });
-            harassMenu.AddManaManager(Mode.Harrass, new[] { SpellSlot.Q, SpellSlot.E}, new[] { 25, 20 });
+            harassMenu.AddManaManager(Mode.Harrass, new[] { SpellSlot.Q, SpellSlot.E }, new[] { 25, 20 });
             Menu.AddSubMenu(harassMenu);
 
             var farmMenu = new Menu("[VHR] Farm", "dz191.vhr.farm");
-            farmMenu.AddModeMenu(Mode.Farm, new[] { SpellSlot.Q}, new[] { true, true });
+            farmMenu.AddModeMenu(Mode.Farm, new[] { SpellSlot.Q }, new[] { true, true });
             farmMenu.AddManaManager(Mode.Farm, new[] { SpellSlot.Q }, new[] { 40 });
             Menu.AddSubMenu(farmMenu);
-            
+
             var miscMenu = new Menu("[VHR] Misc", "dz191.vhr.misc");
             var miscQMenu = new Menu("Misc - Tumble", "dz191.vhr.misc.tumble");
             {
@@ -85,7 +97,7 @@ namespace VayneHunter_Reborn
 
                 miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.tumble.qspam", "Ignore Q checks").SetValue(false));
                 miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.tumble.qinrange", "Q In Range if Enemy Health < Q+AA Dmg").SetValue(true));
-                miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.tumble.walltumble", "Tumble Over Wall (WallTumble)").SetValue(new KeyBind("Y".ToCharArray()[0],KeyBindType.Press)));
+                miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.tumble.walltumble", "Tumble Over Wall (WallTumble)").SetValue(new KeyBind("Y".ToCharArray()[0], KeyBindType.Press)));
             }
 
             var miscEMenu = new Menu("Misc - Condemn", "dz191.vhr.misc.condemn");
@@ -124,7 +136,7 @@ namespace VayneHunter_Reborn
             Menu.AddSubMenu(miscMenu);
 
             var drawMenu = new Menu("[VHR] Drawing", "dz191.vhr.drawing");
-            drawMenu.AddDrawMenu(_spells,Color.Red);
+            drawMenu.AddDrawMenu(_spells, Color.Red);
             drawMenu.AddItem(new MenuItem("dz191.vhr.drawing.drawstun", "Draw Stunnable").SetValue(true));
             drawMenu.AddItem(new MenuItem("dz191.vhr.drawing.drawspots", "Draw Spots").SetValue(true));
             Menu.AddSubMenu(drawMenu);
@@ -132,18 +144,21 @@ namespace VayneHunter_Reborn
             Menu.AddItem(new MenuItem("dz191.vhr.info", "VHR by Asuna v." + Assembly.GetExecutingAssembly().GetName().Version));
 
             Menu.AddToMainMenu();
-            SetUpEvents();
-            SetUpSkills();
+        }
 
+        /// <summary>
+        /// Sets up the Spell's Data
+        /// </summary>
+        private static void SetUpSkills()
+        {
+            _spells[SpellSlot.E].SetTargetted(0.25f,2000f);
             trinketSpell = new Spell(SpellSlot.Trinket);
         }
 
-        static void SetUpSkills()
-        {
-            _spells[SpellSlot.E].SetTargetted(0.25f,2000f);
-        }
-
-        static void SetUpEvents()
+        /// <summary>
+        /// Registers the Events.
+        /// </summary>
+        private static void SetUpEvents()
         {
             Cleanser.OnLoad();
             PotionManager.OnLoad(Menu);
@@ -155,11 +170,17 @@ namespace VayneHunter_Reborn
             Interrupter2.OnInterruptableTarget += Interrupter2_OnInterruptableTarget;
             Stealth.OnStealth += Stealth_OnStealth;
             Drawing.OnDraw += Drawing_OnDraw;
-            Obj_AI_Hero.OnPlayAnimation += Obj_AI_Hero_OnPlayAnimation;
+            Obj_AI_Base.OnPlayAnimation += Obj_AI_Hero_OnPlayAnimation;
             GameObject.OnCreate += GameObject_OnCreate;
         }
 
-        static void GameObject_OnCreate(GameObject sender, EventArgs args)
+        #region Delegate Methods.
+        /// <summary>
+        /// Delegate called when a Game Object is created.
+        /// </summary>
+        /// <param name="sender">The Created Gameobject.</param>
+        /// <param name="args">The event args'</param>
+        private static void GameObject_OnCreate(GameObject sender, EventArgs args)
         {
             if (MenuHelper.isMenuEnabled("dz191.vhr.misc.general.antigp") && _spells[SpellSlot.E].IsReady())
             {
@@ -182,7 +203,6 @@ namespace VayneHunter_Reborn
             {
                 return;
             }
-            //Console.WriteLine(args.Animation.ToString());
             if (args.Animation.Contains("Attack"))
             {
                 LeagueSharp.Common.Utility.DelayAction.Add((25), () =>
@@ -196,7 +216,11 @@ namespace VayneHunter_Reborn
         }
         #endregion
 
-        static void Stealth_OnStealth(Stealth.OnStealthEventArgs obj)
+        /// <summary>
+        /// Called when an unit goes on stealth.
+        /// </summary>
+        /// <param name="obj">The Event's arguments</param>
+        private static void Stealth_OnStealth(Stealth.OnStealthEventArgs obj)
         {
             if (MenuHelper.isMenuEnabled("dz191.vhr.misc.general.reveal"))
             {
@@ -210,7 +234,11 @@ namespace VayneHunter_Reborn
             }
         }
 
-        static void Game_OnGameUpdate(EventArgs args)
+        /// <summary>
+        /// Method called each tick.
+        /// </summary>
+        /// <param name="args">The Event's args</param>
+        private static void Game_OnGameUpdate(EventArgs args)
         {
             if (ObjectManager.Player.IsDead)
             {
@@ -230,7 +258,199 @@ namespace VayneHunter_Reborn
             OnUpdateFunctions();
         }
 
-        static private void OnUpdateFunctions()
+        /// <summary>
+        /// Called when an unit finishes the attack.
+        /// </summary>
+        /// <param name="unit">The Unit</param>
+        /// <param name="target">The target of the attack</param>
+        static void OrbwalkingAfterAttack(AttackableUnit unit, AttackableUnit target)
+        {
+            if (!(target is Obj_AI_Base) || !unit.IsMe)
+            {
+                return;
+            }
+
+            var tg = (Obj_AI_Base)target;
+
+            switch (Orbwalker.ActiveMode)
+            {
+                case Orbwalking.OrbwalkingMode.Combo:
+                    if (_spells[SpellSlot.Q].IsEnabledAndReady(Mode.Combo))
+                    {
+                        CastQ(tg);
+                    }
+                    break;
+                case Orbwalking.OrbwalkingMode.Mixed:
+                    if (_spells[SpellSlot.Q].IsEnabledAndReady(Mode.Harrass))
+                    {
+                        CastQ(tg);
+                    }
+                    break;
+                case Orbwalking.OrbwalkingMode.LastHit:
+                    Farm();
+                    break;
+                case Orbwalking.OrbwalkingMode.LaneClear:
+                    Farm();
+                    break;
+            }
+
+            if (MenuHelper.getKeybindValue("dz191.vhr.misc.condemn.enextauto") &&
+                _spells[SpellSlot.E].CanCast(tg) && (tg is Obj_AI_Hero))
+            {
+                _spells[SpellSlot.E].Cast(tg);
+                Menu.Item("dz191.vhr.misc.condemn.enextauto").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Toggle));
+            }
+        }
+
+        /// <summary>
+        /// Delegate used for drawings.
+        /// </summary>
+        /// <param name="args">The event's args.</param>
+        static void Drawing_OnDraw(EventArgs args)
+        {
+            var drawE = Menu.Item("VayneDrawE").GetValue<Circle>();
+
+            var midWallQPos = new Vector2(6707.485f, 8802.744f);
+            var drakeWallQPos = new Vector2(11514, 4462);
+
+            if (drawE.Active)
+            {
+                Render.Circle.DrawCircle(ObjectManager.Player.Position, _spells[SpellSlot.E].Range, drawE.Color);
+            }
+
+            if (MenuHelper.isMenuEnabled("dz191.vhr.drawing.drawstun"))
+            {
+                Obj_AI_Hero myTarget;
+            }
+
+            if (MenuHelper.isMenuEnabled("dz191.vhr.drawing.drawspots"))
+            {
+                if (ObjectManager.Player.Distance(midWallQPos) <= 1500f)
+                {
+                    Render.Circle.DrawCircle(midWallQPos.To3D2(), 65f, Color.AliceBlue);
+                }
+                if (ObjectManager.Player.Distance(drakeWallQPos) <= 1500f)
+                {
+                    Render.Circle.DrawCircle(drakeWallQPos.To3D2(), 65f, Color.AliceBlue);
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Called when an unit gapcloses onto the Player.
+        /// </summary>
+        /// <param name="gapcloser">The Event's args</param>
+        static void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
+        {
+            if (MenuHelper.isMenuEnabled("dz191.vhr.misc.general.antigp"))
+            {
+                if (gapcloser.Sender.IsValidTarget(_spells[SpellSlot.E].Range) && gapcloser.End.Distance(ObjectManager.Player.ServerPosition) <= 375f && (gapcloser.Sender is Obj_AI_Hero))
+                {
+                    _spells[SpellSlot.E].Cast(gapcloser.Sender);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Called when an unit casts an interruptable spell.
+        /// </summary>
+        /// <param name="sender">The sender of the spell.</param>
+        /// <param name="args">The event's args.</param>
+        static void Interrupter2_OnInterruptableTarget(Obj_AI_Hero sender, Interrupter2.InterruptableTargetEventArgs args)
+        {
+            if (MenuHelper.isMenuEnabled("dz191.vhr.misc.general.interrupt"))
+            {
+                if (args.DangerLevel == Interrupter2.DangerLevel.High && sender.IsValidTarget(_spells[SpellSlot.E].Range) && (sender is Obj_AI_Hero))
+                {
+                    _spells[SpellSlot.E].Cast(sender);
+                }
+            }
+        }
+
+        #endregion
+
+        #region Modes
+        /// <summary>
+        /// The Combo Method.
+        /// </summary>
+        private static void Combo()
+        {
+            if (Environment.TickCount - _lastCheckTick2 < 80)
+            {
+                return;
+            }
+
+            _lastCheckTick2 = Environment.TickCount;
+
+            if (_spells[SpellSlot.E].IsEnabledAndReady(Mode.Combo))
+            {
+                Obj_AI_Hero target;
+
+                if (CondemnCheck(ObjectManager.Player.ServerPosition, out target))
+                {
+                    if (target.IsValidTarget(_spells[SpellSlot.E].Range) && (target is Obj_AI_Hero))
+                    {
+                        _spells[SpellSlot.E].Cast(target);
+                    }
+                }
+            }
+
+            if (_spells[SpellSlot.Q].IsEnabledAndReady(Mode.Combo))
+            {
+                CheckAndCastKSQ();
+            }
+        }
+
+        /// <summary>
+        /// The Harass Method
+        /// </summary>
+        private static void Harrass()
+        {
+            if (_spells[SpellSlot.E].IsEnabledAndReady(Mode.Harrass))
+            {
+                var possibleTarget = HeroManager.Enemies.Find(enemy => enemy.IsValidTarget(_spells[SpellSlot.E].Range) && enemy.Has2WStacks());
+                if (possibleTarget != null && MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.ethird") && (possibleTarget is Obj_AI_Hero))
+                {
+                    _spells[SpellSlot.E].Cast(possibleTarget);
+                }
+
+                Obj_AI_Hero target;
+                if (CondemnCheck(ObjectManager.Player.ServerPosition, out target))
+                {
+                    if (target.IsValidTarget(_spells[SpellSlot.E].Range) && (target is Obj_AI_Hero))
+                    {
+                        _spells[SpellSlot.E].Cast(target);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// The Farm Method.
+        /// </summary>
+        private static void Farm()
+        {
+            if (!_spells[SpellSlot.Q].IsEnabledAndReady(Mode.Farm))
+            {
+                return;
+            }
+            var minionsInRange = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Player.AttackRange).FindAll(m => m.Health <= Player.GetAutoAttackDamage(m) + _spells[SpellSlot.Q].GetDamage(m)).ToList();
+            if (!minionsInRange.Any())
+            {
+                return;
+            }
+            if (minionsInRange.Count > 1)
+            {
+                var firstMinion = minionsInRange.OrderBy(m => m.HealthPercent).First();
+                CastTumble(firstMinion);
+                Orbwalker.ForceTarget(firstMinion);
+            }
+        }
+
+        /// <summary>
+        /// Method called to execute the OnUpdate Functions (KS, AutoE, Etc).
+        /// </summary>
+        private static void OnUpdateFunctions()
         {
             if (Environment.TickCount - _lastCheckTick < 150)
             {
@@ -259,8 +479,8 @@ namespace VayneHunter_Reborn
                 var target = HeroManager.Enemies.Find(en => en.IsValidTarget(ObjectManager.Player.AttackRange) && en.Has2WStacks());
                 if (target != null)
                 {
-                   Orbwalker.ForceTarget(target);
-                   Hud.SelectedUnit = target;
+                    Orbwalker.ForceTarget(target);
+                    Hud.SelectedUnit = target;
                 }
             }
             #endregion
@@ -276,7 +496,7 @@ namespace VayneHunter_Reborn
             if (MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.eks") && _spells[SpellSlot.E].IsReady())
             {
                 var target = HeroManager.Enemies.Find(en => en.IsValidTarget(_spells[SpellSlot.E].Range) && en.Has2WStacks());
-                if (target != null && target.Health + 60 <=(_spells[SpellSlot.E].GetDamage(target) + _spells[SpellSlot.W].GetDamage(target)) && (target is Obj_AI_Hero))
+                if (target != null && target.Health + 60 <= (_spells[SpellSlot.E].GetDamage(target) + _spells[SpellSlot.W].GetDamage(target)) && (target is Obj_AI_Hero))
                 {
                     _spells[SpellSlot.E].Cast(target);
                 }
@@ -291,7 +511,6 @@ namespace VayneHunter_Reborn
             #endregion
 
             #region Low Life Peel
-
             if (MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.lowlifepeel") && ObjectManager.Player.HealthPercentage() <= 20 && _spells[SpellSlot.E].IsReady())
             {
                 var meleeEnemies = ObjectManager.Player.GetEnemiesInRange(350f).FindAll(m => m.IsMelee());
@@ -311,165 +530,7 @@ namespace VayneHunter_Reborn
             #endregion
         }
 
-        private static void Combo()
-        {
-            if (Environment.TickCount - _lastCheckTick2 < 80)
-            {
-                return;
-            }
-            _lastCheckTick2 = Environment.TickCount;
-            if (_spells[SpellSlot.E].IsEnabledAndReady(Mode.Combo))
-            {
-                Obj_AI_Hero target;
-                if (CondemnCheck(ObjectManager.Player.ServerPosition, out target))
-                {
-                    if (target.IsValidTarget(_spells[SpellSlot.E].Range) && (target is Obj_AI_Hero))
-                    {
-                        _spells[SpellSlot.E].Cast(target);
-                    }
-                }
-            }
-            if (_spells[SpellSlot.Q].IsEnabledAndReady(Mode.Combo))
-            {
-                CheckAndCastKSQ();
-            }
-        }
-
-        private static void Harrass()
-        {
-            if (_spells[SpellSlot.E].IsEnabledAndReady(Mode.Harrass))
-            {
-                var possibleTarget = HeroManager.Enemies.Find(enemy => enemy.IsValidTarget(_spells[SpellSlot.E].Range) && enemy.Has2WStacks());
-                if (possibleTarget != null && MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.ethird") && (possibleTarget is Obj_AI_Hero))
-                {
-                    _spells[SpellSlot.E].Cast(possibleTarget);
-                }
-
-                Obj_AI_Hero target;
-                if (CondemnCheck(ObjectManager.Player.ServerPosition, out target))
-                {
-                    if (target.IsValidTarget(_spells[SpellSlot.E].Range) && (target is Obj_AI_Hero))
-                    {
-                        _spells[SpellSlot.E].Cast(target);
-                    }
-                }
-            }
-        }
-
-        private static void Farm()
-        {
-            if (!_spells[SpellSlot.Q].IsEnabledAndReady(Mode.Farm))
-            {
-                return;
-            }
-            var minionsInRange = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Player.AttackRange).FindAll(m => m.Health <= Player.GetAutoAttackDamage(m) + _spells[SpellSlot.Q].GetDamage(m)).ToList();
-            if (!minionsInRange.Any())
-            {
-                return;
-            }
-            if (minionsInRange.Count > 1)
-            {
-                var firstMinion = minionsInRange.OrderBy(m => m.HealthPercentage()).First();
-                CastTumble(firstMinion);
-                Orbwalker.ForceTarget(firstMinion);
-            }
-        }
-
-        static void OrbwalkingAfterAttack(AttackableUnit unit, AttackableUnit target)
-        {
-
-            if (!(target is Obj_AI_Base) || !unit.IsMe)
-            {
-                return;
-            }
-            var tg = (Obj_AI_Base) target;
-            
-            switch (Orbwalker.ActiveMode)
-            {
-                case Orbwalking.OrbwalkingMode.Combo:
-                    if (_spells[SpellSlot.Q].IsEnabledAndReady(Mode.Combo))
-                    {
-                        CastQ(tg);
-                    }
-                    break;
-                case Orbwalking.OrbwalkingMode.Mixed:
-                    if (_spells[SpellSlot.Q].IsEnabledAndReady(Mode.Harrass))
-                    {
-                        CastQ(tg);
-                    }
-                    break;
-                case Orbwalking.OrbwalkingMode.LastHit:
-                    Farm();
-                    break;
-                case Orbwalking.OrbwalkingMode.LaneClear:
-                    Farm();
-                    break;
-                default:
-                    return;
-            }
-            if (MenuHelper.getKeybindValue("dz191.vhr.misc.condemn.enextauto") &&
-                _spells[SpellSlot.E].CanCast(tg) && (tg is Obj_AI_Hero))
-            {
-                _spells[SpellSlot.E].Cast(tg);
-                Menu.Item("dz191.vhr.misc.condemn.enextauto").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Toggle));
-            }
-        }
-
-
-        static void Drawing_OnDraw(EventArgs args)
-        {
-            //PositionalHelper.DrawMyZone();
-            //PositionalHelper.DrawSafeZone();
-            //PositionalHelper.DrawAllyZone();
-            //PositionalHelper.DrawEnemyZone();
-            //PositionalHelper.DrawIntersection();
-            var drawE = Menu.Item("VayneDrawE").GetValue<Circle>();
-            var midWallQPos = new Vector2(6707.485f, 8802.744f);
-            var drakeWallQPos = new Vector2(11514, 4462);
-            if (drawE.Active)
-            {
-                Render.Circle.DrawCircle(ObjectManager.Player.Position,_spells[SpellSlot.E].Range,drawE.Color);
-            }
-            if (MenuHelper.isMenuEnabled("dz191.vhr.drawing.drawstun"))
-            {
-                Obj_AI_Hero myTarget;
-            }
-            if (MenuHelper.isMenuEnabled("dz191.vhr.drawing.drawspots"))
-            {
-                if (ObjectManager.Player.Distance(midWallQPos) <= 1500f)
-                {
-                    Render.Circle.DrawCircle(midWallQPos.To3D2(), 65f, Color.AliceBlue);
-                }
-                if (ObjectManager.Player.Distance(drakeWallQPos) <= 1500f)
-                {
-                    Render.Circle.DrawCircle(drakeWallQPos.To3D2(), 65f, Color.AliceBlue);
-                }
-            }
-           
-        }
-
-        static void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
-        {
-            if (MenuHelper.isMenuEnabled("dz191.vhr.misc.general.antigp"))
-            {
-                if (gapcloser.Sender.IsValidTarget(_spells[SpellSlot.E].Range) && gapcloser.End.Distance(ObjectManager.Player.ServerPosition) <= 375f && (gapcloser.Sender is Obj_AI_Hero))
-                {
-                    _spells[SpellSlot.E].Cast(gapcloser.Sender);
-                }
-            }
-        }
-
-        static void Interrupter2_OnInterruptableTarget(Obj_AI_Hero sender, Interrupter2.InterruptableTargetEventArgs args)
-        {
-            if (MenuHelper.isMenuEnabled("dz191.vhr.misc.general.interrupt"))
-            {
-                if (args.DangerLevel == Interrupter2.DangerLevel.High && sender.IsValidTarget(_spells[SpellSlot.E].Range) && (sender is Obj_AI_Hero))
-                {
-                    _spells[SpellSlot.E].Cast(sender);
-                }
-            }
-        }
-        
+        #endregion
 
         #region Tumble Region
 
@@ -516,7 +577,7 @@ namespace VayneHunter_Reborn
                 for (var i = 0f; i < 360f; i += currentStep)
                 {
                     var angleRad = Geometry.DegreeToRadian(i);
-                    var rotatedPosition = ObjectManager.Player.Position.To2D() + (300 * direction.Rotated(angleRad));
+                    var rotatedPosition = ObjectManager.Player.Position.To2D() + (300f * direction.Rotated(angleRad));
                     Obj_AI_Hero myTarget;
                     if (CondemnCheck(rotatedPosition.To3D(), out myTarget) && Helpers.OkToQ(rotatedPosition.To3D()))
                     {
@@ -525,7 +586,7 @@ namespace VayneHunter_Reborn
                     }
                 }
             }
-            if (_spells[SpellSlot.R].IsEnabledAndReady(Mode.Combo) && (Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo) && ObjectManager.Player.CountEnemiesInRange(Orbwalking.GetRealAutoAttackRange(null)) >= MenuHelper.getSliderValue("dz191.vhr.combo.r.minenemies"))
+            if (_spells[SpellSlot.R].IsEnabledAndReady(Mode.Combo) && (Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo) && ObjectManager.Player.CountEnemiesInRange(Orbwalking.GetRealAutoAttackRange(null) + 200f) >= MenuHelper.getSliderValue("dz191.vhr.combo.r.minenemies"))
             {
                 _spells[SpellSlot.R].Cast();
             }
@@ -580,6 +641,7 @@ namespace VayneHunter_Reborn
                         }
                         _spells[SpellSlot.Q].Cast(pos);
                         break;
+
                     case 1:
                         if (PositionalHelper.MeleeEnemiesTowardsMe.Any() &&
                             !PositionalHelper.MeleeEnemiesTowardsMe.All(m => m.HealthPercent <= 15))
@@ -616,7 +678,12 @@ namespace VayneHunter_Reborn
         #endregion
 
         #region E Region
-
+        /// <summary>
+        /// The E logic checker method.
+        /// </summary>
+        /// <param name="fromPosition">The start position</param>
+        /// <param name="tg">The target which can be condemned.</param>
+        /// <returns>Whether the target is condemnable or not.</returns>
         static bool CondemnCheck(Vector3 fromPosition, out Obj_AI_Hero tg)
         {
             if ((fromPosition.UnderTurret(true) && MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.noeturret"))|| !_spells[SpellSlot.E].IsReady())
@@ -813,7 +880,6 @@ namespace VayneHunter_Reborn
         }
 
         #endregion
-
 
     }
 }

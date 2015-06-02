@@ -89,7 +89,6 @@ namespace VayneHunter_Reborn.Utility
 
         private static void AddMenu(Menu menu)
         {
-            var cName = ObjectManager.Player.ChampionName;
             var potMenu = new Menu("[VHR]" + " Potion Manager", ObjectManager.Player.ChampionName + "PotM");
             var potItems = new Menu("Potions", ObjectManager.Player.ChampionName + "Pots");
             foreach (var potion in Potions)
