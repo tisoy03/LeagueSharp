@@ -125,7 +125,7 @@ namespace VayneHunter_Reborn.Utility
                             GetHpIds().Contains((int)item.Id) &&
                             MenuHelper.isMenuEnabled(((int)item.Id).ToString())))
             {
-                var currentPriority = Potions.First(it => it.ItemId == Item.Id).Priority;
+                var currentPriority = Potions.First(it => it.ItemId == Item.Id && Item.Stacks > 0).Priority;
                 if (currentPriority <= lastPriority)
                 {
                     potSlot = Item.SpellSlot;
@@ -148,7 +148,7 @@ namespace VayneHunter_Reborn.Utility
                             GetManaIds().Contains((int)item.Id) &&
                             MenuHelper.isMenuEnabled(((int)item.Id).ToString())))
             {
-                var currentPriority = Potions.First(it => it.ItemId == Item.Id).Priority;
+                var currentPriority = Potions.First(it => it.ItemId == Item.Id && Item.Stacks > 0).Priority;
                 if (currentPriority <= lastPriority)
                 {
                     potSlot = Item.SpellSlot;
