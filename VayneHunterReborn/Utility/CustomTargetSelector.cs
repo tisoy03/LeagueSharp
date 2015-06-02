@@ -1,4 +1,7 @@
-﻿namespace VayneHunter_Reborn.Utility
+﻿using System;
+using System.Drawing;
+
+namespace VayneHunter_Reborn.Utility
 {
     #region
     using System.Collections.Generic;
@@ -9,8 +12,13 @@
 
     internal class CustomTargetSelector
     {
+
         #region
-        private List<PriorityClass> priorityList = new List<PriorityClass>()
+
+        public static Obj_AI_Hero selectedHero { get; set; }
+        public static Obj_AI_Hero scriptSelectedHero { get; set; }
+
+        private static List<PriorityClass> priorityList = new List<PriorityClass>()
         {
             new PriorityClass()
             {
@@ -65,48 +73,139 @@
         };
         #endregion
 
-        internal static void OnLoad()
+        internal static void OnLoad(Menu mainMenu)
         {
+            var ctsMenu = new Menu("[VHR] Custom TargetSelector", "dz191.vhr.cts");
+            {
+                ctsMenu.AddItem(
+                    new MenuItem("dz191.vhr.cts.selector", "Target Selector").SetValue(
+                        new StringList(new[] { "VHR Custom", "Default" })));
+                ctsMenu.AddItem(new MenuItem("dz191.vhr.cts.separator1", ""));
+            }
+
+            if (ctsMenu.Item("dz191.vhr.cts.selector").GetValue<StringList>().SelectedIndex == 1)
+            {
+                TargetSelector.AddToMenu(ctsMenu);
+            }
+            else
+            {
+                ConstructCustomMenu(ctsMenu);
+                ctsMenu.AddItem(new MenuItem("dz191.vhr.cts.separator2", ""));
+                ctsMenu.AddItem(new MenuItem("dz191.vhr.cts.forcetarget", "Focus Selected Target").SetValue(false));
+                ctsMenu.AddItem(new MenuItem("dz191.vhr.cts.drawcircle", "Draw Circle").SetValue(true));
+            }
+            mainMenu.AddSubMenu(ctsMenu);
             
         }
-
-        internal Obj_AI_Hero GetTarget(float Range)
+        internal static void RegisterEvents()
         {
-            var EnemiesInRange = ObjectManager.Player.GetEnemiesInRange(Range);
-            var priorityDictionary = EnemiesInRange.Where(en => en.IsValidTarget(Range)).ToDictionary(Enemy => Enemy, Enemy => GetPriorityByName(Enemy.ChampionName));
-            if (priorityDictionary.Any())
+            Game.OnWndProc += Game_OnWndProc;
+            Drawing.OnDraw += Drawing_OnDraw;
+        }
+
+        static void Drawing_OnDraw(EventArgs args)
+        {
+            if (VayneHunterReborn.Menu.Item("dz191.vhr.cts.drawcircle").GetValue<bool>() && selectedHero.IsValidTarget())
             {
-                var HighestPriorityTarget = priorityDictionary.OrderBy(pair => pair.Value).First().Key;
-                if (HighestPriorityTarget != null && HighestPriorityTarget.IsValidTarget(Range))
+                Render.Circle.DrawCircle(selectedHero.Position, 160, Color.Red, 7, true);
+            }
+        }
+
+        static void Game_OnWndProc(WndEventArgs args)
+        {
+            if (args.Msg != (uint) WindowsMessages.WM_LBUTTONDOWN)
+            {
+                return;
+            }
+            selectedHero =
+                HeroManager.Enemies
+                    .FindAll(hero => hero.IsValidTarget() && hero.Distance(Game.CursorPos, true) < 40000) // 200 * 200
+                    .OrderBy(h => h.Distance(Game.CursorPos, true)).FirstOrDefault();
+        }
+
+        internal static void ConstructCustomMenu(Menu ctsMenu)
+        {
+            var Enemies = HeroManager.Enemies;
+            var priorityDictionary = Enemies.ToDictionary(Enemy => Enemy, Enemy => GetPriorityByName(Enemy.ChampionName));
+            foreach (var entry in priorityDictionary)
+            {
+                ctsMenu.AddItem(
+                    new MenuItem(
+                        "dz191.vhr.cts.heroes." + entry.Key.ChampionName.ToLowerInvariant(), entry.Key.ChampionName)
+                        .SetValue(new Slider((int)entry.Value, 1, 5)));
+            }
+        }
+
+        internal static Obj_AI_Hero GetTarget(float Range)
+        {
+            if (IsActive())
+            {
+                if (selectedHero != null && selectedHero.IsDead)
                 {
-                    var HighestPriority = priorityDictionary[HighestPriorityTarget];
-                    var numberOfAttacks = HighestPriorityTarget.Health / ObjectManager.Player.GetAutoAttackDamage(HighestPriorityTarget);
+                    selectedHero = null;
+                }
 
-                    foreach (var Item in priorityDictionary.Where(item => item.Key != HighestPriorityTarget))
+                if (selectedHero.IsValidTarget(Range))
+                {
+                    return selectedHero;
+                }
+
+                if (scriptSelectedHero != null && scriptSelectedHero.IsDead)
+                {
+                    scriptSelectedHero = null;
+                }
+
+                if (scriptSelectedHero.IsValidTarget(Range))
+                {
+                    return scriptSelectedHero;
+                }
+
+                var EnemiesInRange = ObjectManager.Player.GetEnemiesInRange(Range);
+                var priorityDictionary = EnemiesInRange.Where(en => en.IsValidTarget(Range)).ToDictionary(Enemy => Enemy, Enemy => GetPriorityByName(Enemy.ChampionName));
+                if (priorityDictionary.Any())
+                {
+                    var HighestPriorityTarget = priorityDictionary.OrderByDescending(pair => pair.Value).First().Key;
+                    if (HighestPriorityTarget != null && HighestPriorityTarget.IsValidTarget(Range))
                     {
-                        var attacksNumber = HighestPriorityTarget.Health / ObjectManager.Player.GetAutoAttackDamage(Item.Key);
-                        if (attacksNumber < 1 && Item.Key.IsValidTarget(Range))
+                        ////TODO Change this so it first tries to get it from menu and then from the dictionary.
+                        var HighestPriority = (int)priorityDictionary[HighestPriorityTarget];
+                        if (VayneHunterReborn.Menu.Item("dz191.vhr.cts.heroes." + HighestPriorityTarget.ChampionName.ToLowerInvariant()) != null)
                         {
-                            return Item.Key;
-                        }
+                            HighestPriority = VayneHunterReborn.Menu.Item("dz191.vhr.cts.heroes." + HighestPriorityTarget.ChampionName.ToLowerInvariant()).GetValue<Slider>().Value;
+                         }
 
-                        if (Item.Value == HighestPriority)
+                        var numberOfAttacks = HighestPriorityTarget.Health / ObjectManager.Player.GetAutoAttackDamage(HighestPriorityTarget);
+
+                        foreach (var Item in priorityDictionary.Where(item => item.Key != HighestPriorityTarget))
                         {
-                            if (attacksNumber < numberOfAttacks && Item.Key.IsValidTarget(Range))
+                            var attacksNumber = HighestPriorityTarget.Health / ObjectManager.Player.GetAutoAttackDamage(Item.Key);
+                            if ((attacksNumber < 1 && Item.Key.IsValidTarget(Range)) || (Math.Abs(numberOfAttacks - attacksNumber) < 4 && Item.Key.IsValidTarget(Range)))
                             {
-                                numberOfAttacks = attacksNumber;
-                                HighestPriorityTarget = Item.Key;
+                                return Item.Key;
+                            }
+
+                            if ((int)Item.Value == HighestPriority)
+                            {
+                                if (attacksNumber < numberOfAttacks && Item.Key.IsValidTarget(Range))
+                                {
+                                    numberOfAttacks = attacksNumber;
+                                    HighestPriorityTarget = Item.Key;
+                                }
                             }
                         }
+                        return HighestPriorityTarget;
                     }
-                    return HighestPriorityTarget;
-                }  
-            }
-            
-            return null;
+                }
+            }  
+            return TargetSelector.GetTarget(Range, TargetSelector.DamageType.Physical);
         }
 
-        internal Priority GetPriorityByName(string name)
+        internal static bool IsActive()
+        {
+            return VayneHunterReborn.Menu.Item("dz191.vhr.cts.selector").GetValue<StringList>().SelectedIndex == 0;
+        }
+
+        internal static Priority GetPriorityByName(string name)
         {
             if (priorityList.Any(m => m.Champions.Contains(name)))
             {

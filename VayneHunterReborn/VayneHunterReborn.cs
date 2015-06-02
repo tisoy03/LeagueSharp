@@ -67,9 +67,10 @@
             Orbwalker = new Orbwalking.Orbwalker(owMenu);
             Menu.AddSubMenu(owMenu);
 
-            var tgMenu = new Menu("[VHR] Target Selector", "dz191.vhr.targetselector");
-            TargetSelector.AddToMenu(tgMenu);
-            Menu.AddSubMenu(tgMenu);
+           // var tgMenu = new Menu("[VHR] Target Selector", "dz191.vhr.targetselector");
+            //TargetSelector.AddToMenu(tgMenu);
+            //Menu.AddSubMenu(tgMenu);
+            CustomTargetSelector.OnLoad(Menu);
 
             var comboMenu = new Menu("[VHR] Combo", "dz191.vhr.combo");
             comboMenu.AddModeMenu(Mode.Combo, new[] { SpellSlot.Q, SpellSlot.E, SpellSlot.R }, new[] { true, true, false });
@@ -163,7 +164,6 @@
             Cleanser.OnLoad();
             PotionManager.OnLoad(Menu);
             ItemManager.OnLoad(Menu);
-
             Game.OnUpdate += Game_OnGameUpdate;
             Orbwalking.AfterAttack += OrbwalkingAfterAttack;
             AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
@@ -172,6 +172,8 @@
             Drawing.OnDraw += Drawing_OnDraw;
             Obj_AI_Base.OnPlayAnimation += Obj_AI_Hero_OnPlayAnimation;
             GameObject.OnCreate += GameObject_OnCreate;
+
+            CustomTargetSelector.RegisterEvents();
         }
 
         #region Delegate Methods.
@@ -244,6 +246,19 @@
             if (ObjectManager.Player.IsDead)
             {
                 return;
+            }
+
+            if (CustomTargetSelector.IsActive())
+            {
+                if (CustomTargetSelector.GetTarget(Orbwalking.GetRealAutoAttackRange(null)) != null)
+                {
+                    Orbwalker.ForceTarget(CustomTargetSelector.GetTarget(Orbwalking.GetRealAutoAttackRange(null)));
+                }
+                else
+                {
+                    Orbwalker.ForceTarget(TargetSelector.GetTarget(Orbwalking.GetRealAutoAttackRange(null), TargetSelector.DamageType.Physical));
+
+                }
             }
 
             switch (Orbwalker.ActiveMode)
@@ -445,6 +460,7 @@
                 var firstMinion = minionsInRange.OrderBy(m => m.HealthPercent).First();
                 CastTumble(firstMinion);
                 Orbwalker.ForceTarget(firstMinion);
+                
             }
         }
 
@@ -481,6 +497,7 @@
                 if (target != null)
                 {
                     Orbwalker.ForceTarget(target);
+                    CustomTargetSelector.scriptSelectedHero = target;
                     Hud.SelectedUnit = target;
                 }
             }
@@ -563,6 +580,7 @@
                         _spells[SpellSlot.Q].Cast(extendedPosition);
                         Orbwalking.ResetAutoAttackTimer();
                         Orbwalker.ForceTarget(currentTarget);
+                        CustomTargetSelector.scriptSelectedHero = currentTarget;
                     }
                 }
             }
