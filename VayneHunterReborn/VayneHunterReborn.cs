@@ -1,4 +1,6 @@
-﻿namespace VayneHunter_Reborn
+﻿using System.Reflection;
+
+namespace VayneHunter_Reborn
 {
     using System;
     using System.Collections.Generic;
@@ -126,6 +128,8 @@
             drawMenu.AddItem(new MenuItem("dz191.vhr.drawing.drawstun", "Draw Stunnable").SetValue(true));
             drawMenu.AddItem(new MenuItem("dz191.vhr.drawing.drawspots", "Draw Spots").SetValue(true));
             Menu.AddSubMenu(drawMenu);
+
+            Menu.AddItem(new MenuItem("dz191.vhr.info", "VHR by Asuna v." + Assembly.GetExecutingAssembly().GetName().Version));
 
             Menu.AddToMainMenu();
             SetUpEvents();

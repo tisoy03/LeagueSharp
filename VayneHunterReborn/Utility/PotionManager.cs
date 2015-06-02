@@ -71,13 +71,12 @@ namespace VayneHunter_Reborn.Utility
             if (!HealthBuff() && ObjectManager.Player.HealthPercent < MenuHelper.getSliderValue(ObjectManager.Player.ChampionName + "minHP"))
             {
                 var hpSlot = GetHpSlot();
-
                 if (hpSlot != SpellSlot.Unknown && hpSlot.IsReady())
                 {
                     ObjectManager.Player.Spellbook.CastSpell(hpSlot, ObjectManager.Player);
-                    return;
                 }
             }
+
             if (!ManaBuff() && ObjectManager.Player.ManaPercent < MenuHelper.getSliderValue(ObjectManager.Player.ChampionName + "minMana"))
             {
                 var manaSlot = GetManaSlot();
@@ -91,7 +90,7 @@ namespace VayneHunter_Reborn.Utility
         private static void AddMenu(Menu menu)
         {
             var cName = ObjectManager.Player.ChampionName;
-            var potMenu = new Menu(cName + " - Potion Manager", ObjectManager.Player.ChampionName + "PotM");
+            var potMenu = new Menu("[VHR]" + " Potion Manager", ObjectManager.Player.ChampionName + "PotM");
             var potItems = new Menu("Potions", ObjectManager.Player.ChampionName + "Pots");
             foreach (var potion in Potions)
             {
@@ -138,7 +137,7 @@ namespace VayneHunter_Reborn.Utility
 
         private static SpellSlot GetManaSlot()
         {
-            var ordered = Potions.Where(p => p.Type == PotionType.Health || p.Type == PotionType.Flask).OrderByDescending(pot => pot.Priority);
+            var ordered = Potions.Where(p => p.Type == PotionType.Mana || p.Type == PotionType.Flask).OrderByDescending(pot => pot.Priority);
             var potSlot = SpellSlot.Unknown;
             var lastPriority = ordered.First().Priority;
 
