@@ -48,7 +48,7 @@ namespace VayneHunter_Reborn.Utility
         //TODO Potion manager _menu here
         public static void OnLoad(Menu menu)
         {
-            AddMenu(menu);
+            AddMenu(VayneHunterReborn.Menu);
             Game.OnUpdate += Game_OnGameUpdate;
         }
 
@@ -67,7 +67,8 @@ namespace VayneHunter_Reborn.Utility
 
             if (ObjectManager.Player.IsDead || ObjectManager.Player.IsRecalling() || ObjectManager.Player.InFountain() || ObjectManager.Player.InShop())
                 return;
-            if (!HealthBuff() && ObjectManager.Player.HealthPercentage() < MenuHelper.getSliderValue(ObjectManager.Player.ChampionName + "minHP"))
+
+            if (!HealthBuff() && ObjectManager.Player.HealthPercent < MenuHelper.getSliderValue(ObjectManager.Player.ChampionName + "minHP"))
             {
                 var hpSlot = GetHpSlot();
 
@@ -77,7 +78,7 @@ namespace VayneHunter_Reborn.Utility
                     return;
                 }
             }
-            if (!ManaBuff() && ObjectManager.Player.ManaPercentage() < MenuHelper.getSliderValue(ObjectManager.Player.ChampionName + "minMana"))
+            if (!ManaBuff() && ObjectManager.Player.ManaPercent < MenuHelper.getSliderValue(ObjectManager.Player.ChampionName + "minMana"))
             {
                 var manaSlot = GetManaSlot();
                 if (manaSlot != SpellSlot.Unknown && manaSlot.IsReady())
@@ -90,15 +91,15 @@ namespace VayneHunter_Reborn.Utility
         private static void AddMenu(Menu menu)
         {
             var cName = ObjectManager.Player.ChampionName;
-            var potMenu = new Menu("[VHR] Potion Manager", ObjectManager.Player.ChampionName + "PotM");
+            var potMenu = new Menu(cName + " - Potion Manager", ObjectManager.Player.ChampionName + "PotM");
             var potItems = new Menu("Potions", ObjectManager.Player.ChampionName + "Pots");
             foreach (var potion in Potions)
             {
                 potItems.AddItem(new MenuItem(((int)potion.ItemId).ToString(), potion.Name).SetValue(true));
             }
             potMenu.AddSubMenu(potItems);
-            potMenu.AddItem(new MenuItem(ObjectManager.Player.ChampionName + "minHP", "Min Health %", true).SetValue(new Slider(30)));
-            potMenu.AddItem(new MenuItem(ObjectManager.Player.ChampionName + "minMana", "Min Mana %", true).SetValue(new Slider(35)));
+            potMenu.AddItem(new MenuItem(ObjectManager.Player.ChampionName + "minHP", "Min Health %").SetValue(new Slider(30)));
+            potMenu.AddItem(new MenuItem(ObjectManager.Player.ChampionName + "minMana", "Min Mana %").SetValue(new Slider(35)));
             menu.AddSubMenu(potMenu);
         }
 
@@ -162,7 +163,7 @@ namespace VayneHunter_Reborn.Utility
             var HPIds = new List<int>();
             foreach (var pot in Potions)
             {
-                if ((pot.Type == PotionType.Health || pot.Type == PotionType.Flask) && Items.HasItem((int)pot.ItemId))
+                if (pot.Type == PotionType.Health || pot.Type == PotionType.Flask && Items.HasItem((int)pot.ItemId))
                 {
                     HPIds.Add((int)pot.ItemId);
                 }
@@ -175,7 +176,7 @@ namespace VayneHunter_Reborn.Utility
             var ManaIds = new List<int>();
             foreach (var pot in Potions)
             {
-                if ((pot.Type == PotionType.Mana || pot.Type == PotionType.Flask) && Items.HasItem((int)pot.ItemId))
+                if (pot.Type == PotionType.Mana || pot.Type == PotionType.Flask && Items.HasItem((int)pot.ItemId))
                 {
                     ManaIds.Add((int)pot.ItemId);
                 }
@@ -194,7 +195,7 @@ namespace VayneHunter_Reborn.Utility
         public int Priority { get; set; }
         public bool IsRunning
         {
-            get { return ObjectManager.Player.HasBuff(BuffName, true); }
+            get { return ObjectManager.Player.HasBuff(BuffName); }
         }
     }
 
