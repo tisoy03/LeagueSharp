@@ -84,10 +84,15 @@
 
                     foreach (var Item in priorityDictionary.Where(item => item.Key != HighestPriorityTarget))
                     {
+                        var attacksNumber = HighestPriorityTarget.Health / ObjectManager.Player.GetAutoAttackDamage(Item.Key);
+                        if (attacksNumber < 1 && Item.Key.IsValidTarget(Range))
+                        {
+                            return Item.Key;
+                        }
+
                         if (Item.Value == HighestPriority)
                         {
-                            var attacksNumber = HighestPriorityTarget.Health / ObjectManager.Player.GetAutoAttackDamage(Item.Key);
-                            if (attacksNumber < numberOfAttacks)
+                            if (attacksNumber < numberOfAttacks && Item.Key.IsValidTarget(Range))
                             {
                                 numberOfAttacks = attacksNumber;
                                 HighestPriorityTarget = Item.Key;
