@@ -175,6 +175,7 @@
         }
 
         #region Delegate Methods.
+
         /// <summary>
         /// Delegate called when a Game Object is created.
         /// </summary>
@@ -263,7 +264,7 @@
         /// </summary>
         /// <param name="unit">The Unit</param>
         /// <param name="target">The target of the attack</param>
-        static void OrbwalkingAfterAttack(AttackableUnit unit, AttackableUnit target)
+        private static void OrbwalkingAfterAttack(AttackableUnit unit, AttackableUnit target)
         {
             if (!(target is Obj_AI_Base) || !unit.IsMe)
             {
@@ -306,7 +307,7 @@
         /// Delegate used for drawings.
         /// </summary>
         /// <param name="args">The event's args.</param>
-        static void Drawing_OnDraw(EventArgs args)
+        private static void Drawing_OnDraw(EventArgs args)
         {
             var drawE = Menu.Item("VayneDrawE").GetValue<Circle>();
 
@@ -340,7 +341,7 @@
         /// Called when an unit gapcloses onto the Player.
         /// </summary>
         /// <param name="gapcloser">The Event's args</param>
-        static void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
+        private static void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
         {
             if (MenuHelper.isMenuEnabled("dz191.vhr.misc.general.antigp"))
             {
@@ -356,7 +357,7 @@
         /// </summary>
         /// <param name="sender">The sender of the spell.</param>
         /// <param name="args">The event's args.</param>
-        static void Interrupter2_OnInterruptableTarget(Obj_AI_Hero sender, Interrupter2.InterruptableTargetEventArgs args)
+        private static void Interrupter2_OnInterruptableTarget(Obj_AI_Hero sender, Interrupter2.InterruptableTargetEventArgs args)
         {
             if (MenuHelper.isMenuEnabled("dz191.vhr.misc.general.interrupt"))
             {
@@ -593,7 +594,7 @@
             CastTumble(myPosition,target);
         }
 
-        static void CastTumble(Obj_AI_Base target)
+        private static void CastTumble(Obj_AI_Base target)
         {
             if (!_spells[SpellSlot.Q].IsReady())
             {
@@ -615,7 +616,7 @@
             }
         }
 
-        static void CastTumble(Vector3 pos, Obj_AI_Base target)
+        private static void CastTumble(Vector3 pos, Obj_AI_Base target)
         {
             if (!_spells[SpellSlot.Q].IsReady())
             {
@@ -684,7 +685,7 @@
         /// <param name="fromPosition">The start position</param>
         /// <param name="tg">The target which can be condemned.</param>
         /// <returns>Whether the target is condemnable or not.</returns>
-        static bool CondemnCheck(Vector3 fromPosition, out Obj_AI_Hero tg)
+        private static bool CondemnCheck(Vector3 fromPosition, out Obj_AI_Hero tg)
         {
             if ((fromPosition.UnderTurret(true) && MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.noeturret"))|| !_spells[SpellSlot.E].IsReady())
             {
@@ -831,7 +832,7 @@
             return false;
         }
 
-        static bool CondemnBeta(Vector3 fromPosition, out Obj_AI_Hero tg)
+        private static bool CondemnBeta(Vector3 fromPosition, out Obj_AI_Hero tg)
         {
             foreach (var target in from target in HeroManager.Enemies.Where(
                 h =>
@@ -846,7 +847,7 @@
         #endregion
 
         #region WallTumble
-        static void WallTumble()
+        private static void WallTumble()
         {
             Vector2 midWallQPos = new Vector2(6707.485f, 8802.744f);
             Vector2 drakeWallQPos = new Vector2(11514, 4462);
