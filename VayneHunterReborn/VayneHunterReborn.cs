@@ -453,11 +453,13 @@
             {
                 return;
             }
+
             var minionsInRange = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Player.AttackRange).FindAll(m => m.Health <= Player.GetAutoAttackDamage(m) + _spells[SpellSlot.Q].GetDamage(m)).ToList();
             if (!minionsInRange.Any())
             {
                 return;
             }
+
             if (minionsInRange.Count > 1)
             {
                 var firstMinion = minionsInRange.OrderBy(m => m.HealthPercent).First();
@@ -507,7 +509,7 @@
             #endregion
 
             #region Disable AA Stealth
-            if (MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.noaastealth"))
+            if (MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.noaastealth") && ObjectManager.Player.CountEnemiesInRange(1000f) > 1)
             {
                 Orbwalker.SetAttack(!Helpers.IsPlayerFaded());
             }
@@ -534,7 +536,7 @@
             #region Low Life Peel
             if (MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.lowlifepeel") && ObjectManager.Player.HealthPercentage() <= 20 && _spells[SpellSlot.E].IsReady())
             {
-                var meleeEnemies = ObjectManager.Player.GetEnemiesInRange(350f).FindAll(m => m.IsMelee());
+                var meleeEnemies = ObjectManager.Player.GetEnemiesInRange(375f).FindAll(m => m.IsMelee());
                 if (meleeEnemies.Any())
                 {
                     var mostDangerous = meleeEnemies.OrderByDescending(m => m.GetAutoAttackDamage(ObjectManager.Player)).First();
@@ -549,6 +551,7 @@
             #region Disable Movement
             Orbwalker.SetMovement(!MenuHelper.isMenuEnabled("dz191.vhr.misc.general.disablemovement"));
             #endregion
+
         }
 
         #endregion
@@ -559,8 +562,7 @@
         {
             if (MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.qinrange") && _spells[SpellSlot.Q].IsReady())
             {
-                var currentTarget = TargetSelector.GetTarget(
-                    Orbwalking.GetRealAutoAttackRange(null) + 240f, TargetSelector.DamageType.Physical);
+                var currentTarget = TargetSelector.GetTarget(Orbwalking.GetRealAutoAttackRange(null) + 240f, TargetSelector.DamageType.Physical);
                 if (!currentTarget.IsValidTarget())
                 {
                     return;
@@ -572,7 +574,7 @@
                     return;
                 }
 
-                if (currentTarget.Health + 10 <
+                if (currentTarget.Health + 15 <
                     ObjectManager.Player.GetAutoAttackDamage(currentTarget) +
                     _spells[SpellSlot.Q].GetDamage(currentTarget))
                 {
@@ -592,6 +594,7 @@
         private static void CastQ(Obj_AI_Base target)
         {
             var myPosition = Game.CursorPos;
+            Obj_AI_Hero myTarget = null;
             if (MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.smartq") && _spells[SpellSlot.E].IsReady()) 
             {
                 const int currentStep = 30;
@@ -600,7 +603,6 @@
                 {
                     var angleRad = Geometry.DegreeToRadian(i);
                     var rotatedPosition = ObjectManager.Player.Position.To2D() + (300f * direction.Rotated(angleRad));
-                    Obj_AI_Hero myTarget;
                     if (CondemnCheck(rotatedPosition.To3D(), out myTarget) && Helpers.OkToQ(rotatedPosition.To3D()))
                     {
                         myPosition = rotatedPosition.To3D();
@@ -608,11 +610,20 @@
                     }
                 }
             }
+
             if (_spells[SpellSlot.R].IsEnabledAndReady(Mode.Combo) && (Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo) && ObjectManager.Player.CountEnemiesInRange(Orbwalking.GetRealAutoAttackRange(null) + 200f) >= MenuHelper.getSliderValue("dz191.vhr.combo.r.minenemies"))
             {
                 _spells[SpellSlot.R].Cast();
             }
+
             CastTumble(myPosition,target);
+
+            if (myPosition != Game.CursorPos && myTarget != null && myTarget.IsValidTarget(300f + _spells[SpellSlot.E].Range) && _spells[SpellSlot.E].IsReady())
+            {
+                LeagueSharp.Common.Utility.DelayAction.Add((int)(Game.Ping / 2f + _spells[SpellSlot.Q].Delay * 1000 + 300f/1500f),
+                    () =>
+                    { _spells[SpellSlot.E].Cast(myTarget); });
+            }
         }
 
         private static void CastTumble(Obj_AI_Base target)
