@@ -347,6 +347,7 @@
                 {
                     Render.Circle.DrawCircle(midWallQPos.To3D2(), 65f, Color.AliceBlue);
                 }
+
                 if (ObjectManager.Player.Distance(drakeWallQPos) <= 1500f)
                 {
                     Render.Circle.DrawCircle(drakeWallQPos.To3D2(), 65f, Color.AliceBlue);
@@ -362,7 +363,7 @@
         {
             if (MenuHelper.isMenuEnabled("dz191.vhr.misc.general.antigp"))
             {
-                if (gapcloser.Sender.IsValidTarget(_spells[SpellSlot.E].Range) && gapcloser.End.Distance(ObjectManager.Player.ServerPosition) <= 375f && (gapcloser.Sender is Obj_AI_Hero))
+                if (gapcloser.Sender.IsValidTarget(_spells[SpellSlot.E].Range) && gapcloser.End.Distance(ObjectManager.Player.ServerPosition) <= 400f && (gapcloser.Sender is Obj_AI_Hero))
                 {
                     _spells[SpellSlot.E].Cast(gapcloser.Sender);
                 }

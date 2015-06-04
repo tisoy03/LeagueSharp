@@ -305,12 +305,13 @@
 
             var rMana = menu.Item("dz191." + MenuName + ".combo.mm.r").GetValue<Slider>().Value;
             var rTarget = TargetSelector.GetTarget(Spells[SpellSlot.R].Range, TargetSelector.DamageType.Physical);
-            if (rTarget.IsValidTarget(Spells[SpellSlot.R].Range) || !Spells[SpellSlot.R].CanCast(rTarget) || ObjectManager.Player.ManaPercent < rMana)
+
+            if (!rTarget.IsValidTarget(Spells[SpellSlot.R].Range) || !Spells[SpellSlot.R].CanCast(rTarget) || ObjectManager.Player.ManaPercent < rMana)
             {
                 return;
             }
 
-            var aaBuffer = menu.Item("dz191." + MenuName + ".settings.r.preventoverkill").GetValue<bool>() ? menu.Item("dz191." + MenuName + ".settings.r.aa").GetValue<Slider>().Value : 0f;
+            var aaBuffer = menu.Item("dz191." + MenuName + ".settings.r.aa").GetValue<Slider>().Value;
             var wDamageBuffer = 0f;
             var aaDamageBuffer = 0f;
             var minRange = menu.Item("dz191." + MenuName + ".settings.r.minrange").GetValue<Slider>().Value;
@@ -319,7 +320,7 @@
             var currentDistance = rTarget.Distance(ObjectManager.Player.ServerPosition);
             if (currentDistance >= minRange)
             {
-                if (currentDistance < Spells[SpellSlot.W].Range && Spells[SpellSlot.W].CanCast(rTarget) && wEnabled && menu.Item("dz191." + MenuName + ".settings.r.preventoverkill").GetValue<bool>())
+                if (currentDistance <= Spells[SpellSlot.W].Range && Spells[SpellSlot.W].CanCast(rTarget) && wEnabled && menu.Item("dz191." + MenuName + ".settings.r.preventoverkill").GetValue<bool>())
                 {
                     var wHitchance = GetHitchanceFromMenu("dz191." + MenuName + ".settings.w.hitchance");
                     var wPrediction = Spells[SpellSlot.W].GetPrediction(rTarget);
