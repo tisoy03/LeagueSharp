@@ -620,9 +620,15 @@
 
             if (myPosition != Game.CursorPos && myTarget != null && myTarget.IsValidTarget(300f + _spells[SpellSlot.E].Range) && _spells[SpellSlot.E].IsReady())
             {
-                LeagueSharp.Common.Utility.DelayAction.Add((int)(Game.Ping / 2f + _spells[SpellSlot.Q].Delay * 1000 + 300f/1500f),
-                    () =>
-                    { _spells[SpellSlot.E].Cast(myTarget); });
+               
+                    LeagueSharp.Common.Utility.DelayAction.Add((int)(Game.Ping / 2f + _spells[SpellSlot.Q].Delay * 1000 + 300f / 1500f + 50f),
+                        () =>
+                        {
+                            if (!_spells[SpellSlot.Q].IsReady())
+                            {
+                                _spells[SpellSlot.E].Cast(myTarget);
+                            }
+                        });
             }
         }
 
@@ -632,6 +638,7 @@
             {
                 return;
             }
+
             var posAfterTumble =
                 ObjectManager.Player.ServerPosition.To2D().Extend(Game.CursorPos.To2D(), 300f).To3D();
             var distanceAfterTumble = Vector3.DistanceSquared(posAfterTumble, target.ServerPosition);
