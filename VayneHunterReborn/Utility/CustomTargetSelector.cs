@@ -79,7 +79,7 @@ namespace VayneHunter_Reborn.Utility
             {
                 ctsMenu.AddItem(
                     new MenuItem("dz191.vhr.cts.selector", "Target Selector").SetValue(
-                        new StringList(new[] { "VHR Custom", "Default" })));
+                        new StringList(new[] { "VHR Custom", "Default" }, 1)));
                 ctsMenu.AddItem(new MenuItem("dz191.vhr.cts.separator1", ""));
             }
 
