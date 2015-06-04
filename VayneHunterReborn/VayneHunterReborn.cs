@@ -172,8 +172,10 @@
             Drawing.OnDraw += Drawing_OnDraw;
             Obj_AI_Base.OnPlayAnimation += Obj_AI_Hero_OnPlayAnimation;
             GameObject.OnCreate += GameObject_OnCreate;
-
-            CustomTargetSelector.RegisterEvents();
+            if (CustomTargetSelector.IsActive())
+            {
+                CustomTargetSelector.RegisterEvents();
+            }
         }
 
         #region Delegate Methods.

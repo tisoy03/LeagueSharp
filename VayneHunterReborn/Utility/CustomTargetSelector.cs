@@ -179,7 +179,7 @@ namespace VayneHunter_Reborn.Utility
                         foreach (var Item in priorityDictionary.Where(item => item.Key != HighestPriorityTarget))
                         {
                             var attacksNumber = HighestPriorityTarget.Health / ObjectManager.Player.GetAutoAttackDamage(Item.Key);
-                            if ((attacksNumber < 1 && Item.Key.IsValidTarget(Range)) || (Math.Abs(numberOfAttacks - attacksNumber) < 4 && Item.Key.IsValidTarget(Range)))
+                            if ((attacksNumber < 1 && Item.Key.IsValidTarget(Range)) || ((numberOfAttacks - attacksNumber) > 4 && Item.Key.IsValidTarget(Range)))
                             {
                                 return Item.Key;
                             }
