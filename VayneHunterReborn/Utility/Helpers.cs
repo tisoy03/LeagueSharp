@@ -27,6 +27,17 @@ namespace VayneHunter_Reborn.Utility
             }
             return ObjectManager.Get<GameObject>().Where(spawnPoint => spawnPoint is Obj_SpawnPoint && spawnPoint.IsAlly).Any(spawnPoint => Vector2.Distance(position.To2D(), spawnPoint.Position.To2D()) < fountainRange);
         }
+
+        public static bool IsSummonersRift()
+        {
+            var map = LeagueSharp.Common.Utility.Map.GetMap();
+            if (map != null && map.Type == LeagueSharp.Common.Utility.Map.MapType.SummonersRift)
+            {
+                return true;
+            }
+            return false;
+        }
+
         public static bool Has2WStacks(this Obj_AI_Hero target)
         {
             return target.Buffs.Any(bu => bu.Name == "vaynesilvereddebuff" && bu.Count == 2);

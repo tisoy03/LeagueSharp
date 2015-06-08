@@ -343,12 +343,13 @@
 
             if (MenuHelper.isMenuEnabled("dz191.vhr.drawing.drawspots"))
             {
-                if (ObjectManager.Player.Distance(midWallQPos) <= 1500f)
+
+                if (ObjectManager.Player.Distance(midWallQPos) <= 1500f && Helpers.IsSummonersRift())
                 {
                     Render.Circle.DrawCircle(midWallQPos.To3D2(), 65f, Color.AliceBlue);
                 }
 
-                if (ObjectManager.Player.Distance(drakeWallQPos) <= 1500f)
+                if (ObjectManager.Player.Distance(drakeWallQPos) <= 1500f && Helpers.IsSummonersRift())
                 {
                     Render.Circle.DrawCircle(drakeWallQPos.To3D2(), 65f, Color.AliceBlue);
                 }
@@ -620,7 +621,6 @@
 
             if (myPosition != Game.CursorPos && myTarget != null && myTarget.IsValidTarget(300f + _spells[SpellSlot.E].Range) && _spells[SpellSlot.E].IsReady())
             {
-               
                     LeagueSharp.Common.Utility.DelayAction.Add((int)(Game.Ping / 2f + _spells[SpellSlot.Q].Delay * 1000 + 300f / 1500f + 50f),
                         () =>
                         {
@@ -888,6 +888,11 @@
         #region WallTumble
         private static void WallTumble()
         {
+            if (!Helpers.IsSummonersRift())
+            {
+                return;
+            }
+
             Vector2 midWallQPos = new Vector2(6707.485f, 8802.744f);
             Vector2 drakeWallQPos = new Vector2(11514, 4462);
             if (Player.Distance(midWallQPos) >= Player.Distance(drakeWallQPos))
