@@ -27,7 +27,7 @@ namespace VayneHunter_Reborn.Utility
         private static void GameObject_OnIntegerPropertyChange(GameObject sender,
             GameObjectIntegerPropertyChangeEventArgs args)
         {
-            if (!args.Property.Equals("ActionState"))
+            if (!args.Property.Equals("ActionState") || !(sender is Obj_AI_Hero))
             {
                 return;
             }
