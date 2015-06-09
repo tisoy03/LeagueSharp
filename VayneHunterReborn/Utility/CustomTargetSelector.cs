@@ -140,64 +140,62 @@ namespace VayneHunter_Reborn.Utility
         {
             if (IsActive())
             {
-                if (selectedHero != null && selectedHero.IsDead)
-                {
-                    selectedHero = null;
-                }
-
-                if (selectedHero.IsValidTarget(Range))
-                {
-                    return selectedHero;
-                }
-
-                if (scriptSelectedHero != null && scriptSelectedHero.IsDead)
-                {
-                    scriptSelectedHero = null;
-                }
-
-                if (scriptSelectedHero.IsValidTarget(Range))
-                {
-                    return scriptSelectedHero;
-                }
-
                 var EnemiesInRange = ObjectManager.Player.GetEnemiesInRange(Range);
-                var priorityDictionary = EnemiesInRange.Where(en => en.IsValidTarget(Range)).ToDictionary(Enemy => Enemy, Enemy => GetPriorityByName(Enemy.ChampionName));
-                if (priorityDictionary.Any())
+                if (EnemiesInRange.Any())
                 {
-                    var HighestPriorityTarget = priorityDictionary.OrderByDescending(pair => pair.Value).First().Key;
-                    if (HighestPriorityTarget != null && HighestPriorityTarget.IsValidTarget(Range))
+                    var priorityDictionary = EnemiesInRange.Where(en => en.IsValidTarget(Range)).ToDictionary(Enemy => Enemy, Enemy => GetPriorityByName(Enemy.ChampionName));
+                    if (priorityDictionary.Any())
                     {
-                        var HighestPriority = VayneHunterReborn.Menu.Item("dz191.vhr.cts.heroes." + HighestPriorityTarget.ChampionName.ToLowerInvariant()).GetValue<Slider>().Value;
-
-                        var numberOfAttacks = HighestPriorityTarget.Health / ObjectManager.Player.GetAutoAttackDamage(HighestPriorityTarget);
-                        
-                        foreach (var Item in priorityDictionary.Where(item => item.Key != HighestPriorityTarget))
+                        var HighestPriorityTarget = priorityDictionary.OrderByDescending(pair => pair.Value).First().Key;
+                        if (HighestPriorityTarget != null && HighestPriorityTarget.IsValidTarget(Range))
                         {
-                            var attacksNumber = HighestPriorityTarget.Health / ObjectManager.Player.GetAutoAttackDamage(Item.Key);
-                            if ((attacksNumber <= 1 && Item.Key.IsValidTarget(Range)) || ((numberOfAttacks - attacksNumber) > 4 && Item.Key.IsValidTarget(Range)))
+                            var HighestPriority = VayneHunterReborn.Menu.Item("dz191.vhr.cts.heroes." + HighestPriorityTarget.ChampionName.ToLowerInvariant()).GetValue<Slider>().Value;
+
+                            var numberOfAttacks = HighestPriorityTarget.Health / ObjectManager.Player.GetAutoAttackDamage(HighestPriorityTarget);
+                        
+                            foreach (var Item in priorityDictionary.Where(item => item.Key != HighestPriorityTarget))
                             {
-                                return Item.Key;
-                            }
-                            
-                            if ((int)Item.Value >= HighestPriority)
-                            {
-                                if (attacksNumber < numberOfAttacks && Item.Key.IsValidTarget(Range))
+                                var attacksNumber = HighestPriorityTarget.Health / ObjectManager.Player.GetAutoAttackDamage(Item.Key);
+                                if ((attacksNumber <= 1 && Item.Key.IsValidTarget(Range)) || ((numberOfAttacks - attacksNumber) > 4 && Item.Key.IsValidTarget(Range)))
                                 {
-                                    numberOfAttacks = attacksNumber;
-                                    HighestPriorityTarget = Item.Key;
-                                    HighestPriority = (int) Item.Value;
+                                    return Item.Key;
+                                }
+                            
+                                if ((int)Item.Value >= HighestPriority)
+                                {
+                                    if (attacksNumber < numberOfAttacks && Item.Key.IsValidTarget(Range))
+                                    {
+                                        numberOfAttacks = attacksNumber;
+                                        HighestPriorityTarget = Item.Key;
+                                        HighestPriority = (int) Item.Value;
+                                    }
+                                }
+
+                                if (!priorityDictionary.Any(m => (int)m.Value >= HighestPriority))
+                                {
+                                    HighestPriority -= 1;
                                 }
                             }
-
-                            if (!priorityDictionary.Any(m => (int)m.Value >= HighestPriority))
+                            if (selectedHero != null && selectedHero.IsDead)
                             {
-                                HighestPriority -= 1;
+                                selectedHero = null;
+                            }else if (selectedHero.IsValidTarget(Range))
+                            {
+                                return selectedHero;
                             }
-                        }
+
+                            if (scriptSelectedHero != null && scriptSelectedHero.IsDead)
+                            {
+                                scriptSelectedHero = null;
+                            }else if (scriptSelectedHero.IsValidTarget(Range))
+                            {
+                                return scriptSelectedHero;
+                            }
                         return HighestPriorityTarget;
+                        }
                     }
                 }
-            }  
+            }
             return TargetSelector.GetTarget(Range, TargetSelector.DamageType.Physical);
         }
 
