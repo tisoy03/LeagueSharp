@@ -299,7 +299,7 @@
                     }
                     break;
                 case Orbwalking.OrbwalkingMode.Mixed:
-                    if (_spells[SpellSlot.Q].IsEnabledAndReady(Mode.Harrass))
+                    if (_spells[SpellSlot.Q].IsEnabledAndReady(Mode.Harrass) && (tg is Obj_AI_Hero))
                     {
                         CastQ(tg);
                     }
