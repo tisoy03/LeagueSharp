@@ -69,6 +69,7 @@ namespace DZAIO.Champions
                 miscMenu.AddItem(new MenuItem("dzaio.caitlyn.antigp", "E Anti Gapcloser").SetValue(true));
                 miscMenu.AddItem(new MenuItem("dzaio.caitlyn.interrupt", "W Interrupter").SetValue(true));
                 miscMenu.AddItem(new MenuItem("dzaio.caitlyn.dashtomouse", "Dash to mouse").SetValue(new KeyBind("S".ToCharArray()[0],KeyBindType.Press)));
+                miscMenu.AddItem(new MenuItem("dzaio.caitlyn.eq", "EQ").SetValue(new KeyBind("M".ToCharArray()[0], KeyBindType.Press)));
                 miscMenu.AddItem(new MenuItem("dzaio.caitlyn.manualr", "Manual R").SetValue(new KeyBind("Z".ToCharArray()[0], KeyBindType.Press)));
             }
             miscMenu.AddHitChanceSelector();
@@ -159,6 +160,33 @@ namespace DZAIO.Champions
                     }
                 }
             }
+
+            if (MenuHelper.getKeybindValue("dzaio.caitlyn.eq"))
+            {
+                var eqTarget = TargetSelector.GetTarget(_spells[SpellSlot.Q].Range + 505f, TargetSelector.DamageType.Physical);
+
+                if (_spells[SpellSlot.E].IsReady() && _spells[SpellSlot.Q].IsReady() && eqTarget.IsValidTarget() && eqTarget.Distance(ObjectManager.Player) >= Orbwalking.GetRealAutoAttackRange(null))
+                {
+
+                    var afterEPosition = GetPositionAfterE(WhereToEForPosition(eqTarget.ServerPosition));
+                    if (!CaitlynIsSafePosition(afterEPosition))
+                    {
+                        return;
+                    }
+                    var delay = (int)Math.Ceiling(ObjectManager.Player.Distance(afterEPosition) / _spells[SpellSlot.E].Speed * 1000 + 100);
+                    //var delayPrediction = Prediction.GetPrediction(eqTarget, delay);
+                    //E Q
+                    PredictionOutput customPrediction = PredictionHelper.GetP(afterEPosition, _spells[SpellSlot.Q], eqTarget, false);
+                    if (_spells[SpellSlot.Q].IsKillable(eqTarget) && _spells[SpellSlot.Q].IsReady() &&
+                        afterEPosition.Distance(eqTarget.ServerPosition) <= _spells[SpellSlot.Q].Range &&
+                        !(afterEPosition.Distance(eqTarget.ServerPosition) <= Orbwalking.GetRealAutoAttackRange(null) &&
+                          ObjectManager.Player.GetAutoAttackDamage(eqTarget) >= eqTarget.Health + 20))
+                    {
+                        _spells[SpellSlot.E].Cast(WhereToEForPosition(eqTarget.ServerPosition));
+                        LeagueSharp.Common.Utility.DelayAction.Add(delay, () => _spells[SpellSlot.Q].Cast(customPrediction.CastPosition));
+                    }
+                }
+            }
         }
 
         private void Combo()
@@ -198,7 +226,7 @@ namespace DZAIO.Champions
             }
 
             #region E Combos
-            if (_spells[SpellSlot.E].IsEnabledAndReady(Mode.Combo) && !_spells[SpellSlot.R].IsEnabledAndReady(Mode.Combo) && eqTarget.IsValidTarget() && eqTarget.Distance(ObjectManager.Player) >= Orbwalking.GetRealAutoAttackRange(null))
+            if (_spells[SpellSlot.E].IsEnabledAndReady(Mode.Combo) && !_spells[SpellSlot.R].IsReady() && eqTarget.IsValidTarget() && eqTarget.Distance(ObjectManager.Player) >= Orbwalking.GetRealAutoAttackRange(null))
             {
 
                 var afterEPosition = GetPositionAfterE(WhereToEForPosition(eqTarget.ServerPosition));
