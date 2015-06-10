@@ -124,6 +124,7 @@
             {
                 miscGeneralSubMenu.AddItem(new MenuItem("dz191.vhr.misc.general.antigp", "Anti Gapcloser")).SetValue(true);
                 miscGeneralSubMenu.AddItem(new MenuItem("dz191.vhr.misc.general.interrupt", "Interrupter").SetValue(true));
+                miscGeneralSubMenu.AddItem(new MenuItem("dz191.vhr.misc.general.antigpdelay", "Anti Gapcloser Delay (ms)")).SetValue(new Slider(0,0,1000));
                 miscGeneralSubMenu.AddItem(new MenuItem("dz191.vhr.misc.general.specialfocus", "Focus targets with 2 W marks").SetValue(false));
                 miscGeneralSubMenu.AddItem(new MenuItem("dz191.vhr.misc.general.reveal", "Stealth Reveal (Pink Ward)").SetValue(false));
                 miscGeneralSubMenu.AddItem(new MenuItem("dz191.vhr.misc.general.disablemovement", "Disable Orbwalker Movement").SetValue(false));
@@ -364,10 +365,14 @@
         {
             if (MenuHelper.isMenuEnabled("dz191.vhr.misc.general.antigp"))
             {
-                if (gapcloser.Sender.IsValidTarget(_spells[SpellSlot.E].Range) && gapcloser.End.Distance(ObjectManager.Player.ServerPosition) <= 400f && (gapcloser.Sender is Obj_AI_Hero))
-                {
-                    _spells[SpellSlot.E].Cast(gapcloser.Sender);
-                }
+                LeagueSharp.Common.Utility.DelayAction.Add(MenuHelper.getSliderValue("dz191.vhr.misc.general.antigpdelay"),
+                    () =>
+                    {
+                        if (gapcloser.Sender.IsValidTarget(_spells[SpellSlot.E].Range) && gapcloser.End.Distance(ObjectManager.Player.ServerPosition) <= 400f && (gapcloser.Sender is Obj_AI_Hero))
+                        {
+                            _spells[SpellSlot.E].Cast(gapcloser.Sender);
+                        }
+                    });
             }
         }
 
