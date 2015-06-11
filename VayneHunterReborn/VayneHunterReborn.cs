@@ -344,12 +344,6 @@
 
             if (MenuHelper.isMenuEnabled("dz191.vhr.drawing.drawspots"))
             {
-
-                if (ObjectManager.Player.Distance(midWallQPos) <= 1500f && Helpers.IsSummonersRift())
-                {
-                    Render.Circle.DrawCircle(midWallQPos.To3D2(), 65f, Color.AliceBlue);
-                }
-
                 if (ObjectManager.Player.Distance(drakeWallQPos) <= 1500f && Helpers.IsSummonersRift())
                 {
                     Render.Circle.DrawCircle(drakeWallQPos.To3D2(), 65f, Color.AliceBlue);
@@ -897,36 +891,11 @@
             {
                 return;
             }
-
-            Vector2 midWallQPos = new Vector2(6707.485f, 8802.744f);
+            
             Vector2 drakeWallQPos = new Vector2(11514, 4462);
-            if (Player.Distance(midWallQPos) >= Player.Distance(drakeWallQPos))
-            {
-
-                if (Player.Position.X < 12000 || Player.Position.X > 12070 || Player.Position.Y < 4800 ||
-                    Player.Position.Y > 4872)
-                {
-                    Helpers.MoveToLimited(new Vector2(12050, 4827).To3D());
-                }
-                else
-                {
-                    Helpers.MoveToLimited(new Vector2(12050, 4827).To3D());
-                    _spells[SpellSlot.Q].Cast(drakeWallQPos, true);
-                }
-            }
-            else
-            {
-                if (Player.Position.X < 6908 || Player.Position.X > 6978 || Player.Position.Y < 8917 ||
-                    Player.Position.Y > 8989)
-                {
-                    Helpers.MoveToLimited(new Vector2(6958, 8944).To3D());
-                }
-                else
-                {
-                    Helpers.MoveToLimited(new Vector2(6958, 8944).To3D());
-                    _spells[SpellSlot.Q].Cast(midWallQPos, true);
-                }
-            }
+            
+            Helpers.MoveToLimited(new Vector2(12050, 4827).To3D());
+            _spells[SpellSlot.Q].Cast(drakeWallQPos, true);
         }
 
         #endregion
