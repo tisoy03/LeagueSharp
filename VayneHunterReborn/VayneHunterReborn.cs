@@ -327,8 +327,6 @@
         private static void Drawing_OnDraw(EventArgs args)
         {
             var drawE = Menu.Item("VayneDrawE").GetValue<Circle>();
-
-            var midWallQPos = new Vector2(6707.485f, 8802.744f);
             var drakeWallQPos = new Vector2(11514, 4462);
 
             if (drawE.Active)
@@ -889,8 +887,16 @@
             
             Vector2 drakeWallQPos = new Vector2(11514, 4462);
             
-            Helpers.MoveToLimited(new Vector2(12050, 4827).To3D());
-            _spells[SpellSlot.Q].Cast(drakeWallQPos, true);
+            if (Player.Position.X < 12000 || Player.Position.X > 12070 || Player.Position.Y < 4800 ||
+                Player.Position.Y > 4872)
+            {
+                Helpers.MoveToLimited(new Vector2(12050, 4827).To3D());
+            }
+            else
+            {
+                Helpers.MoveToLimited(new Vector2(12050, 4827).To3D());
+                _spells[SpellSlot.Q].Cast(drakeWallQPos, true);
+            }
         }
 
         #endregion
