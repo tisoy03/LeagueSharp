@@ -75,14 +75,11 @@ namespace VayneHunter_Reborn.Utility
 
         public static bool OkToQ2(Vector3 Position)
         {
-            var closestEnemy =
+            var closeEnemies =
                 HeroManager.Enemies.FindAll(en => en.IsValidTarget(1500f)).OrderBy(en => en.Distance(Position));
-            if (closestEnemy.Any())
+            if (closeEnemies.Any())
             {
-                if (Position.CountEnemiesInRange(MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.dynamicqsafety") ? closestEnemy.First().AttackRange : 405f) >= 1)
-                {
-                    return false;
-                }
+                return closeEnemies.All(enemy => Position.CountEnemiesInRange(MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.dynamicqsafety") ? enemy.AttackRange : 405f) < 1);
             }
             return true;
         }
