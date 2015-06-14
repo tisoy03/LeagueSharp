@@ -1,7 +1,7 @@
-LeagueSharp
+DZ191 - LeagueSharp
 ===========
 
-DZ191's LeagueSharp repo. 
+DZ191/Asuna's LeagueSharp repo. 
 
 #TOS
 
@@ -10,6 +10,7 @@ This repo is not subjected to Australian IP Laws and may or may not have been al
 
 Thanks for reading this load of bullshit, now off to serious stuff:
 
+#Profile
 
 LeagueSharp Profile: https://www.joduska.me/forum/user/106-asuna/
 
