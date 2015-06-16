@@ -99,6 +99,7 @@
                 miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.tumble.qspam", "Ignore Q checks").SetValue(false));
                 miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.tumble.qinrange", "Q In Range if Enemy Health < Q+AA Dmg").SetValue(true));
                 miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.tumble.walltumble", "Tumble Over Wall (WallTumble)").SetValue(new KeyBind("Y".ToCharArray()[0], KeyBindType.Press)));
+                miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.tumble.mirin", "Enable this if you're Mirin").SetValue(false));
             }
 
             var miscEMenu = new Menu("Misc - Condemn", "dz191.vhr.misc.condemn");
