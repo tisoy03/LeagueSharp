@@ -745,7 +745,7 @@
                     foreach (var target in HeroManager.Enemies.Where(h => h.IsValidTarget(_spells[SpellSlot.E].Range) && !h.HasBuffOfType(BuffType.SpellShield) && !h.HasBuffOfType(BuffType.SpellImmunity)))
                     {
                         var pushDistance = MenuHelper.getSliderValue("dz191.vhr.misc.condemn.pushdistance");
-                        var targetPosition = _spells[SpellSlot.E].GetPrediction(target).UnitPosition;
+                        var targetPosition = target.ServerPosition;
                         var finalPosition = targetPosition.Extend(fromPosition, -pushDistance);
                         var numberOfChecks = (float)Math.Ceiling(pushDistance / 30f);
 
