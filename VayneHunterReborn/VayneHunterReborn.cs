@@ -748,6 +748,13 @@
                         var targetPosition = _spells[SpellSlot.E].GetPrediction(target).UnitPosition;
                         var finalPosition = targetPosition.Extend(fromPosition, -pushDistance);
                         var numberOfChecks = (float)Math.Ceiling(pushDistance / 30f);
+
+                        if (MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.onlystuncurrent") &&
+                                    !target.Equals(Orbwalker.GetTarget()))
+                        {
+                            continue;
+                        }
+
                         for (var i = 1; i <= 30; i++)
                         {
                             var v3 = (targetPosition - fromPosition).Normalized();
@@ -756,16 +763,16 @@
                             var j4Flag = MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.condemnflag") && (Helpers.IsJ4FlagThere(extendedPosition, target));
                             if ((extendedPosition.IsWall() || j4Flag) && (target.Path.Count() < 2) && !target.IsDashing())
                             {
-                                if (MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.onlystuncurrent") &&
-                                    !target.Equals(Orbwalker.GetTarget()))
+                                
+                                if (target.Health + 10 <=
+                                    ObjectManager.Player.GetAutoAttackDamage(target) *
+                                    MenuHelper.getSliderValue("dz191.vhr.misc.condemn.noeaa"))
                                 {
                                     tg = null;
                                     return false;
                                 }
 
-                                if (target.Health + 10 <=
-                                    ObjectManager.Player.GetAutoAttackDamage(target) *
-                                    MenuHelper.getSliderValue("dz191.vhr.misc.condemn.noeaa"))
+                                if (extendedPosition.UnderTurret(true))
                                 {
                                     tg = null;
                                     return false;
