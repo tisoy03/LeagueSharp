@@ -129,8 +129,20 @@
                 miscGeneralSubMenu.AddItem(new MenuItem("dz191.vhr.misc.general.specialfocus", "Focus targets with 2 W marks").SetValue(false));
                 miscGeneralSubMenu.AddItem(new MenuItem("dz191.vhr.misc.general.reveal", "Stealth Reveal (Pink Ward)").SetValue(false));
                 miscGeneralSubMenu.AddItem(new MenuItem("dz191.vhr.misc.general.disablemovement", "Disable Orbwalker Movement").SetValue(false));
-
+                miscGeneralSubMenu.AddItem(new MenuItem("dz191.vhr.misc.general.permashow", "PermaShow").SetShared().SetValue(true)).ValueChanged += (s, args) =>
+                {
+                    if (args.GetNewValue<bool>())
+                    {
+                        Menu.Item("dz191.vhr.misc.condemn.enextauto").Permashow(true, "E Next Auto");
+                    }
+                    else
+                    {
+                        Menu.Item("dz191.vhr.misc.condemn.enextauto").Permashow(false);
+                    }
+                };
             }
+
+            
 
             miscMenu.AddSubMenu(miscQMenu);
             miscMenu.AddSubMenu(miscEMenu);
@@ -145,6 +157,8 @@
             Menu.AddSubMenu(drawMenu);
 
             Menu.AddItem(new MenuItem("dz191.vhr.info", "VHR by Asuna v." + Assembly.GetExecutingAssembly().GetName().Version));
+
+            Menu.Item("dz191.vhr.misc.condemn.enextauto").Permashow(Menu.Item("dz191.vhr.misc.condemn.enextauto").GetValue<KeyBind>().Active, "E Next Auto");
 
             Menu.AddToMainMenu();
         }
