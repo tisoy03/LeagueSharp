@@ -227,7 +227,7 @@
         internal static void WLogic(Orbwalking.OrbwalkingMode currentMode)
         {
             var wEnabled = menu.Item(string.Format("dz191." + MenuName + ".{0}.usew", currentMode).ToLowerInvariant()).GetValue<bool>();
-            if (!Spells[SpellSlot.W].IsReady() || !wEnabled)
+            if (!Spells[SpellSlot.W].IsReady() || !wEnabled || ObjectManager.Player.IsWindingUp)
             {
                 return;
             }
@@ -862,7 +862,7 @@
         {
             var autoWEnabled = menu.Item("dz191." + MenuName + ".settings.w.immobile").GetValue<bool>();
             var autoWMana = menu.Item("dz191." + MenuName + ".settings.w.autowmana").GetValue<Slider>().Value;
-            if (!autoWEnabled || !Spells[SpellSlot.W].IsReady() || ObjectManager.Player.Mana < autoWMana)
+            if (!autoWEnabled || !Spells[SpellSlot.W].IsReady() || ObjectManager.Player.Mana < autoWMana || ObjectManager.Player.IsWindingUp)
             {
                 return;
             }
