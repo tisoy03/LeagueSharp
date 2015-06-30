@@ -1,4 +1,4 @@
-namespace PennyJinxReborn
+﻿namespace PennyJinxReborn
 {
     #region
     using System.Collections.Generic;
@@ -233,7 +233,7 @@ namespace PennyJinxReborn
         internal static void WLogic(Orbwalking.OrbwalkingMode currentMode)
         {
             var wEnabled = menu.Item(string.Format("dz191." + MenuName + ".{0}.usew", currentMode).ToLowerInvariant()).GetValue<bool>();
-            if (!Spells[SpellSlot.W].IsReady() || !wEnabled || ObjectManager.Player.IsWindingUp)
+            if (!Spells[SpellSlot.W].IsReady() || !wEnabled || ObjectManager.Player.IsWindingUp || !Orbwalking.CanAttack())
             {
                 return;
             }
