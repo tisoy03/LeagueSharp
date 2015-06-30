@@ -1,4 +1,4 @@
-﻿namespace PennyJinxReborn
+namespace PennyJinxReborn
 {
     #region
     using System.Collections.Generic;
@@ -126,7 +126,7 @@
         /// </summary>
         internal static void OnFarm()
         {
-            
+            //See BeforeAttack event.
         }
 
         /// <summary>
@@ -163,7 +163,9 @@
             var qSwapMode = menu.Item("dz191." + MenuName + ".settings.q.qmode").GetValue<StringList>().SelectedIndex; ////0 = AOE 1 = Range 2 = Both
             var minEnemiesAoeMode = menu.Item("dz191." + MenuName + ".settings.q.aoeswitch").GetValue<Slider>().Value;
             var qAoeRadius = menu.Item("dz191." + MenuName + ".settings.q.aoeradius").GetValue<Slider>().Value;
-            var jinxBaseRange = GetMinigunRange(currentTarget);
+			
+            //A bit less range than the actual minigun range, to prevent stuttering.
+            var jinxBaseRange = GetMinigunRange(currentTarget) -10f;
             switch (qSwapMode)
             {
                 case 0:
@@ -184,9 +186,11 @@
 
                     break;
                 case 1:
+				
+                    //It's bad to equalize the distance between 2 units to an AArange, since it never stays the same.
                     if (IsFishBone())
                     {
-                        if (ObjectManager.Player.Distance(currentTarget) <= jinxBaseRange)
+                        if (ObjectManager.Player.Distance(currentTarget) < jinxBaseRange)
                         {
                             Spells[SpellSlot.Q].Cast();
                         }
@@ -201,9 +205,11 @@
 
                     break;
                 case 2:
+					
+                    //It's bad to equalize the distance between 2 units to an AArange, since it never stays the same.
                     if (IsFishBone())
                     {
-                        if (ObjectManager.Player.Distance(currentTarget) <= jinxBaseRange && !(currentTarget.Position.CountEnemiesInRange(qAoeRadius) >= minEnemiesAoeMode))
+                        if (ObjectManager.Player.Distance(currentTarget) < jinxBaseRange && !(currentTarget.Position.CountEnemiesInRange(qAoeRadius) >= minEnemiesAoeMode))
                         {
                             Spells[SpellSlot.Q].Cast();
                         }
@@ -355,7 +361,8 @@
         /// <returns>Range > 565</returns>
         internal static bool IsFishBone()
         {
-            return ObjectManager.Player.AttackRange > 565f;
+            //return ObjectManager.Player.AttackRange > 565f;
+            return ObjectManager.Player.AttackRange > 525f; // Jinx's AA Range is 525.
         }
 
         /// <summary>
@@ -374,7 +381,8 @@
         /// <returns>Extra fishbone range</returns>
         internal static float GetFishboneRange()
         {
-            return 50f + 25f * Spells[SpellSlot.Q].Level;
+            //return 50f + 25f * Spells[SpellSlot.Q].Level;
+            return 75f + 25f * Spells[SpellSlot.Q].Level; //it starts from +75.
         }
 
         /// <summary>
@@ -649,14 +657,13 @@
                     new MenuItem("dz191." + MenuName + ".drawings.w", "Draw W").SetValue(
                         new Circle(false, System.Drawing.Color.Cyan)));
                 drawMenu.AddItem(
-                                    new MenuItem("dz191." + MenuName + ".drawings.e", "Draw E").SetValue(
-                                        new Circle(false, System.Drawing.Color.Yellow)));
+                    new MenuItem("dz191." + MenuName + ".drawings.e", "Draw E").SetValue(
+                        new Circle(false, System.Drawing.Color.Yellow)));
                 drawMenu.AddItem(
                     new MenuItem("dz191." + MenuName + ".drawings.rsprite", "R Sprite drawing").SetValue(false));
             }
 
             menu.AddSubMenu(drawMenu);
-
             menu.AddToMainMenu();
         }
         #endregion
@@ -826,7 +833,7 @@
             else
             {
                 var qMana = (int)(Spells[SpellSlot.Q].Instance.ManaCost * 4 * ObjectManager.Player.CountEnemiesInRange(GetMinigunRange(null) + GetFishboneRange() + 100) / ObjectManager.Player.MaxMana) * 100;
-                var wMana = (int) (Spells[SpellSlot.W].Instance.ManaCost / ObjectManager.Player.MaxMana) * 100;
+                var wMana = (int)(Spells[SpellSlot.W].Instance.ManaCost / ObjectManager.Player.MaxMana) * 100;
                 var eMana = (int)(Spells[SpellSlot.E].Instance.ManaCost * 1.25 / ObjectManager.Player.MaxMana) * 100;
 
                 menu.Item(string.Format("dz191." + MenuName + ".{0}.mm.q", currentMode).ToLowerInvariant()).SetValue(qMana != 0 ? qMana : 10);
@@ -1008,3 +1015,4 @@
         #endregion
     }
 }
+
