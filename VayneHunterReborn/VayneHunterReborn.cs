@@ -32,6 +32,7 @@
         private static Vector3 _predictedEndPosition;
         private static float _lastCheckTick;
         private static float _lastCheckTick2;
+        private static float _lastCondemnCheck;
 
         private static readonly Dictionary<SpellSlot, Spell> _spells = new Dictionary<SpellSlot, Spell>
         {
@@ -741,6 +742,13 @@
         /// <returns>Whether the target is condemnable or not.</returns>
         private static bool CondemnCheck(Vector3 fromPosition, out Obj_AI_Hero tg)
         {
+            if (Environment.TickCount - _lastCondemnCheck < 150)
+            {
+                tg = null;
+                return false;
+            }
+            _lastCondemnCheck = Environment.TickCount;
+
             if ((fromPosition.UnderTurret(true) && MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.noeturret"))|| !_spells[SpellSlot.E].IsReady())
             {
                 tg = null;
@@ -776,7 +784,7 @@
                         {
                             var v3 = (targetPosition - fromPosition).Normalized();
                             var extendedPosition = targetPosition + v3 * (numberOfChecks * i); 
-                            var underTurret = MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.condemnturret") && (Helpers.UnderAllyTurret(finalPosition) || Helpers.IsFountain(finalPosition));
+                            //var underTurret = MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.condemnturret") && (Helpers.UnderAllyTurret(finalPosition) || Helpers.IsFountain(finalPosition));
                             var j4Flag = MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.condemnflag") && (Helpers.IsJ4FlagThere(extendedPosition, target));
                             if ((extendedPosition.IsWall() || j4Flag) && (target.Path.Count() < 2) && !target.IsDashing())
                             {
