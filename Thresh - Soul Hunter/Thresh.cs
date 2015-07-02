@@ -21,10 +21,16 @@ namespace Thresh___Soul_Hunter
             LoadMenu();
         }
 
-        #region Menu, Orbwalker, Events
+        #region Menu, Skills, Events
+
+        static void LoadSkills()
+        {
+            
+        }
+
         static void LoadMenu()
         {
-            RootMenu = new Menu("dz191.thresh", "iKalista 2.0", true);
+            RootMenu = new Menu("dz191.thresh", "Thresh - Sould Hunter", true);
 
 
             var keysMenu = new Menu("dz191.thresh.keys", "Keys");
