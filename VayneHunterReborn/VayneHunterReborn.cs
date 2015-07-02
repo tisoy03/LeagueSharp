@@ -20,6 +20,9 @@
         /// <summary>
         /// TODO Log:
         /// Rewrite most of the core part of the code, since it is so ugly.
+        /// 
+        /// Add Support for xSalice Orbwalker   
+        /// Antigapcloser/Interrupter List
         /// </summary>
        
         public static Menu Menu;
