@@ -269,7 +269,6 @@
             {
                 return;
             }
-
             if (CustomTargetSelector.IsActive())
             {
                 if (CustomTargetSelector.GetTarget(Orbwalking.GetRealAutoAttackRange(null)) != null)
@@ -445,7 +444,7 @@
             if (_spells[SpellSlot.E].IsEnabledAndReady(Mode.Harrass))
             {
                 var possibleTarget = HeroManager.Enemies.Find(enemy => enemy.IsValidTarget(_spells[SpellSlot.E].Range) && enemy.Has2WStacks());
-                if (possibleTarget != null && MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.ethird") && (possibleTarget is Obj_AI_Hero))
+                if (possibleTarget != null && MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.ethird") && (possibleTarget is Obj_AI_Hero) && !ObjectManager.Player.HasBuff("vaynetumblebonus"))
                 {
                     _spells[SpellSlot.E].Cast(possibleTarget);
                 }
@@ -533,7 +532,7 @@
             #endregion
 
             #region Condemn KS
-            if (MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.eks") && _spells[SpellSlot.E].IsReady())
+            if (MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.eks") && _spells[SpellSlot.E].IsReady() && !ObjectManager.Player.HasBuff("vaynetumblebonus"))
             {
                 var target = HeroManager.Enemies.Find(en => en.IsValidTarget(_spells[SpellSlot.E].Range) && en.Has2WStacks());
                 if (target != null && target.Health + 60 <= (_spells[SpellSlot.E].GetDamage(target) + _spells[SpellSlot.W].GetDamage(target)) && (target is Obj_AI_Hero))
