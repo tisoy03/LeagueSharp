@@ -1,4 +1,6 @@
-﻿namespace Thresh___Soul_Hunter
+﻿using LeagueSharp.SDK.Core;
+
+namespace Thresh___Soul_Hunter
 {
     using LeagueSharp;
     class Program
@@ -9,6 +11,7 @@
             {
                 if (ObjectManager.Player.ChampionName.Equals("Thresh"))
                 {
+                    Bootstrap.Init(args);
                     Thresh.OnLoad();
                 }
             };

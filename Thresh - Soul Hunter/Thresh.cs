@@ -1,37 +1,107 @@
-﻿using System.Windows.Forms;
-using LeagueSharp.SDK.Core;
-using LeagueSharp.SDK.Core.Enumerations;
-using LeagueSharp.SDK.Core.UI.IMenu.Values;
-
-namespace Thresh___Soul_Hunter
+﻿namespace Thresh___Soul_Hunter
 {
+    #region
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
-    using LeagueSharp.SDK.Core.UI.IMenu;
+    using LeagueSharp;
+    using LeagueSharp.SDK.Core;
+    using LeagueSharp.SDK.Core.Enumerations;
+    using LeagueSharp.SDK.Core.Extensions;
+    using LeagueSharp.SDK.Core.UI.IMenu.Values;
+    using LeagueSharp.SDK.Core.Wrappers;
+    using System.Windows.Forms;
+    using LeagueSharp.SDK.Core.Extensions.SharpDX;
+    using LeagueSharp.SDK.Core.Math.Prediction;
+    using SharpDX;
+    using Utility;
+    using Menu = LeagueSharp.SDK.Core.UI.IMenu.Menu;
+    #endregion
 
     internal class Thresh
     {
+        #region Fields
         public static Menu RootMenu { get; set; }
+
+        public const string MenuPrefix = "dz191.thresh.";
+
+        private static readonly Dictionary<Spells, Spell> spells = new Dictionary<Spells, Spell>
+        {
+            {Spells.Q1, new Spell(SpellSlot.Q, 1100f)},
+            {Spells.W, new Spell(SpellSlot.Q, 920f)},
+            {Spells.E, new Spell(SpellSlot.Q, 400f)},
+            {Spells.R, new Spell(SpellSlot.R, 440f)},
+        };
+
+        #endregion
 
         internal static void OnLoad()
         {
             LoadMenu();
+            LoadSkills();
         }
+
+        #region Utility Methods
+
+        static void CastFlayPush(OrbwalkerMode Mode)
+        {
+            var target = TargetSelector.GetTarget(spells[Spells.E].Range);
+            if (target.IsValidTarget() && RootMenu[MenuPrefix + Mode.ToString().ToLowerInvariant()]["useE"].GetValue<MenuBool>().Value)
+            {
+                var targetPrediction = Movement.GetPrediction(target, 0.25f);
+                if (targetPrediction.UnitPosition.DistanceSquared(ObjectManager.Player.ServerPosition) <=
+                    Math.Pow(spells[Spells.E].Range, 2))
+                {
+                    var finalPosition = targetPrediction.UnitPosition.Extend(
+                        ObjectManager.Player.ServerPosition,
+                        ObjectManager.Player.ServerPosition.Distance(targetPrediction.UnitPosition) / 2f);
+                    spells[Spells.E].Cast(finalPosition);
+                }
+            }
+        }
+
+        static void CastFlayPull(OrbwalkerMode Mode)
+        {
+            var target = TargetSelector.GetTarget(spells[Spells.E].Range);
+            if (target.IsValidTarget() && RootMenu[MenuPrefix + Mode.ToString().ToLowerInvariant()]["useE"].GetValue<MenuBool>().Value)
+            {
+                var targetPrediction = Movement.GetPrediction(target, 0.25f);
+                if (targetPrediction.UnitPosition.DistanceSquared(ObjectManager.Player.ServerPosition) <=
+                    Math.Pow(spells[Spells.E].Range, 2))
+                {
+                    var finalPosition = 
+                        targetPrediction.UnitPosition.Extend(
+                            ObjectManager.Player.ServerPosition,
+                            ObjectManager.Player.Distance(targetPrediction.UnitPosition) + 100f
+                            );
+                    spells[Spells.E].Cast(finalPosition);
+                }
+            }
+        }
+
+        static Polygon getERectangle(Vector3 finalPosition, float BoundingRadius)
+        {
+            var halfERange = 150f;
+            var eRectangle = new Polygon(
+                Polygon.Rectangle(
+                    ObjectManager.Player.ServerPosition.ToVector2(), 
+                    ObjectManager.Player.ServerPosition.ToVector2().Extend(finalPosition.ToVector2(), halfERange), 
+                    BoundingRadius)
+                );
+            return eRectangle;
+        }
+        #endregion
 
         #region Menu, Skills, Events
 
         static void LoadSkills()
         {
-            
+            spells[Spells.Q1].SetSkillshot(0.500f, 70f, 1900f, true, SkillshotType.SkillshotLine);
         }
 
         static void LoadMenu()
         {
-            RootMenu = new Menu("dz191.thresh", "Thresh - Sould Hunter", true);
-
+            RootMenu = new Menu("dz191.thresh", "Thresh - Soul Hunter", true);
 
             var keysMenu = new Menu("dz191.thresh.keys", "Keys");
             {
@@ -40,7 +110,7 @@ namespace Thresh___Soul_Hunter
                 RootMenu.Add(keysMenu);
             }
 
-            var comboMenu = new Menu("dz191.thresh.combo", "Combo Options");
+            var comboMenu = new Menu("dz191.thresh.orbwalk", "Combo Options");
             {
                 ////Skills
                 comboMenu.Add(new MenuSeparator("separatorSkills", "Combo - Skills"));
@@ -138,5 +208,10 @@ namespace Thresh___Soul_Hunter
             RootMenu.Attach();
         }
         #endregion
+    }
+
+    internal enum Spells
+    {
+        Q1, Q2, W, E, R
     }
 }
