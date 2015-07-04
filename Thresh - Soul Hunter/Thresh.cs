@@ -1,4 +1,6 @@
-﻿namespace Thresh___Soul_Hunter
+﻿using LeagueSharp.SDK.Core.Utils;
+
+namespace Thresh___Soul_Hunter
 {
     #region
     using System;
@@ -22,12 +24,14 @@
     {
         #region Fields
         public static Menu RootMenu { get; set; }
+        public static Obj_AI_Hero HookedUnit { get; set; }
+        public static float HookEndTick { get; set; }
 
         public const string MenuPrefix = "dz191.thresh.";
 
         private static readonly Dictionary<Spells, Spell> spells = new Dictionary<Spells, Spell>
         {
-            {Spells.Q1, new Spell(SpellSlot.Q, 1100f)},
+            {Spells.Q, new Spell(SpellSlot.Q, 1100f)},
             {Spells.W, new Spell(SpellSlot.Q, 920f)},
             {Spells.E, new Spell(SpellSlot.Q, 400f)},
             {Spells.R, new Spell(SpellSlot.R, 440f)},
@@ -39,9 +43,43 @@
         {
             LoadMenu();
             LoadSkills();
+            Obj_AI_Base.OnBuffAdd += OnBuffAdd;
         }
 
+        #region Event Delegates
+        static void OnBuffAdd(Obj_AI_Base sender, Obj_AI_BaseBuffAddEventArgs args)
+        {
+            if ((sender is Obj_AI_Hero) && sender.IsValidTarget() && (args.Buff.Name == "threshqfakeknockup" || args.Buff.Name == "ThreshQ"))
+            {
+                HookedUnit = (Obj_AI_Hero)sender;
+                HookEndTick = Variables.TickCount + 1500f;
+                DelayAction.Add((1500+ Game.Ping +250), () =>
+                {
+                    HookEndTick = 0;
+                    HookedUnit = null;
+                });
+            }
+        }
+        #endregion
+
         #region Utility Methods
+        private static QStates GetQState()
+        {
+            if (!spells[Spells.Q].IsReady())
+            {
+                return QStates.NotReady;
+            }
+            
+            switch (spells[Spells.Q].Instance.Name)
+            {
+                case "ThreshQ":
+                    return QStates.Q1;
+                case "threshqleap":
+                    return QStates.Q2;
+                default:
+                    return QStates.Unknown;
+            }
+        }
 
         static void CastFlayPush(OrbwalkerMode Mode)
         {
@@ -96,7 +134,7 @@
 
         static void LoadSkills()
         {
-            spells[Spells.Q1].SetSkillshot(0.500f, 70f, 1900f, true, SkillshotType.SkillshotLine);
+            spells[Spells.Q].SetSkillshot(0.500f, 70f, 1900f, true, SkillshotType.SkillshotLine);
         }
 
         static void LoadMenu()
@@ -212,6 +250,11 @@
 
     internal enum Spells
     {
-        Q1, Q2, W, E, R
+        Q, W, E, R
+    }
+
+    internal enum QStates
+    {
+        Q1, Q2, NotReady, Unknown
     }
 }
