@@ -61,6 +61,7 @@
     <Compile Include="MapPosition\PositionalHelper.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utility\AntiGP.cs" />
     <Compile Include="Utility\Cleanser.cs" />
     <Compile Include="Utility\CustomTargetSelector.cs" />
     <Compile Include="Utility\Helpers.cs" />

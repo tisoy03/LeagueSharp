@@ -12,7 +12,9 @@
 
     using Color = System.Drawing.Color;
     using Geometry = LeagueSharp.Common.Geometry;
+    using ActiveGapcloser = VayneHunter_Reborn.Utility.ActiveGapcloser;
     using System.Reflection;
+
     #endregion
 
     class VayneHunterReborn
@@ -44,7 +46,7 @@
 
         private static Spell trinketSpell;
         private static readonly Notification CondemnNotification = new Notification("Condemned",5500);
-
+       
         /// <summary>
         /// Method Called when the Assembly is loaded.
         /// </summary>
@@ -145,14 +147,14 @@
                     }
                 };
             }
-
-            
-
             miscMenu.AddSubMenu(miscQMenu);
             miscMenu.AddSubMenu(miscEMenu);
-
             miscMenu.AddSubMenu(miscGeneralSubMenu);
             Menu.AddSubMenu(miscMenu);
+
+
+            AntiGP.BuildMenu(Menu);
+
 
             var drawMenu = new Menu("[VHR] Drawing", "dz191.vhr.drawing");
             drawMenu.AddDrawMenu(_spells, Color.Red);
@@ -186,7 +188,7 @@
             ItemManager.OnLoad(Menu);
             Game.OnUpdate += Game_OnGameUpdate;
             Orbwalking.AfterAttack += OrbwalkingAfterAttack;
-            AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
+            AntiGP.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
             Interrupter2.OnInterruptableTarget += Interrupter2_OnInterruptableTarget;
             Stealth.OnStealth += Stealth_OnStealth;
             Drawing.OnDraw += Drawing_OnDraw;
@@ -378,7 +380,12 @@
                 LeagueSharp.Common.Utility.DelayAction.Add(MenuHelper.getSliderValue("dz191.vhr.misc.general.antigpdelay"),
                     () =>
                     {
-                        if (gapcloser.Sender.IsValidTarget(_spells[SpellSlot.E].Range) && gapcloser.End.Distance(ObjectManager.Player.ServerPosition) <= 400f && (gapcloser.Sender is Obj_AI_Hero))
+                        if (gapcloser.Sender.IsValidTarget(_spells[SpellSlot.E].Range) 
+                            && gapcloser.End.Distance(ObjectManager.Player.ServerPosition) <= 400f 
+                            && (gapcloser.Sender is Obj_AI_Hero)
+                            && MenuHelper.isMenuEnabled(
+                            string.Format("dz191.vhr.agplist.{0}.{1}",gapcloser.Sender.ChampionName.ToLowerInvariant(), gapcloser.SpellName)
+                            ))
                         {
                             _spells[SpellSlot.E].Cast(gapcloser.Sender);
                         }
