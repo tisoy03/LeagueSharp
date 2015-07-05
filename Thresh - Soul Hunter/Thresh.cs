@@ -24,7 +24,9 @@ namespace Thresh___Soul_Hunter
     {
         #region Fields
         public static Menu RootMenu { get; set; }
+
         public static Obj_AI_Hero HookedUnit { get; set; }
+
         public static float HookEndTick { get; set; }
 
         public const string MenuPrefix = "dz191.thresh.";
@@ -44,10 +46,57 @@ namespace Thresh___Soul_Hunter
             LoadMenu();
             LoadSkills();
             Obj_AI_Base.OnBuffAdd += OnBuffAdd;
+            Game.OnUpdate += (args) => { OnUpdate(); };
+            Orbwalker.OnAction += Orbwalker_OnAction;
         }
 
+        #region Combo, Harass, Update Methods
+
+        private static void OnCombo()
+        {
+            
+        }
+
+        private static void OnHarass()
+        {
+
+        }
+
+        private static void OnUpdate()
+        {
+            if (ObjectManager.Player.IsDead)
+            {
+                return;
+            }
+
+            switch (Orbwalker.ActiveMode)
+            {
+                case OrbwalkerMode.Orbwalk:
+                    OnCombo();
+                    break;
+                case OrbwalkerMode.Hybrid:
+                    OnHarass();
+                    break;
+
+            }
+        }
+        #endregion
+
         #region Event Delegates
-        static void OnBuffAdd(Obj_AI_Base sender, Obj_AI_BaseBuffAddEventArgs args)
+        private static void Orbwalker_OnAction(object sender, Orbwalker.OrbwalkerActionArgs e)
+        {
+            switch (e.Type)
+            {
+                case OrbwalkerType.BeforeAttack:
+                    //Block AA if no targon stacks.
+                    break;
+                case OrbwalkerType.AfterAttack:
+                    //TODO
+                    break;
+            }
+        }
+
+        private static void OnBuffAdd(Obj_AI_Base sender, Obj_AI_BaseBuffAddEventArgs args)
         {
             if ((sender is Obj_AI_Hero) && sender.IsValidTarget() && (args.Buff.Name == "threshqfakeknockup" || args.Buff.Name == "ThreshQ"))
             {
@@ -81,7 +130,7 @@ namespace Thresh___Soul_Hunter
             }
         }
 
-        static void CastFlayPush(OrbwalkerMode Mode)
+        private static void CastFlayPush(OrbwalkerMode Mode)
         {
             var target = TargetSelector.GetTarget(spells[Spells.E].Range);
             if (target.IsValidTarget() && RootMenu[MenuPrefix + Mode.ToString().ToLowerInvariant()]["useE"].GetValue<MenuBool>().Value)
@@ -98,7 +147,7 @@ namespace Thresh___Soul_Hunter
             }
         }
 
-        static void CastFlayPull(OrbwalkerMode Mode)
+        private static void CastFlayPull(OrbwalkerMode Mode)
         {
             var target = TargetSelector.GetTarget(spells[Spells.E].Range);
             if (target.IsValidTarget() && RootMenu[MenuPrefix + Mode.ToString().ToLowerInvariant()]["useE"].GetValue<MenuBool>().Value)
@@ -117,7 +166,7 @@ namespace Thresh___Soul_Hunter
             }
         }
 
-        static Polygon getERectangle(Vector3 finalPosition, float BoundingRadius)
+        private static Polygon getERectangle(Vector3 finalPosition, float BoundingRadius)
         {
             var halfERange = 150f;
             var eRectangle = new Polygon(
@@ -132,12 +181,12 @@ namespace Thresh___Soul_Hunter
 
         #region Menu, Skills, Events
 
-        static void LoadSkills()
+        private static void LoadSkills()
         {
             spells[Spells.Q].SetSkillshot(0.500f, 70f, 1900f, true, SkillshotType.SkillshotLine);
         }
 
-        static void LoadMenu()
+        private static void LoadMenu()
         {
             RootMenu = new Menu("dz191.thresh", "Thresh - Soul Hunter", true);
 
