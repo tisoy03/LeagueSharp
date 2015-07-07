@@ -19,8 +19,8 @@ namespace VayneHunter_Reborn_SDK.Utility
                 return false;
             try
             {
-                var manaPercentage = getSliderValue("dz191.vhr." + ObjectManager.Player.ChampionName.ToLowerInvariant() + ".manamanager." + GetStringFromSpellSlot(spell.Slot).ToLowerInvariant() + "mana" + GetStringFromMode(mode).ToLowerInvariant());
-                var enabledCondition = isMenuEnabled("dz191.vhr." + ObjectManager.Player.ChampionName.ToLowerInvariant() + ".use" + GetStringFromSpellSlot(spell.Slot).ToLowerInvariant() + GetStringFromMode(mode));
+                var manaPercentage = getSliderValue("dz191.vhr." + ObjectManager.Player.ChampionName.ToLowerInvariant() + ".manamanager" , GetStringFromSpellSlot(spell.Slot).ToLowerInvariant() + "mana" + GetStringFromMode(mode).ToLowerInvariant());
+                var enabledCondition = isMenuEnabled("dz191.vhr." + ObjectManager.Player.ChampionName.ToLowerInvariant() , "use" + GetStringFromSpellSlot(spell.Slot).ToLowerInvariant() + GetStringFromMode(mode));
                 return spell.IsReady() && (ObjectManager.Player.ManaPercent >= manaPercentage) && enabledCondition;
             }
             catch (Exception e)

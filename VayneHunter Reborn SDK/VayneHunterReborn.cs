@@ -570,7 +570,7 @@ namespace VayneHunter_Reborn_SDK
             {
                 var target = GameObjects.EnemyHeroes.Find(en => en.IsValidTarget(_spells[SpellSlot.E].Range) && en.Has2WStacks());
                 //TODO
-                if (target != null && target.Health + 60 <= (_spells[SpellSlot.E].GetDamage(target) + _spells[SpellSlot.W].GetDamage(target)) && (target is Obj_AI_Hero))
+                if (target != null && target.Health + 60 <= (ObjectManager.Player.GetSpellDamage(target, SpellSlot.E) + ObjectManager.Player.GetSpellDamage(target, SpellSlot.W)) && (target is Obj_AI_Hero))
                 {
                     _spells[SpellSlot.E].Cast(target);
                 }
@@ -627,7 +627,7 @@ namespace VayneHunter_Reborn_SDK
 
                 if (currentTarget.Health + 15 <
                     ObjectManager.Player.GetAutoAttackDamage(currentTarget) +
-                    _spells[SpellSlot.Q].GetDamage(currentTarget))
+                    ObjectManager.Player.GetSpellDamage(currentTarget, SpellSlot.Q))
                 {
                     var extendedPosition = ObjectManager.Player.ServerPosition.Extend(
                         currentTarget.ServerPosition, 300f);
