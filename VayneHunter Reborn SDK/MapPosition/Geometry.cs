@@ -20,7 +20,8 @@ using System;
 using System.Collections.Generic;
 using ClipperLib;
 using LeagueSharp;
-using LeagueSharp.Common;
+using LeagueSharp.SDK;
+using LeagueSharp.SDK.Core.Extensions.SharpDX;
 using SharpDX;
 using Color = System.Drawing.Color;
 using Path = System.Collections.Generic.List<ClipperLib.IntPoint>;
@@ -49,7 +50,7 @@ namespace VayneHunter_Reborn_SDK.MapPosition
             double distance = Vector3.Distance(start, end);
             for (uint i = 0; i < distance; i += 10)
             {
-                var tempPosition = start.Extend(end, i).To2D();
+                var tempPosition = start.Extend(end, i).ToVector2();
                 if (tempPosition.IsWall())
                 {
                     return true;
@@ -185,7 +186,7 @@ namespace VayneHunter_Reborn_SDK.MapPosition
                 for (var i = 0; i <= Points.Count - 1; i++)
                 {
                     var nextIndex = (Points.Count - 1 == i) ? 0 : (i + 1);
-                    DrawLineInWorld(Points[i].To3D(), Points[nextIndex].To3D(), width, color);
+                    DrawLineInWorld(Points[i].ToVector3(), Points[nextIndex].ToVector3(), width, color);
                 }
             }
             public static void DrawLineInWorld(Vector3 start, Vector3 end, int width, Color color)

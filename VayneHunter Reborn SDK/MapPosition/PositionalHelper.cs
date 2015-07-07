@@ -3,8 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using ClipperLib;
 using LeagueSharp;
-using LeagueSharp.Common;
+using LeagueSharp.SDK;
+using LeagueSharp.SDK.Core;
+using LeagueSharp.SDK.Core.Extensions;
+using LeagueSharp.SDK.Core.Extensions.SharpDX;
+using LeagueSharp.SDK.Core.Utils;
 using SharpDX;
+using VayneHunter_Reborn_SDK.Utility;
 using Paths = System.Collections.Generic.List<System.Collections.Generic.List<ClipperLib.IntPoint>>;
 namespace VayneHunter_Reborn_SDK.MapPosition
 {
@@ -17,10 +22,10 @@ namespace VayneHunter_Reborn_SDK.MapPosition
         {
             get
             {
-                var enemyCs = HeroManager.Enemies.FindAll(m => m.Distance(ObjectManager.Player) <= Range && m.IsValidTarget(Range, false)).Aggregate(0f, (current, enemy) => current + (enemy.MinionsKilled + enemy.NeutralMinionsKilled));
-                var allyCs = HeroManager.Allies.FindAll(m => m.Distance(ObjectManager.Player) <= Range && m.IsValidTarget(Range, false)).Aggregate(0f, (current, ally) => current + (ally.MinionsKilled + ally.NeutralMinionsKilled));
-                var allyKills = HeroManager.Allies.FindAll(m => m.Distance(ObjectManager.Player) <= Range && m.IsValidTarget(Range, false)).Aggregate(0f, (current, ally) => current + (ally.ChampionsKilled));
-                var enemyKills = HeroManager.Enemies.FindAll(m => m.Distance(ObjectManager.Player) <= Range && m.IsValidTarget(Range, false)).Aggregate(0f, (current, enemy) => current + (enemy.ChampionsKilled));
+                var enemyCs = GameObjects.EnemyHeroes.Where(m => m.Distance(ObjectManager.Player) <= Range && m.IsValidTarget(Range, false)).Aggregate(0f, (current, enemy) => current + (enemy.MinionsKilled + enemy.NeutralMinionsKilled));
+                var allyCs = GameObjects.AllyHeroes.Where(m => m.Distance(ObjectManager.Player) <= Range && m.IsValidTarget(Range, false)).Aggregate(0f, (current, ally) => current + (ally.MinionsKilled + ally.NeutralMinionsKilled));
+                var allyKills = GameObjects.AllyHeroes.Where(m => m.Distance(ObjectManager.Player) <= Range && m.IsValidTarget(Range, false)).Aggregate(0f, (current, ally) => current + (ally.ChampionsKilled));
+                var enemyKills = GameObjects.EnemyHeroes.Where(m => m.Distance(ObjectManager.Player) <= Range && m.IsValidTarget(Range, false)).Aggregate(0f, (current, enemy) => current + (enemy.ChampionsKilled));
                 return allyCs*17.5f + allyKills*300f >= enemyCs*17.5f + enemyKills*300f ? Team.Ally : Team.Enemy;
                // return Team.Ally;
             }
@@ -31,7 +36,7 @@ namespace VayneHunter_Reborn_SDK.MapPosition
             get
             {
                 return
-                    HeroManager.Allies.FindAll(
+                    GameObjects.AllyHeroes.Where(
                         m =>
                             m.Distance(ObjectManager.Player) <= Range && m.IsValidTarget(Range, false) &&
                             m.CountAlliesInRange(m.IsMelee() ? m.AttackRange * 1.5f : m.AttackRange + RangeOffsetAlly * 1.5f) > 0);
@@ -43,7 +48,7 @@ namespace VayneHunter_Reborn_SDK.MapPosition
             get
             {
                 return
-                    HeroManager.Enemies.FindAll(
+                    GameObjects.EnemyHeroes.Where(
                         m =>
                             m.Distance(ObjectManager.Player) <= Range && m.IsValidTarget(Range, false) &&
                             m.CountEnemiesInRange(m.IsMelee()?m.AttackRange*1.5f:m.AttackRange + RangeOffsetEnemy*1.5f) > 0);
@@ -55,9 +60,9 @@ namespace VayneHunter_Reborn_SDK.MapPosition
             get
             {
                 return
-                    HeroManager.Enemies.FindAll(
+                    GameObjects.EnemyHeroes.Where(
                         m => m.IsMelee() && m.Distance(ObjectManager.Player) <= GetRealAutoAttackRange(m,ObjectManager.Player) 
-                            && (m.ServerPosition.To2D() + (m.BoundingRadius+25f) * m.Direction.To2D().Perpendicular()).Distance(ObjectManager.Player.ServerPosition.To2D()) <= m.ServerPosition.Distance(ObjectManager.Player.ServerPosition) 
+                            && (m.ServerPosition.ToVector2() + (m.BoundingRadius+25f) * m.Direction.ToVector2().Perpendicular()).Distance(ObjectManager.Player.ServerPosition.ToVector2()) <= m.ServerPosition.Distance(ObjectManager.Player.ServerPosition) 
                             && m.IsValidTarget(Range, false));
             }
         }
@@ -139,23 +144,23 @@ namespace VayneHunter_Reborn_SDK.MapPosition
             {
                 polygonsList.Add(
                     new Geometry.Circle(
-                        ObjectManager.Player.ServerPosition.To2D(), ObjectManager.Player.AttackRange + ObjectManager.Player.BoundingRadius + RangeOffsetAlly)
+                        ObjectManager.Player.ServerPosition.ToVector2(), ObjectManager.Player.AttackRange + ObjectManager.Player.BoundingRadius + RangeOffsetAlly)
                         .ToPolygon());
             }
             var pathList = Geometry.ClipPolygons(polygonsList);
-            var pointList = pathList.SelectMany(path => path, (path, point) => new Vector2(point.X, point.Y)).Where(currentPoint => !currentPoint.IsWall() && !Geometry.IsOverWall(ObjectManager.Player.ServerPosition,currentPoint.To3D())).ToList();
+            var pointList = pathList.SelectMany(path => path, (path, point) => new Vector2(point.X, point.Y)).Where(currentPoint => !currentPoint.IsWall() && !Geometry.IsOverWall(ObjectManager.Player.ServerPosition,currentPoint.ToVector3())).ToList();
             return pointList;
         }
         public static List<Vector2> GetAllyPoints()
         {
-            var polygonsList = AlliesClose.Select(ally => new Geometry.Circle(ally.ServerPosition.To2D(), (ally.IsMeele?ally.AttackRange*1.5f:ally.AttackRange) + ally.BoundingRadius + RangeOffsetAlly).ToPolygon()).ToList();
+            var polygonsList = AlliesClose.Select(ally => new Geometry.Circle(ally.ServerPosition.ToVector2(), (ally.IsMeele?ally.AttackRange*1.5f:ally.AttackRange) + ally.BoundingRadius + RangeOffsetAlly).ToPolygon()).ToList();
             var pathList = Geometry.ClipPolygons(polygonsList);
             var pointList = pathList.SelectMany(path => path, (path, point) => new Vector2(point.X, point.Y)).Where(currentPoint => !currentPoint.IsWall()).ToList();
             return pointList;
         }
         public static List<Vector2> GetEnemyPoints()
         {
-            var polygonsList = EnemiesClose.Select(enemy => new Geometry.Circle(enemy.ServerPosition.To2D(), (enemy.IsMeele ? enemy.AttackRange * 1.5f : enemy.AttackRange) + enemy.BoundingRadius + RangeOffsetEnemy).ToPolygon()).ToList();
+            var polygonsList = EnemiesClose.Select(enemy => new Geometry.Circle(enemy.ServerPosition.ToVector2(), (enemy.IsMeele ? enemy.AttackRange * 1.5f : enemy.AttackRange) + enemy.BoundingRadius + RangeOffsetEnemy).ToPolygon()).ToList();
             var pathList = Geometry.ClipPolygons(polygonsList);
             var pointList = pathList.SelectMany(path => path, (path, point) => new Vector2(point.X, point.Y)).Where(currentPoint => !currentPoint.IsWall()).ToList();
             return pointList;
