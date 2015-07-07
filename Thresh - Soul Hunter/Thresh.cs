@@ -59,7 +59,34 @@ namespace Thresh___Soul_Hunter
             if (spells[Spells.E].IsReady() && target.IsValidTarget() &&
                 (GameObjects.Player.DistanceSquared(target) <= Math.Pow(spells[Spells.E].Range, 2)))
             {
-                
+                switch (GetEMode())
+                {
+                    case EMode.Pull:
+                        CastFlayPull(target, OrbwalkerMode.Orbwalk);
+                        break;
+                    case EMode.Push:
+                        CastFlayPush(target, OrbwalkerMode.Orbwalk);
+                        break;
+                }
+            }
+
+            var QStage = GetQState();
+
+            if (spells[Spells.Q].IsReady() && target.IsValidTarget() &&
+                (GameObjects.Player.DistanceSquared(target) <= Math.Pow(spells[Spells.Q].Range, 2)))
+            {
+                switch (QStage)
+                {
+                    case QStates.Q1:
+                        spells[Spells.Q].CastIfHitchanceEquals(target, HitChance.VeryHigh);
+                        break;
+                    case QStates.Q2:
+                        ////vvv TODO Redundant and just for debugging purpouses. Removed it for final release.
+                        if (target == HookedUnit && HookEndTick - Variables.TickCount < 650 && IsSafePosition(target.ServerPosition))
+                        {
+                            
+                        }
+                }
             }
         }
 
@@ -129,6 +156,24 @@ namespace Thresh___Soul_Hunter
         #endregion
 
         #region Utility Methods
+        private static bool IsSafePosition(Vector3 position)
+        {
+            return true;
+        }
+
+        private static EMode GetEMode()
+        {
+            switch (RootMenu[MenuPrefix + "misc"]["defaultEMode"].GetValue<MenuList>().Index)
+            {
+                case 0:
+                    return EMode.Pull;
+                case 1:
+                    return EMode.Pull;
+                default:
+                    return EMode.Push;
+            }
+        }
+
         private static QStates GetQState()
         {
             if (!spells[Spells.Q].IsReady())
@@ -141,15 +186,18 @@ namespace Thresh___Soul_Hunter
                 case "ThreshQ":
                     return QStates.Q1;
                 case "threshqleap":
-                    return QStates.Q2;
+                    if (HookedUnit != null)
+                    {
+                        return QStates.Q2;
+                    }
+                    return QStates.Q1;
                 default:
                     return QStates.Unknown;
             }
         }
 
-        private static void CastFlayPush(OrbwalkerMode Mode)
+        private static void CastFlayPush(Obj_AI_Hero target, OrbwalkerMode Mode)
         {
-            var target = TargetSelector.GetTarget(spells[Spells.E].Range);
             if (target.IsValidTarget() && RootMenu[MenuPrefix + Mode.ToString().ToLowerInvariant()]["useE"].GetValue<MenuBool>().Value)
             {
                 var targetPrediction = Movement.GetPrediction(target, 0.25f);
@@ -164,9 +212,8 @@ namespace Thresh___Soul_Hunter
             }
         }
 
-        private static void CastFlayPull(OrbwalkerMode Mode)
+        private static void CastFlayPull(Obj_AI_Hero target, OrbwalkerMode Mode)
         {
-            var target = TargetSelector.GetTarget(spells[Spells.E].Range);
             if (target.IsValidTarget() && RootMenu[MenuPrefix + Mode.ToString().ToLowerInvariant()]["useE"].GetValue<MenuBool>().Value)
             {
                 var targetPrediction = Movement.GetPrediction(target, 0.25f);
@@ -233,7 +280,6 @@ namespace Thresh___Soul_Hunter
                 ////Skills Options
                 comboMenu.Add(new MenuSeparator("separatorOptions", "Combo - Skill Options"));
                 comboMenu.Add(new MenuSlider("rMinEnemies", "Min Enemies for R", 2 , 1, 5));
-                comboMenu.Add(new MenuList<string>("defaultEMode", "Default E Mode", new[] { "Push", "Pull"}));
                 comboMenu.Add(new MenuBool("pullInUlt", "Pull Enemies into R (Box) with E"));
                 RootMenu.Add(comboMenu);
             }
@@ -295,6 +341,7 @@ namespace Thresh___Soul_Hunter
                 miscMenu.Add(new MenuBool("interrupter", "Interrupter", true));
                 miscMenu.Add(new MenuList<string>("interruptskills", "Interrupt Skills", new[] { "Only E", "Only Q", "Q and E" }));
                 miscMenu.Add(new MenuBool("xspecial", "The XSpecial", true));
+                miscMenu.Add(new MenuList<string>("defaultEMode", "E Mode", new[] { "Push", "Pull" }));
 
                 ////Items & Spells
                 miscMenu.Add(new MenuSeparator("separatorMiscItems", "Items & Spells"));
@@ -325,5 +372,10 @@ namespace Thresh___Soul_Hunter
     internal enum QStates
     {
         Q1, Q2, NotReady, Unknown
+    }
+
+    internal enum EMode
+    {
+        Pull, Push
     }
 }
