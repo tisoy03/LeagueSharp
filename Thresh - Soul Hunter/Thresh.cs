@@ -1,4 +1,5 @@
-﻿using LeagueSharp.SDK.Core.Utils;
+﻿using LeagueSharp.SDK.Core.Events;
+using LeagueSharp.SDK.Core.Utils;
 
 namespace Thresh___Soul_Hunter
 {
@@ -54,7 +55,12 @@ namespace Thresh___Soul_Hunter
 
         private static void OnCombo()
         {
-            
+            var target = HookedUnit ?? TargetSelector.GetTarget(spells[Spells.Q].Range, DamageType.Magical);
+            if (spells[Spells.E].IsReady() && target.IsValidTarget() &&
+                (GameObjects.Player.DistanceSquared(target) <= Math.Pow(spells[Spells.E].Range, 2)))
+            {
+                
+            }
         }
 
         private static void OnHarass()
@@ -69,6 +75,9 @@ namespace Thresh___Soul_Hunter
                 return;
             }
 
+            //threshqfakeknockup -> The buff gained as soon as the enemy is hooked
+            //ThreshQ -> The Buff gained when the enemy has the hook on him
+
             switch (Orbwalker.ActiveMode)
             {
                 case OrbwalkerMode.Orbwalk:
@@ -81,14 +90,16 @@ namespace Thresh___Soul_Hunter
             }
         }
         #endregion
-
         #region Event Delegates
         private static void Orbwalker_OnAction(object sender, Orbwalker.OrbwalkerActionArgs e)
         {
             switch (e.Type)
             {
                 case OrbwalkerType.BeforeAttack:
-                    //Block AA if no targon stacks.
+                    if (ObjectManager.Player.GetBuffCount("talentreaperdisplay") == 0 && Orbwalker.ActiveMode == OrbwalkerMode.Hybrid)
+                    {
+                        e.Process = false;
+                    }
                     break;
                 case OrbwalkerType.AfterAttack:
                     //TODO
@@ -98,6 +109,12 @@ namespace Thresh___Soul_Hunter
 
         private static void OnBuffAdd(Obj_AI_Base sender, Obj_AI_BaseBuffAddEventArgs args)
         {
+            if ((sender is Obj_AI_Hero) && sender.IsValidTarget(float.MaxValue, false))
+            {
+                var h = (Obj_AI_Hero)sender;
+                Console.WriteLine("{0} - {1}",h.ChampionName, args.Buff.Name);
+            }
+
             if ((sender is Obj_AI_Hero) && sender.IsValidTarget() && (args.Buff.Name == "threshqfakeknockup" || args.Buff.Name == "ThreshQ"))
             {
                 HookedUnit = (Obj_AI_Hero)sender;
@@ -240,12 +257,15 @@ namespace Thresh___Soul_Hunter
             {
                 var lanternAllies = new Menu("dz191.thresh.lantern.allies", "Use Lantern On");
                 {
-                    foreach (var ally in GameObjects.AllyHeroes)
+                    if (GameObjects.AllyHeroes.Any())
                     {
-                        lanternAllies.Add(new MenuBool(ally.ChampionName.ToLowerInvariant(), ally.ChampionName, true));
-                    }
+                        foreach (var ally in GameObjects.AllyHeroes)
+                        {
+                            lanternAllies.Add(new MenuBool(ally.ChampionName.ToLowerInvariant(), ally.ChampionName, true));
+                        }
 
-                    lanternMenu.Add(lanternAllies);
+                        lanternMenu.Add(lanternAllies);
+                    }
                 }
 
                 ////Usage

@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using LeagueSharp.Common;
+using LeagueSharp.SDK.Core.Extensions.SharpDX;
 using SharpDX;
 
 namespace Thresh___Soul_Hunter.Utility
