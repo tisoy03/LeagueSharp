@@ -84,10 +84,17 @@ namespace Thresh___Soul_Hunter
                         ////vvv TODO Redundant and just for debugging purpouses. Removed it for final release.
                         if (target == HookedUnit && HookEndTick - Variables.TickCount < 650 && IsSafePosition(target.ServerPosition))
                         {
-                            
+                            ////TODO Lantern ally in before flying if lantern is enabled (Thresh Pain train)
+
+                            spells[Spells.Q].Cast();
                         }
+                        break;
+                    case QStates.Unknown:
+                        Console.WriteLine("Q Spell State is unknown?!");
+                        break;
                 }
             }
+
         }
 
         private static void OnHarass()
