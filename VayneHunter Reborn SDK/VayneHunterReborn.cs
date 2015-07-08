@@ -4,13 +4,10 @@ using LeagueSharp.SDK.Core.Enumerations;
 using LeagueSharp.SDK.Core.Events;
 using LeagueSharp.SDK.Core.Extensions;
 using LeagueSharp.SDK.Core.Extensions.SharpDX;
-using LeagueSharp.SDK.Core.IDrawing;
 using LeagueSharp.SDK.Core.UI.IMenu.Values;
-using LeagueSharp.SDK.Core.UI.INotifications;
 using LeagueSharp.SDK.Core.Utils;
 using LeagueSharp.SDK.Core.Wrappers;
 using Menu = LeagueSharp.SDK.Core.UI.IMenu.Menu;
-using MenuItem = LeagueSharp.SDK.Core.UI.IMenu.MenuItem;
 
 namespace VayneHunter_Reborn_SDK
 {
@@ -22,11 +19,6 @@ namespace VayneHunter_Reborn_SDK
     using SharpDX;
     using MapPosition;
     using Utility;
-
-    using Color = System.Drawing.Color;
-    using Geometry = LeagueSharp.SDK.Core.Math.Geometry;
-    using ActiveGapcloser = VayneHunter_Reborn_SDK.Utility.ActiveGapcloser;
-    using System.Reflection;
 
     #endregion
 
@@ -82,7 +74,6 @@ namespace VayneHunter_Reborn_SDK
         {
             Menu = new Menu("VayneHunter Reborn", "VHR", true);
 
-            CustomTargetSelector.OnLoad(Menu);
 
             var comboMenu = new Menu("[VHR] Combo", "dz191.vhr.combo");
             comboMenu.AddModeMenu(Mode.Combo, new[] { SpellSlot.Q, SpellSlot.E, SpellSlot.R }, new[] { true, true, false });
@@ -103,44 +94,44 @@ namespace VayneHunter_Reborn_SDK
             var miscMenu = new Menu("[VHR] Misc", "dz191.vhr.misc");
             var miscQMenu = new Menu("Misc - Tumble", "dz191.vhr.misc.tumble");
             {
-                miscQMenu.Add(new MenuList<string>("dz191.vhr.misc.condemn.qlogic", "Q Logic", new[] { "Normal", "Away from enemies" }));
-                miscQMenu.Add(new MenuBool("dz191.vhr.misc.tumble.smartq", "Try to QE First"));
-                miscQMenu.Add(new MenuBool("dz191.vhr.misc.tumble.noaastealth", "Don't AA while stealthed"));
-                miscQMenu.Add(new MenuBool("dz191.vhr.misc.tumble.noqenemies", "Don't Q into enemies", true));
-                miscQMenu.Add(new MenuBool("dz191.vhr.misc.tumble.dynamicqsafety", "Dynamic Q Safety Distance"));
-                miscQMenu.Add(new MenuBool("dz191.vhr.misc.tumble.qspam", "Ignore Q checks"));
-                miscQMenu.Add(new MenuBool("dz191.vhr.misc.tumble.qinrange", "Q In Range if Enemy Health < Q+AA Dmg", true));
-                miscQMenu.Add(new MenuKeyBind("dz191.vhr.misc.tumble.walltumble", "Tumble Over Wall (WallTumble)", System.Windows.Forms.Keys.Y, KeyBindType.Press));
-                miscQMenu.Add(new MenuBool("dz191.vhr.misc.tumble.mirin", "Enable this if you're Mirin"));
+                miscQMenu.Add(new MenuList<string>("qlogic", "Q Logic", new[] { "Normal", "Away from enemies" }));
+                miscQMenu.Add(new MenuBool("smartq", "Try to QE First"));
+                miscQMenu.Add(new MenuBool("noaastealth", "Don't AA while stealthed"));
+                miscQMenu.Add(new MenuBool("noqenemies", "Don't Q into enemies", true));
+                miscQMenu.Add(new MenuBool("dynamicqsafety", "Dynamic Q Safety Distance"));
+                miscQMenu.Add(new MenuBool("qspam", "Ignore Q checks"));
+                miscQMenu.Add(new MenuBool("qinrange", "Q In Range if Enemy Health < Q+AA Dmg", true));
+                miscQMenu.Add(new MenuKeyBind("walltumble", "Tumble Over Wall (WallTumble)", System.Windows.Forms.Keys.Y, KeyBindType.Press));
+                miscQMenu.Add(new MenuBool("mirin", "Enable this if you're Mirin"));
             }
 
             var miscEMenu = new Menu("Misc - Condemn", "dz191.vhr.misc.condemn");
             {
-                miscEMenu.Add(new MenuList<string>("dz191.vhr.misc.condemn.condemnmethod", "Condemn Method", new[] { "VH Reborn", "Marksman/Gosu", "VH Rework" }));
-                miscEMenu.Add(new MenuSlider("dz191.vhr.misc.condemn.pushdistance", "E Push Distance", 375, 350, 500));
-                miscEMenu.Add(new MenuKeyBind("dz191.vhr.misc.condemn.enextauto", "E Next Auto", Keys.T, KeyBindType.Toggle));
-                miscEMenu.Add(new MenuBool("dz191.vhr.misc.condemn.onlystuncurrent", "Only stun current target"));
-                miscEMenu.Add(new MenuBool("dz191.vhr.misc.condemn.autoe", "Auto E"));
-                miscEMenu.Add(new MenuBool("dz191.vhr.misc.condemn.eks", "Smart E Ks"));
-                miscEMenu.Add(new MenuSlider("dz191.vhr.misc.condemn.noeaa", "Don't E if Target can be killed in X AA", 1, 0, 4));
+                miscEMenu.Add(new MenuList<string>("condemnmethod", "Condemn Method", new[] { "VH Reborn", "Marksman/Gosu", "VH Rework" }));
+                miscEMenu.Add(new MenuSlider("pushdistance", "E Push Distance", 375, 350, 500));
+                miscEMenu.Add(new MenuKeyBind("enextauto", "E Next Auto", Keys.T, KeyBindType.Toggle));
+                miscEMenu.Add(new MenuBool("onlystuncurrent", "Only stun current target"));
+                miscEMenu.Add(new MenuBool("autoe", "Auto E"));
+                miscEMenu.Add(new MenuBool("eks", "Smart E Ks"));
+                miscEMenu.Add(new MenuSlider("noeaa", "Don't E if Target can be killed in X AA", 1, 0, 4));
 
-                miscEMenu.Add(new MenuBool("dz191.vhr.misc.condemn.trinketbush", "Trinket Bush on Condemn", true));
-                miscEMenu.Add(new MenuBool("dz191.vhr.misc.condemn.ethird", "E 3rd proc in Harass"));
-                miscEMenu.Add(new MenuBool("dz191.vhr.misc.condemn.lowlifepeel", "Peel with E when low"));
+                miscEMenu.Add(new MenuBool("trinketbush", "Trinket Bush on Condemn", true));
+                miscEMenu.Add(new MenuBool("ethird", "E 3rd proc in Harass"));
+                miscEMenu.Add(new MenuBool("lowlifepeel", "Peel with E when low"));
 
-                miscEMenu.Add(new MenuBool("dz191.vhr.misc.condemn.condemnturret", "Try to Condemn to turret"));
-                miscEMenu.Add(new MenuBool("dz191.vhr.misc.condemn.condemnflag", "Condemn to J4 flag", true));
-                miscEMenu.Add(new MenuBool("dz191.vhr.misc.condemn.noeturret", "No E Under enemy turret", true));
+                miscEMenu.Add(new MenuBool("condemnturret", "Try to Condemn to turret"));
+                miscEMenu.Add(new MenuBool("condemnflag", "Condemn to J4 flag", true));
+                miscEMenu.Add(new MenuBool("noeturret", "No E Under enemy turret", true));
             }
 
             var miscGeneralSubMenu = new Menu("Misc - General", "dz191.vhr.misc.general");
             {
-                miscGeneralSubMenu.Add(new MenuBool("dz191.vhr.misc.general.antigp", "Anti Gapcloser", true));
-                miscGeneralSubMenu.Add(new MenuBool("dz191.vhr.misc.general.interrupt", "Interrupter", true));
-                miscGeneralSubMenu.Add(new MenuSlider("dz191.vhr.misc.general.antigpdelay", "Anti Gapcloser Delay (ms)", 0, 0, 1000));
-                miscGeneralSubMenu.Add(new MenuBool("dz191.vhr.misc.general.specialfocus", "Focus targets with 2 W marks"));
-                miscGeneralSubMenu.Add(new MenuBool("dz191.vhr.misc.general.reveal", "Stealth Reveal (Pink Ward)"));
-                miscGeneralSubMenu.Add(new MenuBool("dz191.vhr.misc.general.disablemovement", "Disable Orbwalker Movement"));
+                miscGeneralSubMenu.Add(new MenuBool("antigp", "Anti Gapcloser", true));
+                miscGeneralSubMenu.Add(new MenuBool("interrupt", "Interrupter", true));
+                miscGeneralSubMenu.Add(new MenuSlider("antigpdelay", "Anti Gapcloser Delay (ms)", 0, 0, 1000));
+                miscGeneralSubMenu.Add(new MenuBool("specialfocus", "Focus targets with 2 W marks"));
+                miscGeneralSubMenu.Add(new MenuBool("reveal", "Stealth Reveal (Pink Ward)"));
+                miscGeneralSubMenu.Add(new MenuBool("disablemovement", "Disable Orbwalker Movement"));
                 /**
                 miscGeneralSubMenu.AddItem(new MenuItem("dz191.vhr.misc.general.permashow", "PermaShow").SetShared().SetValue(true)).ValueChanged += (s, args) =>
                 {
@@ -191,20 +182,31 @@ namespace VayneHunter_Reborn_SDK
         /// </summary>
         private static void SetUpEvents()
         {
-            Cleanser.OnLoad();
-            PotionManager.OnLoad(Menu);
-            ItemManager.OnLoad(Menu);
             Game.OnUpdate += Game_OnGameUpdate;
             Orbwalker.OnAction += Orbwalker_OnAction;
-            AntiGP.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
+            LeagueSharp.SDK.Core.Events.Gapcloser.OnGapCloser += AntiGapcloser_OnEnemyGapcloser;
             InterruptableSpell.OnInterruptableTarget += Interrupter_OnInterrupt;
             Stealth.OnStealth += Stealth_OnStealth;
             Drawing.OnDraw += Drawing_OnDraw;
             Obj_AI_Base.OnPlayAnimation += Obj_AI_Hero_OnPlayAnimation;
             GameObject.OnCreate += GameObject_OnCreate;
-            if (CustomTargetSelector.IsActive())
+        }
+
+        private static void AntiGapcloser_OnEnemyGapcloser(object sender, Gapcloser.GapCloserEventArgs e)
+        {
+            if (MenuHelper.isMenuEnabled("dz191.vhr.misc.general", "antigp"))
             {
-                CustomTargetSelector.RegisterEvents();
+                DelayAction.Add((float)MenuHelper.getSliderValue("dz191.vhr.misc.general", "antigpdelay"),
+                     () =>
+                     {
+                         if (e.Sender.IsValidTarget(_spells[SpellSlot.E].Range)
+                             && e.End.Distance(ObjectManager.Player.ServerPosition) <= 400f
+                             && (e.Sender is Obj_AI_Hero)
+                             && MenuHelper.isMenuEnabled(string.Format("dz191.vhr.agplist.{0}", e.Sender.ChampionName.ToLowerInvariant()), e.SpellName))
+                         {
+                             _spells[SpellSlot.E].Cast(e.Sender);
+                         }
+                     });
             }
         }
 
@@ -280,19 +282,6 @@ namespace VayneHunter_Reborn_SDK
             if (ObjectManager.Player.IsDead)
             {
                 return;
-            }
-
-            if (CustomTargetSelector.IsActive())
-            {
-                if (CustomTargetSelector.GetTarget(GetRealAARange()) != null)
-                {
-                    Orbwalker.OrbwalkTarget = CustomTargetSelector.GetTarget(GetRealAARange());
-                }
-                else
-                {
-                    Orbwalker.OrbwalkTarget = (TargetSelector.GetTarget(GetRealAARange()));
-
-                }
             }
 
             switch (Orbwalker.ActiveMode)
@@ -396,27 +385,6 @@ namespace VayneHunter_Reborn_SDK
              * */
         }
         
-        /// <summary>
-        /// Called when an unit gapcloses onto the Player.
-        /// </summary>
-        /// <param name="gapcloser">The Event's args</param>
-        private static void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
-        {
-            if (MenuHelper.isMenuEnabled("dz191.vhr.misc.general","antigp"))
-            {
-               DelayAction.Add((float)MenuHelper.getSliderValue("dz191.vhr.misc.general", "antigpdelay"),
-                    () =>
-                    {
-                        if (gapcloser.Sender.IsValidTarget(_spells[SpellSlot.E].Range) 
-                            && gapcloser.End.Distance(ObjectManager.Player.ServerPosition) <= 400f 
-                            && (gapcloser.Sender is Obj_AI_Hero)
-                            && MenuHelper.isMenuEnabled(string.Format("dz191.vhr.agplist.{0}", gapcloser.Sender.ChampionName.ToLowerInvariant()), gapcloser.SpellName))
-                        {
-                            _spells[SpellSlot.E].Cast(gapcloser.Sender);
-                        }
-                    });
-            }
-        }
 
         /// <summary>
         /// Called when an unit casts an interruptable spell.
@@ -552,7 +520,6 @@ namespace VayneHunter_Reborn_SDK
                 if (target != null)
                 {
                     Orbwalker.OrbwalkTarget = target;
-                    CustomTargetSelector.scriptSelectedHero = target;
                     Hud.SelectedUnit = target;
                 }
             }
@@ -636,7 +603,6 @@ namespace VayneHunter_Reborn_SDK
                         _spells[SpellSlot.Q].Cast(extendedPosition);
                         Orbwalker.ResetAutoAttackTimer();
                         Orbwalker.OrbwalkTarget = currentTarget;
-                        CustomTargetSelector.scriptSelectedHero = currentTarget;
                     }
                 }
             }

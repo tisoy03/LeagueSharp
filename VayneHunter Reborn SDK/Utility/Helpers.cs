@@ -5,6 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using LeagueSharp;
 using LeagueSharp.SDK;
+using LeagueSharp.SDK.Core;
+using LeagueSharp.SDK.Core.Enumerations;
+using LeagueSharp.SDK.Core.Extensions;
+using LeagueSharp.SDK.Core.Extensions.SharpDX;
+using LeagueSharp.SDK.Core.Wrappers;
 using SharpDX;
 
 namespace VayneHunter_Reborn_SDK.Utility
@@ -20,18 +25,18 @@ namespace VayneHunter_Reborn_SDK.Utility
         public static bool IsFountain(Vector3 position)
         {
             float fountainRange = 750;
-            var map = LeagueSharp.Common.Utility.Map.GetMap();
-            if (map != null && map.Type == LeagueSharp.Common.Utility.Map.MapType.SummonersRift)
+            var map = Map.GetMap();
+            if (map != null && map.Type == MapType.SummonersRift)
             {
                 fountainRange = 1050;
             }
-            return ObjectManager.Get<GameObject>().Where(spawnPoint => spawnPoint is Obj_SpawnPoint && spawnPoint.IsAlly).Any(spawnPoint => Vector2.Distance(position.To2D(), spawnPoint.Position.To2D()) < fountainRange);
+            return ObjectManager.Get<GameObject>().Where(spawnPoint => spawnPoint is Obj_SpawnPoint && spawnPoint.IsAlly).Any(spawnPoint => Vector2.Distance(position.ToVector2(), spawnPoint.Position.ToVector2()) < fountainRange);
         }
 
         public static bool IsSummonersRift()
         {
-            var map = LeagueSharp.Common.Utility.Map.GetMap();
-            if (map != null && map.Type == LeagueSharp.Common.Utility.Map.MapType.SummonersRift)
+            var map = Map.GetMap();
+            if (map != null && map.Type == MapType.SummonersRift)
             {
                 return true;
             }
@@ -75,17 +80,17 @@ namespace VayneHunter_Reborn_SDK.Utility
 
         public static bool OkToQ2(Vector3 Position)
         {
-            if (!MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.mirin"))
+            if (!MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble", "mirin"))
             {
                 var closeEnemies =
-                    HeroManager.Enemies.FindAll(en => en.IsValidTarget(1500f)).OrderBy(en => en.Distance(Position));
+                    GameObjects.EnemyHeroes.Where(en => en.IsValidTarget(1500f)).OrderBy(en => en.Distance(Position));
                 if (closeEnemies.Any())
                 {
                     return
                         closeEnemies.All(
                             enemy =>
                                 Position.CountEnemiesInRange(
-                                    MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.dynamicqsafety")
+                                    MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble", "dynamicqsafety")
                                         ? enemy.AttackRange
                                         : 405f) < 1);
                 }
@@ -103,7 +108,7 @@ namespace VayneHunter_Reborn_SDK.Utility
         }
         public static List<Obj_AI_Hero> GetLhEnemiesNearPosition(Vector3 position, float range)
         {
-            return HeroManager.Enemies.Where(hero => hero.IsValidTarget(range, true, position) && hero.HealthPercentage() <= 15).ToList();
+            return GameObjects.EnemyHeroes.Where(hero => hero.IsValidTarget(range, true, position) && hero.HealthPercent <= 15).ToList();
         }
 
         public static bool UnderAllyTurret(Vector3 Position)
