@@ -99,6 +99,8 @@
                 return;
             }
 
+            Orbwalker.Attack = !VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.general"]["disableaa"].GetValue<MenuBool>().Value;
+
             switch (Orbwalker.ActiveMode)
             {
                 case OrbwalkerMode.Orbwalk:

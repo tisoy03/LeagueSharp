@@ -106,6 +106,7 @@
                 miscGeneralSubMenu.Add(new MenuBool("specialfocus", "Focus targets with 2 W marks"));
                 miscGeneralSubMenu.Add(new MenuBool("reveal", "Stealth Reveal (Pink Ward)"));
                 miscGeneralSubMenu.Add(new MenuBool("disablemovement", "Disable Orbwalker Movement"));
+                miscGeneralSubMenu.Add(new MenuBool("disableaa", "Disable Orbwalker AA"));
 
                 miscGeneralSubMenu.Add(new MenuSeparator("sepGeneral3", "Performance"));
                 miscGeneralSubMenu.Add(new MenuBool("lightweight", "Lightweight mode"));
