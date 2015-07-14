@@ -12,7 +12,7 @@
             VHR.VHRMenu = new Menu("VayneHunter Reborn", "VHR", true);
 
             #region Modes Menu
-            var comboMenu = new Menu("[VHR] Combo", "dz191.vhr.orbwalk");
+            var comboMenu = new Menu("dz191.vhr.orbwalk", "[VHR] Combo");
             {
                 comboMenu.Add(new MenuBool("UseQ", "Use Q", true));
                 comboMenu.Add(new MenuBool("UseE", "Use E", true));
@@ -21,11 +21,11 @@
                 comboMenu.Add(new MenuSeparator("sepCombo", "Mana Manager"));
                 comboMenu.Add(new MenuSlider("QMana", "Q Mana"));
                 comboMenu.Add(new MenuSlider("EMana", "E Mana"));
-                comboMenu.Add(new MenuSlider("EMana", "R Mana"));
+                comboMenu.Add(new MenuSlider("RMana", "R Mana"));
             }
             VHR.VHRMenu.Add(comboMenu);
 
-            var harassMenu = new Menu("[VHR] Harass", "dz191.vhr.hybrid");
+            var harassMenu = new Menu("dz191.vhr.hybrid", "[VHR] Harass");
             {
                 harassMenu.Add(new MenuBool("UseQ", "Use Q", true));
                 harassMenu.Add(new MenuBool("UseE", "Use E", true));
@@ -37,7 +37,7 @@
             }
             VHR.VHRMenu.Add(harassMenu);
 
-            var farmMenu = new Menu("[VHR] Farm", "dz191.vhr.laneclear");
+            var farmMenu = new Menu("dz191.vhr.laneclear", "[VHR] Farm");
             {
                 farmMenu.Add(new MenuBool("UseQ", "Use Q", true));
                 farmMenu.Add(new MenuSeparator("sepFarm", "Mana Manager"));
@@ -47,8 +47,8 @@
             #endregion
 
             #region Misc Menu
-            var miscMenu = new Menu("[VHR] Misc", "dz191.vhr.misc");
-            var miscQMenu = new Menu("Tumble", "dz191.vhr.misc.tumble");
+            var miscMenu = new Menu("dz191.vhr.misc", "[VHR] Misc");
+            var miscQMenu = new Menu("dz191.vhr.misc.tumble", "Tumble");
             {
                 miscQMenu.Add(new MenuSeparator("sepQ1", "Q Mode Settings"));
                 miscQMenu.Add(new MenuList<string>("qlogic", "Q Logic", new[] { "Normal", "Away from enemies" }));
@@ -68,7 +68,7 @@
                 miscQMenu.Add(new MenuKeyBind("walltumble", "Tumble Over Wall (WallTumble)", Keys.Y, KeyBindType.Press));
             }
 
-            var miscEMenu = new Menu("Condemn", "dz191.vhr.misc.condemn");
+            var miscEMenu = new Menu("dz191.vhr.misc.condemn", "Condemn");
             {
                 miscEMenu.Add(new MenuSeparator("sepE1", "E Mode Settings"));
                 miscEMenu.Add(new MenuList<string>("condemnmethod", "Condemn Method", new[] { "VHR SDK", "Marksman/Gosu"}));
@@ -95,7 +95,7 @@
 
             }
 
-            var miscGeneralSubMenu = new Menu("General", "dz191.vhr.misc.general");
+            var miscGeneralSubMenu = new Menu("dz191.vhr.misc.general", "General");
             {
                 miscGeneralSubMenu.Add(new MenuSeparator("sepGeneral1", "AntiGP & Interrupter"));
                 miscGeneralSubMenu.Add(new MenuBool("antigp", "Anti Gapcloser", true));

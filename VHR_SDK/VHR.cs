@@ -121,6 +121,7 @@
 
         private static void OnBeforeAttack(Orbwalker.OrbwalkerActionArgs e)
         {
+            /**
             if (VHRMenu["dz191.vhr.misc.general"]["specialfocus"].GetValue<MenuBool>().Value)
             {
                 var currentTarget = e.Target;
@@ -134,6 +135,7 @@
                     }
                 }
             }
+             * */
         }
         #endregion
 
