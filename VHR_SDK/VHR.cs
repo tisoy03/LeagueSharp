@@ -304,6 +304,11 @@
         {
             if (TickLimiter.CanTick("CondemnLimiter"))
             {
+                if (ObjectManager.Player.IsWindingUp)
+                {
+                    return null;
+                }
+
                 switch (VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.condemn"]["condemnmethod"].GetValue<MenuList<string>>().Index)
                 {
 
