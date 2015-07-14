@@ -75,7 +75,7 @@
                 
                 miscEMenu.Add(new MenuSeparator("sepE2", "E Prediction Settings (Only VHR Method)"));
                 miscEMenu.Add(new MenuSlider("predictionNumber", "Number of Predictions (Higher = Laggier)", 10, 1, 30));
-                miscEMenu.Add(new MenuSlider("accuracy", "Min. % of Checks (Higher = Less Condemns)", 75));
+                miscEMenu.Add(new MenuSlider("accuracy", "Condemn Accuracy", 75));
                 miscEMenu.Add(new MenuSlider("nextprediction", "Last Prediction Time (Don't touch unless you know what you're doing)", 500, 0, 1000));
                 miscEMenu.Add(new MenuList<string>("enemymode", "Enemy Bounding Box", new[] { "Circle", "Point"}));
 
