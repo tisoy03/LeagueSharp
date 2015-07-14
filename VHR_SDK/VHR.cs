@@ -99,15 +99,14 @@
                 return;
             }
 
-            var condemnTarget = GetCondemnTarget(ObjectManager.Player.ServerPosition);
-            if (spells[SpellSlot.E].IsReady() && condemnTarget.IsValidTarget())
-            {
-                spells[SpellSlot.E].Cast(condemnTarget);
-            }
             switch (Orbwalker.ActiveMode)
             {
                 case OrbwalkerMode.Orbwalk:
-                    
+                        var condemnTarget = GetCondemnTarget(ObjectManager.Player.ServerPosition);
+                        if (spells[SpellSlot.E].IsReady() && condemnTarget.IsValidTarget())
+                        {
+                            spells[SpellSlot.E].Cast(condemnTarget);
+                        }
                     break;
             }
             
