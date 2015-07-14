@@ -23,6 +23,16 @@
 
     class VHR
     {
+
+        /**
+         * This code is patented under Australian IP Laws Kappa.
+         * */
+
+        /**
+         * Special Credits and mentions:
+         * Exory - Being a great guy and helping me test, as well as giving constant feedback!
+         * */
+
         #region Variables and fields
         public static Menu VHRMenu { get; set; }
 
@@ -89,14 +99,15 @@
                 return;
             }
 
+            var condemnTarget = GetCondemnTarget(ObjectManager.Player.ServerPosition);
+            if (spells[SpellSlot.E].IsReady() && condemnTarget.IsValidTarget())
+            {
+                spells[SpellSlot.E].Cast(condemnTarget);
+            }
             switch (Orbwalker.ActiveMode)
             {
                 case OrbwalkerMode.Orbwalk:
-                    var condemnTarget = GetCondemnTarget(ObjectManager.Player.ServerPosition);
-                    if (spells[SpellSlot.E].IsEnabledAndReady(OrbwalkerMode.Orbwalk) && condemnTarget.IsValidTarget())
-                    {
-                       spells[SpellSlot.E].Cast(condemnTarget);
-                    }
+                    
                     break;
             }
             
@@ -350,8 +361,8 @@
                                 }
 
                                 var WallListCount = ExtendedList.Count(h => h.IsWall());
-                                var TotalListCount = ExtendedList.Count();
-                                if ((WallListCount / TotalListCount) * 100 >= MinChecksPercent)
+
+                                if (((float)WallListCount / (float)ExtendedList.Count) >= MinChecksPercent / 100f)
                                 {
                                     return Hero;
                                 }
