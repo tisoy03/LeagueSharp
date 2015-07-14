@@ -56,15 +56,15 @@
                 miscQMenu.Add(new MenuSeparator("sepQ2", "Q Safety Checks"));
                 miscQMenu.Add(new MenuBool("noqenemies", "Don't Q into enemies", true));
                 miscQMenu.Add(new MenuBool("dynamicqsafety", "Dynamic Q Safety Distance"));
+                miscQMenu.Add(new MenuBool("limitQ", "Limit Q"));
                 miscQMenu.Add(new MenuBool("qspam", "Ignore Q checks"));
 
                 miscQMenu.Add(new MenuSeparator("sepQ3", "Q Integration"));
                 miscQMenu.Add(new MenuBool("smartq", "Try to QE First"));
                 miscQMenu.Add(new MenuBool("noaastealth", "Don't AA while stealthed"));
 
-                miscQMenu.Add(new MenuSeparator("sepQ4", "E Miscellaneous"));
+                miscQMenu.Add(new MenuSeparator("sepQ4", "Q Miscellaneous"));
                 miscQMenu.Add(new MenuBool("qinrange", "Q To KS if Enemy Killable", true));
-                miscQMenu.Add(new MenuBool("mirin", "Use old 'Don't Q in enemies' Mode"));
                 miscQMenu.Add(new MenuKeyBind("walltumble", "Tumble Over Wall (WallTumble)", Keys.Y, KeyBindType.Press));
             }
 
@@ -97,13 +97,21 @@
 
             var miscGeneralSubMenu = new Menu("General", "dz191.vhr.misc.general");
             {
+                miscGeneralSubMenu.Add(new MenuSeparator("sepGeneral1", "AntiGP & Interrupter"));
                 miscGeneralSubMenu.Add(new MenuBool("antigp", "Anti Gapcloser", true));
                 miscGeneralSubMenu.Add(new MenuBool("interrupt", "Interrupter", true));
                 miscGeneralSubMenu.Add(new MenuSlider("antigpdelay", "Anti Gapcloser Delay (ms)", 0, 0, 1000));
+
+                miscGeneralSubMenu.Add(new MenuSeparator("sepGeneral2", "Various"));
                 miscGeneralSubMenu.Add(new MenuBool("specialfocus", "Focus targets with 2 W marks"));
                 miscGeneralSubMenu.Add(new MenuBool("reveal", "Stealth Reveal (Pink Ward)"));
                 miscGeneralSubMenu.Add(new MenuBool("disablemovement", "Disable Orbwalker Movement"));
+
+                miscGeneralSubMenu.Add(new MenuSeparator("sepGeneral3", "Performance"));
+                miscGeneralSubMenu.Add(new MenuBool("lightweight", "Lightweight mode"));
+                ////TODO When Lightweight is enabled then double all the intervals in the TickLimiters.
             }
+
             miscMenu.Add(miscQMenu);
             miscMenu.Add(miscEMenu);
             miscMenu.Add(miscGeneralSubMenu);
