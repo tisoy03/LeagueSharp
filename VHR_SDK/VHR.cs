@@ -62,6 +62,7 @@
         private static void LoadEvents()
         {
             Orbwalker.OnAction += Orbwalker_OnAction;
+            Game.OnUpdate += Game_OnUpdate;
         }
 
         private static void LoadModules()
@@ -81,6 +82,26 @@
         #endregion
 
         #region Event Delegates
+        private static void Game_OnUpdate(EventArgs args)
+        {
+            if (!TickLimiter.CanTick("ModulesLimiter"))
+            {
+                return;
+            }
+
+            switch (Orbwalker.ActiveMode)
+            {
+                case OrbwalkerMode.Orbwalk:
+                    var condemnTarget = GetCondemnTarget(ObjectManager.Player.ServerPosition);
+                    if (spells[SpellSlot.E].IsEnabledAndReady(OrbwalkerMode.Orbwalk) && condemnTarget.IsValidTarget())
+                    {
+                        spells[SpellSlot.E].Cast(condemnTarget);
+                    }
+                    break;
+            }
+            
+        }
+
         private static void Orbwalker_OnAction(object sender, Orbwalker.OrbwalkerActionArgs e)
         {
             switch (e.Type)
@@ -106,11 +127,6 @@
                 {
                     case OrbwalkerMode.Orbwalk:
                         PreliminaryQCheck((Obj_AI_Base)e.Target, OrbwalkerMode.Orbwalk);
-                        var condemnTarget = GetCondemnTarget(ObjectManager.Player.ServerPosition);
-                        if (spells[SpellSlot.E].IsEnabledAndReady(OrbwalkerMode.Orbwalk) && condemnTarget != null)
-                        {
-                            spells[SpellSlot.E].Cast(condemnTarget);
-                        }
                         break;
                     case OrbwalkerMode.Hybrid:
                         PreliminaryQCheck((Obj_AI_Base)e.Target, OrbwalkerMode.Hybrid);
