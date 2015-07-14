@@ -222,7 +222,7 @@
                 {
                     if (extendedPosition.IsSafePosition() && extendedPosition.PassesNoQIntoEnemiesCheck())
                     {
-                        spells[SpellSlot.Q].Cast(extendedPosition);
+                        RealQCast(extendedPosition);
                     }
                 }
                 else
@@ -231,7 +231,7 @@
                     {
                         if (extendedPosition.IsSafePosition() && extendedPosition.PassesNoQIntoEnemiesCheck())
                         {
-                            spells[SpellSlot.Q].Cast(extendedPosition);
+                            RealQCast(extendedPosition);
                         }
                     }
                 }
@@ -240,7 +240,7 @@
             {
                 if (extendedPosition.IsSafePosition() && extendedPosition.PassesNoQIntoEnemiesCheck())
                 {
-                    spells[SpellSlot.Q].Cast(extendedPosition);
+                    RealQCast(extendedPosition);
                 }
             }
         }
@@ -256,7 +256,7 @@
                 {
                     if (extendedPosition.IsSafePosition() && extendedPosition.PassesNoQIntoEnemiesCheck())
                     {
-                        spells[SpellSlot.Q].Cast(extendedPosition);
+                        RealQCast(extendedPosition);
                     }
                 }
                 else
@@ -265,7 +265,7 @@
                     {
                         if (extendedPosition.IsSafePosition() && extendedPosition.PassesNoQIntoEnemiesCheck())
                         {
-                            spells[SpellSlot.Q].Cast(extendedPosition);
+                            RealQCast(extendedPosition);
                         }
                     }
                 }
@@ -274,9 +274,15 @@
             {
                 if (extendedPosition.IsSafePosition() && extendedPosition.PassesNoQIntoEnemiesCheck())
                 {
-                    spells[SpellSlot.Q].Cast(extendedPosition);
+                    RealQCast(extendedPosition);
                 }
             }
+        }
+
+        private static void RealQCast(Vector3 Position)
+        {
+            spells[SpellSlot.Q].Cast(Position);
+            DelayAction.Add((int)(Game.Ping / 2f + spells[SpellSlot.Q].Delay * 1000 + 300f / 1650f + 50f), Orbwalker.ResetAutoAttackTimer);
         }
         #endregion
 
