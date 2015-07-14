@@ -95,7 +95,7 @@
                     var condemnTarget = GetCondemnTarget(ObjectManager.Player.ServerPosition);
                     if (spells[SpellSlot.E].IsEnabledAndReady(OrbwalkerMode.Orbwalk) && condemnTarget.IsValidTarget())
                     {
-                        spells[SpellSlot.E].Cast(condemnTarget);
+                       spells[SpellSlot.E].Cast(condemnTarget);
                     }
                     break;
             }
@@ -121,15 +121,16 @@
         #region Private Methods and operators
         private static void OnAfterAttack(Orbwalker.OrbwalkerActionArgs e)
         {
-            if (e.Target.IsValidTarget() && e.Sender.IsMe && (e.Target is Obj_AI_Base))
+
+            if (e.Target.IsValidTarget() && (e.Target is Obj_AI_Base))
             {
                 switch (Orbwalker.ActiveMode)
                 {
                     case OrbwalkerMode.Orbwalk:
-                        PreliminaryQCheck((Obj_AI_Base)e.Target, OrbwalkerMode.Orbwalk);
+                        PreliminaryQCheck((Obj_AI_Base) e.Target, OrbwalkerMode.Orbwalk);
                         break;
                     case OrbwalkerMode.Hybrid:
-                        PreliminaryQCheck((Obj_AI_Base)e.Target, OrbwalkerMode.Hybrid);
+                        PreliminaryQCheck((Obj_AI_Base) e.Target, OrbwalkerMode.Hybrid);
                         break;
                 }
             }
@@ -165,7 +166,7 @@
 
             if (spells[SpellSlot.Q].IsEnabledAndReady(mode))
             {
-                if (GetQEPosition(target) != Vector3.Zero)
+                if (VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.tumble"]["smartq"].GetValue<MenuBool>().Value && GetQEPosition(target) != Vector3.Zero)
                 {
                     UseTumble(GetQEPosition(target), target);
 
@@ -188,7 +189,7 @@
         #region Q-E Combo Calculation
         private static Vector3 GetQEPosition(Obj_AI_Base Target)
         {
-            if (VHRMenu["dz191.vhr.misc.tumble"]["smartq"].GetValue<MenuBool>().Value && spells[SpellSlot.E].IsReady())
+            if (spells[SpellSlot.E].IsReady())
             {
                 const int currentStep = 30;
                 var direction = ObjectManager.Player.Direction.ToVector2().Perpendicular();
@@ -215,7 +216,7 @@
             var extendedPosition = ObjectManager.Player.ServerPosition.Extend(Position, 300f);
             var distanceAfterTumble = Vector3.DistanceSquared(extendedPosition, Target.ServerPosition);
 
-            if (VHRMenu["dz191.vhr.misc.tumble"]["limitQ"].GetValue<MenuBool>().Value)
+            if (VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.tumble"]["limitQ"].GetValue<MenuBool>().Value)
             {
                 if ((distanceAfterTumble <= 550 * 550 && distanceAfterTumble >= 100 * 100))
                 {
@@ -226,7 +227,7 @@
                 }
                 else
                 {
-                    if (VHRMenu["dz191.vhr.misc.tumble"]["qspam"].GetValue<MenuBool>().Value)
+                    if (VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.tumble"]["qspam"].GetValue<MenuBool>().Value)
                     {
                         if (extendedPosition.IsSafePosition() && extendedPosition.PassesNoQIntoEnemiesCheck())
                         {
@@ -249,7 +250,7 @@
             var extendedPosition = ObjectManager.Player.ServerPosition.Extend(Position, 300f);
             var distanceAfterTumble = Vector3.DistanceSquared(extendedPosition, Target.ServerPosition);
 
-            if (VHRMenu["dz191.vhr.misc.tumble"]["limitQ"].GetValue<MenuBool>().Value)
+            if (VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.tumble"]["limitQ"].GetValue<MenuBool>().Value)
             {
                 if ((distanceAfterTumble <= 550 * 550 && distanceAfterTumble >= 100 * 100))
                 {
@@ -260,7 +261,7 @@
                 }
                 else
                 {
-                    if (VHRMenu["dz191.vhr.misc.tumble"]["qspam"].GetValue<MenuBool>().Value)
+                    if (VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.tumble"]["qspam"].GetValue<MenuBool>().Value)
                     {
                         if (extendedPosition.IsSafePosition() && extendedPosition.PassesNoQIntoEnemiesCheck())
                         {
@@ -287,15 +288,15 @@
         {
             if (TickLimiter.CanTick("CondemnLimiter"))
             {
-                switch (VHRMenu["dz191.vhr.misc.condemn"]["condemnmethod"].GetValue<MenuList<string>>().Index)
+                switch (VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.condemn"]["condemnmethod"].GetValue<MenuList<string>>().Index)
                 {
+
                     case 0:
                         ////VHR SDK Condemn Method
 
-                        if (!VHRMenu["dz191.vhr.misc.general"]["lightweight"].GetValue<MenuBool>().Value)
+                        if (!VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.general"]["lightweight"].GetValue<MenuBool>().Value)
                         {
                             #region VHR SDK Method (Non LW Method)
-
                             var HeroList =
                                 GameObjects.EnemyHeroes.Where(
                                     h =>
@@ -303,13 +304,13 @@
                                         !h.HasBuffOfType(BuffType.SpellShield) &&
                                         !h.HasBuffOfType(BuffType.SpellImmunity));
                             var NumberOfChecks =
-                                VHRMenu["dz191.vhr.misc.condemn"]["predictionNumber"].GetValue<MenuSlider>().Value;
+                                VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.condemn"]["predictionNumber"].GetValue<MenuSlider>().Value;
                             var MinChecksPercent =
-                                (VHRMenu["dz191.vhr.misc.condemn"]["accuracy"].GetValue<MenuSlider>().Value);
+                                (VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.condemn"]["accuracy"].GetValue<MenuSlider>().Value);
                             var PushDistance =
-                                VHRMenu["dz191.vhr.misc.condemn"]["pushdistance"].GetValue<MenuSlider>().Value;
+                                VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.condemn"]["pushdistance"].GetValue<MenuSlider>().Value;
                             var NextPrediction =
-                                (VHRMenu["dz191.vhr.misc.condemn"]["nextprediction"].GetValue<MenuSlider>().Value);
+                                (VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.condemn"]["nextprediction"].GetValue<MenuSlider>().Value);
                             var PredictionsList = new List<Vector3>();
                             var interval = NextPrediction / NumberOfChecks;
                             var currentInterval = interval;
@@ -361,7 +362,7 @@
                                     GameObjects.EnemyHeroes.Where(h => h.IsValidTarget(spells[SpellSlot.E].Range)))
                             {
                                 var PushDistance =
-                                VHRMenu["dz191.vhr.misc.condemn"]["pushdistance"].GetValue<MenuSlider>().Value;
+                                VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.condemn"]["pushdistance"].GetValue<MenuSlider>().Value;
                                 var FinalPosition = target.ServerPosition.Extend(FromPosition, -PushDistance);
                                 var AlternativeFinalPosition = target.ServerPosition.Extend(FromPosition, -(PushDistance/2f));
                                 if (FinalPosition.IsWall() || AlternativeFinalPosition.IsWall())
@@ -383,7 +384,7 @@
                                 GameObjects.EnemyHeroes.Where(h => h.IsValidTarget(spells[SpellSlot.E].Range)))
                         {
                             var PushDistance =
-                            VHRMenu["dz191.vhr.misc.condemn"]["pushdistance"].GetValue<MenuSlider>().Value;
+                            VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.condemn"]["pushdistance"].GetValue<MenuSlider>().Value;
                             var FinalPosition = target.ServerPosition.Extend(FromPosition, -PushDistance);
                             var AlternativeFinalPosition = target.ServerPosition.Extend(FromPosition, -(PushDistance / 2f));
                             if (FinalPosition.IsWall() || AlternativeFinalPosition.IsWall())

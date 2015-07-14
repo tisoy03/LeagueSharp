@@ -71,11 +71,21 @@
         /// <returns></returns>
         public static bool PassesNoQIntoEnemiesCheck(this Vector3 Position)
         {
-            if (!VHR.VHRMenu["dz191.vhr.misc.general"]["lightweight"].GetValue<MenuBool>().Value)
+            if (!VHR.VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.tumble"]["noqenemies"].GetValue<MenuBool>().Value || VHR.VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.tumble"]["qspam"].GetValue<MenuBool>().Value)
+            {
+                return true;
+            }
+
+            if (!VHR.VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.general"]["lightweight"].GetValue<MenuBool>().Value)
             {
                 var Vector2Position = Position.ToVector2();
+                if (EnemiesClose.Count() <= 1)
+                {
+                    return true;
+                }
+
                 if (GetEnemyPoints().Contains(Vector2Position) &&
-                    !VHR.VHRMenu["dz191.vhr.misc.tumble"]["qspam"].GetValue<MenuBool>().Value)
+                    !VHR.VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.tumble"]["qspam"].GetValue<MenuBool>().Value)
                 {
                     return false;
                 }
@@ -85,12 +95,12 @@
             var closeEnemies = GameObjects.EnemyHeroes.Where(en => en.IsValidTarget(1500f)).OrderBy(en => en.Distance(Position));
             if (closeEnemies.Any())
             {
-                if (VHR.VHRMenu["dz191.vhr.misc.tumble"]["qspam"].GetValue<MenuBool>().Value)
+                if (closeEnemies.Count() <= 1)
                 {
                     return true;
                 }
-                 
-                return closeEnemies.All(enemy => Position.CountEnemiesInRange(VHR.VHRMenu["dz191.vhr.misc.tumble"]["dynamicqsafety"].GetValue<MenuBool>().Value? enemy.AttackRange: 405f) < 1);
+
+                return closeEnemies.All(enemy => Position.CountEnemiesInRange(VHR.VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.tumble"]["dynamicqsafety"].GetValue<MenuBool>().Value ? enemy.AttackRange : 405f) < 1);
             }
             return true;
         }
@@ -230,7 +240,6 @@
         public static bool IsEnabledAndReady(this Spell spell, OrbwalkerMode mode)
         {
             var modeString = mode.ToString().ToLowerInvariant();
-
             var EnabledInMenu =
                 VHR.VHRMenu[string.Format("dz191.vhr.{0}", modeString)][
                     string.Format("Use{0}", spell.Slot.GetStringFromSlot())].GetValue<MenuBool>().Value;
