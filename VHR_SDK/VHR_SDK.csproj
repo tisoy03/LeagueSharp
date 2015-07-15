@@ -57,6 +57,9 @@
   <ItemGroup>
     <Compile Include="Interfaces\IBootstrapComponent.cs" />
     <Compile Include="Interfaces\IVHRModule.cs" />
+    <Compile Include="Modules\LowLifePeelModule.cs" />
+    <Compile Include="Modules\EKSModule.cs" />
+    <Compile Include="Modules\AutoEModule.cs" />
     <Compile Include="Modules\TestModule.cs" />
     <Compile Include="Utility\Helpers\VHRGeometry.cs" />
     <Compile Include="Utility\TickLimiter.cs" />

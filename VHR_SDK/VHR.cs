@@ -48,7 +48,10 @@
 
         public static List<IVHRModule> VhrModules = new List<IVHRModule>()
         {
-            new TestModule()
+            new TestModule(),
+            new AutoEModule(),
+            new EKSModule(),
+            new LowLifePeel()
         };
         #endregion
 
@@ -99,6 +102,11 @@
                 return;
             }
 
+            foreach (var Module in VhrModules.Where(module => module.ShouldRun()))
+            {
+                Module.Run();
+            }
+
             Orbwalker.Attack = !VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.general"]["disableaa"].GetValue<MenuBool>().Value;
             Orbwalker.Movement = !VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.general"]["disablemovement"].GetValue<MenuBool>().Value;
 
@@ -106,9 +114,16 @@
             {
                 case OrbwalkerMode.Orbwalk:
                         var condemnTarget = GetCondemnTarget(ObjectManager.Player.ServerPosition);
-                        if (spells[SpellSlot.E].IsReady() && condemnTarget.IsValidTarget())
+                        if (spells[SpellSlot.E].IsEnabledAndReady(OrbwalkerMode.Orbwalk) && condemnTarget.IsValidTarget())
                         {
                             spells[SpellSlot.E].Cast(condemnTarget);
+                        }
+                    break;
+                case OrbwalkerMode.Hybrid:
+                        var condemnTarget_Harass = GetCondemnTarget(ObjectManager.Player.ServerPosition);
+                        if (spells[SpellSlot.E].IsEnabledAndReady(OrbwalkerMode.Hybrid) && condemnTarget_Harass.IsValidTarget())
+                        {
+                            spells[SpellSlot.E].Cast(condemnTarget_Harass);
                         }
                     break;
             }
@@ -303,7 +318,7 @@
 
         #region Condemn
 
-        private static Obj_AI_Base GetCondemnTarget(Vector3 FromPosition)
+        public static Obj_AI_Base GetCondemnTarget(Vector3 FromPosition)
         {
             if (TickLimiter.CanTick("CondemnLimiter"))
             {
@@ -341,6 +356,11 @@
 
                             foreach (var Hero in HeroList)
                             {
+                                if (!TargetPassesCondemnExtraChecks(Hero))
+                                {
+                                    continue;
+                                }
+
                                 var PredictionsList = new List<Vector3>();
 
                                 PredictionsList.Add(Hero.ServerPosition);
@@ -368,7 +388,7 @@
                                     ExtendedList.Add(position.Extend(FromPosition, -PushDistance));
                                 }
 
-                                var WallListCount = ExtendedList.Count(h => h.IsWall());
+                                var WallListCount = ExtendedList.Count(h => h.IsWall() || IsJ4Flag(h, Hero));
 
                                 if (((float)WallListCount / (float)ExtendedList.Count) >= MinChecksPercent / 100f)
                                 {
@@ -412,7 +432,7 @@
                             VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.condemn"]["pushdistance"].GetValue<MenuSlider>().Value;
                             var FinalPosition = target.ServerPosition.Extend(FromPosition, -PushDistance);
                             var AlternativeFinalPosition = target.ServerPosition.Extend(FromPosition, -(PushDistance / 2f));
-                            if (FinalPosition.IsWall() || AlternativeFinalPosition.IsWall())
+                            if (FinalPosition.IsWall() || AlternativeFinalPosition.IsWall() || (IsJ4Flag(FinalPosition, target) || IsJ4Flag(AlternativeFinalPosition, target)))
                             {
                                 return target;
                             }
@@ -424,6 +444,43 @@
             }
             return null;
         }
+
+        #region Condemn Utility Methods
+        private static bool IsJ4Flag(Vector3 endPosition, Obj_AI_Base Target)
+        {
+            return VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.condemn"]["condemnflag"].GetValue<MenuBool>().Value && GameObjects.AllGameObjects.Any(m => m.DistanceSquared(endPosition) <= Target.BoundingRadius * Target.BoundingRadius && m.Name == "Beacon"); ;
+        }
+
+        private static bool TargetPassesCondemnExtraChecks(Obj_AI_Hero target)
+        {
+            var NoEAANumber = VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.condemn"]["noeaa"].GetValue<MenuSlider>().Value;
+
+            if (target.Health <= ObjectManager.Player.GetAutoAttackDamage(target) * NoEAANumber)
+            {
+                return false;
+            }
+
+            var OnlyCurrent = VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.condemn"]["onlystuncurrent"].GetValue<MenuBool>().Value;
+
+            if (OnlyCurrent && target != Orbwalker.OrbwalkTarget)
+            {
+                return false;
+            }
+
+            //noeturret
+
+            var UnderEnemyTurretToggle = VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.condemn"]["noeturret"].GetValue<MenuBool>().Value;
+
+            if (UnderEnemyTurretToggle && ObjectManager.Player.ServerPosition.IsUnderTurret(true))
+            {
+                return false;
+            }
+
+            return true;
+
+        }
+        #endregion
+
         #endregion
 
         #endregion

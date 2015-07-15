@@ -12,7 +12,7 @@
             VHR.VHRMenu = new Menu("VayneHunter Reborn", "VHR", true);
 
             #region Modes Menu
-            var comboMenu = new Menu("dz191.vhr.orbwalk", "[VHR] Combo");
+            var comboMenu = new Menu("dz191.vhr.orbwalk", "[VHR] Combo"); //Done
             {
                 comboMenu.Add(new MenuBool("UseQ", "Use Q", true));
                 comboMenu.Add(new MenuBool("UseE", "Use E", true));
@@ -25,7 +25,7 @@
             }
             VHR.VHRMenu.Add(comboMenu);
 
-            var harassMenu = new Menu("dz191.vhr.hybrid", "[VHR] Harass");
+            var harassMenu = new Menu("dz191.vhr.hybrid", "[VHR] Harass"); //Done
             {
                 harassMenu.Add(new MenuBool("UseQ", "Use Q", true));
                 harassMenu.Add(new MenuBool("UseE", "Use E", true));
@@ -53,14 +53,14 @@
                 miscQMenu.Add(new MenuSeparator("sepQ1", "Q Mode Settings"));
                 miscQMenu.Add(new MenuList<string>("qlogic", "Q Logic", new[] { "Normal", "Away from enemies" }));
 
-                miscQMenu.Add(new MenuSeparator("sepQ2", "Q Safety Checks"));
+                miscQMenu.Add(new MenuSeparator("sepQ2", "Q Safety Checks")); //Done
                 miscQMenu.Add(new MenuBool("noqenemies", "Don't Q into enemies", true));
                 miscQMenu.Add(new MenuBool("dynamicqsafety", "Dynamic Q Safety Distance"));
                 miscQMenu.Add(new MenuBool("limitQ", "Limit Q"));
                 miscQMenu.Add(new MenuBool("qspam", "Ignore Q checks"));
 
                 miscQMenu.Add(new MenuSeparator("sepQ3", "Q Integration"));
-                miscQMenu.Add(new MenuBool("smartq", "Try to QE First"));
+                miscQMenu.Add(new MenuBool("smartq", "Try to QE First")); //Done
                 miscQMenu.Add(new MenuBool("noaastealth", "Don't AA while stealthed"));
 
                 miscQMenu.Add(new MenuSeparator("sepQ4", "Q Miscellaneous"));
@@ -68,7 +68,7 @@
                 miscQMenu.Add(new MenuKeyBind("walltumble", "Tumble Over Wall (WallTumble)", Keys.Y, KeyBindType.Press));
             }
 
-            var miscEMenu = new Menu("dz191.vhr.misc.condemn", "Condemn");
+            var miscEMenu = new Menu("dz191.vhr.misc.condemn", "Condemn"); //All Done
             {
                 miscEMenu.Add(new MenuSeparator("sepE1", "E Mode Settings"));
                 miscEMenu.Add(new MenuList<string>("condemnmethod", "Condemn Method", new[] { "VHR SDK", "Marksman/Gosu"}));
@@ -77,21 +77,21 @@
                 miscEMenu.Add(new MenuSlider("predictionNumber", "Number of Predictions (Higher = Laggier)", 10, 1, 15));
                 miscEMenu.Add(new MenuSlider("accuracy", "Condemn Accuracy", 75));
                 miscEMenu.Add(new MenuSlider("nextprediction", "Last Prediction Time (Don't touch unless you know what you're doing)", 500, 0, 1000));
-                miscEMenu.Add(new MenuList<string>("enemymode", "Enemy Bounding Box", new[] { "Circle", "Point"}));
+                ////miscEMenu.Add(new MenuList<string>("enemymode", "Enemy Bounding Box", new[] { "Circle", "Point"}));
 
                 miscEMenu.Add(new MenuSeparator("sepE3", "E Skill Settings (Both)"));
-                miscEMenu.Add(new MenuSlider("pushdistance", "E Push Distance", 375, 350, 475));
-                miscEMenu.Add(new MenuBool("onlystuncurrent", "Only stun current target"));
-                miscEMenu.Add(new MenuSlider("noeaa", "Don't E if Target can be killed in X AA", 1, 0, 4));
-                miscEMenu.Add(new MenuBool("condemnflag", "Condemn to J4 flag", true));
-                miscEMenu.Add(new MenuBool("noeturret", "No E Under enemy turret", true));
+                miscEMenu.Add(new MenuSlider("pushdistance", "E Push Distance", 425, 350, 475)); //Done
+                miscEMenu.Add(new MenuBool("onlystuncurrent", "Only stun current target")); //Done
+                miscEMenu.Add(new MenuSlider("noeaa", "Don't E if Target can be killed in X AA (0 = Always E)", 1, 0, 4)); //Done
+                miscEMenu.Add(new MenuBool("condemnflag", "Condemn to J4 flag", true)); //Done
+                miscEMenu.Add(new MenuBool("noeturret", "No E Under enemy turret", true)); //Done
 
                 miscEMenu.Add(new MenuSeparator("sepE4", "E Miscellaneous (Both)"));
                 miscEMenu.Add(new MenuKeyBind("enextauto", "E Next Auto", Keys.T, KeyBindType.Toggle));
-                miscEMenu.Add(new MenuBool("autoe", "Auto E"));
-                miscEMenu.Add(new MenuBool("eks", "Smart E Ks"));
+                miscEMenu.Add(new MenuBool("autoe", "Auto E")); //Done
+                miscEMenu.Add(new MenuBool("eks", "Smart E Ks")); //Done
                 miscEMenu.Add(new MenuBool("trinketbush", "Trinket Bush on Condemn", true));
-                miscEMenu.Add(new MenuBool("lowlifepeel", "Peel with E when low"));
+                miscEMenu.Add(new MenuBool("lowlifepeel", "Peel with E when low")); //Done
 
             }
 
