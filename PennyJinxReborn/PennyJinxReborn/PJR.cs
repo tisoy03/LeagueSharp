@@ -86,7 +86,7 @@
             LoadMenu();
             LoadSkills();
             LoadEvents();
-            SpriteHandler.InitalizeSprite();
+          //  SpriteHandler.InitalizeSprite();
 
             Notifications.AddNotification(new Notification(AssemblyName + " Loaded!", 2750, true));
         }
