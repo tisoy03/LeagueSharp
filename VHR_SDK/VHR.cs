@@ -334,13 +334,14 @@
                                 VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.condemn"]["pushdistance"].GetValue<MenuSlider>().Value;
                             var NextPrediction =
                                 (VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.condemn"]["nextprediction"].GetValue<MenuSlider>().Value);
-                            var PredictionsList = new List<Vector3>();
                             var interval = NextPrediction / NumberOfChecks;
                             var currentInterval = interval;
                             var LastUnitPosition = Vector3.Zero;
 
                             foreach (var Hero in HeroList)
                             {
+                                var PredictionsList = new List<Vector3>();
+
                                 PredictionsList.Add(Hero.ServerPosition);
 
                                 for (var i = 0; i < NumberOfChecks; i++)
