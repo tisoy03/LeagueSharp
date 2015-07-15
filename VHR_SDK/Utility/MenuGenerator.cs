@@ -80,7 +80,7 @@
                 ////miscEMenu.Add(new MenuList<string>("enemymode", "Enemy Bounding Box", new[] { "Circle", "Point"}));
 
                 miscEMenu.Add(new MenuSeparator("sepE3", "E Skill Settings (Both)"));
-                miscEMenu.Add(new MenuSlider("pushdistance", "E Push Distance", 425, 350, 475)); //Done
+                miscEMenu.Add(new MenuSlider("pushdistance", "E Push Distance", 425, 350, 470)); //Done
                 miscEMenu.Add(new MenuBool("onlystuncurrent", "Only stun current target")); //Done
                 miscEMenu.Add(new MenuSlider("noeaa", "Don't E if Target can be killed in X AA (0 = Always E)", 1, 0, 4)); //Done
                 miscEMenu.Add(new MenuBool("condemnflag", "Condemn to J4 flag", true)); //Done
