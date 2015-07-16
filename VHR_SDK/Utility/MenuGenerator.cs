@@ -51,7 +51,7 @@
             var miscQMenu = new Menu("dz191.vhr.misc.tumble", "Tumble");
             {
                 miscQMenu.Add(new MenuSeparator("sepQ1", "Q Mode Settings"));
-                miscQMenu.Add(new MenuList<string>("qlogic", "Q Logic", new[] { "Normal", "Away from enemies" }));
+                miscQMenu.Add(new MenuList<string>("qlogic", "Q Logic", new[] { "Normal", "Kite Melees when Possible" }));
 
                 miscQMenu.Add(new MenuSeparator("sepQ2", "Q Safety Checks")); //Done
                 miscQMenu.Add(new MenuBool("noqenemies", "Don't Q into enemies", true));
