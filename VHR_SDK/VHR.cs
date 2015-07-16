@@ -48,7 +48,6 @@
 
         public static List<IVHRModule> VhrModules = new List<IVHRModule>()
         {
-            new TestModule(),
             new AutoEModule(),
             new EKSModule(),
             new LowLifePeel()
@@ -102,11 +101,6 @@
                 return;
             }
 
-            foreach (var Module in VhrModules.Where(module => module.ShouldRun()))
-            {
-                Module.Run();
-            }
-
             Orbwalker.Attack = !VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.general"]["disableaa"].GetValue<MenuBool>().Value;
             Orbwalker.Movement = !VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.general"]["disablemovement"].GetValue<MenuBool>().Value;
 
@@ -127,7 +121,12 @@
                         }
                     break;
             }
-            
+
+            foreach (var Module in VhrModules.Where(module => module.ShouldRun()))
+            {
+                Module.Run();
+            }
+
         }
 
         private static void Orbwalker_OnAction(object sender, Orbwalker.OrbwalkerActionArgs e)
@@ -194,9 +193,9 @@
 
             if (spells[SpellSlot.Q].IsEnabledAndReady(mode))
             {
-                if (VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.tumble"]["smartq"].GetValue<MenuBool>().Value && GetQEPosition(target) != Vector3.Zero)
+                if (VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.tumble"]["smartq"].GetValue<MenuBool>().Value && GetQEPosition() != Vector3.Zero)
                 {
-                    UseTumble(GetQEPosition(target), target);
+                    UseTumble(GetQEPosition(), target);
 
                     DelayAction.Add(
                         (int) (Game.Ping / 2f + spells[SpellSlot.Q].Delay * 1000 + 300f / 1200f + 50f), () =>
@@ -215,7 +214,7 @@
         }
 
         #region Q-E Combo Calculation
-        private static Vector3 GetQEPosition(Obj_AI_Base Target)
+        private static Vector3 GetQEPosition()
         {
             if (spells[SpellSlot.E].IsReady())
             {
