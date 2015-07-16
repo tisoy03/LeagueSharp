@@ -17,6 +17,31 @@
 
     static class VHRExtensions
     {
+        #region Fields
+        private static IEnumerable<Obj_AI_Hero> EnemiesClose
+        {
+            get
+            {
+                return
+                    GameObjects.EnemyHeroes.Where(
+                        m =>
+                            m.DistanceSquared(ObjectManager.Player) <= Math.Pow(1500, 2) && m.IsValidTarget(1500, false) &&
+                            m.CountEnemiesInRange(m.IsMelee() ? m.AttackRange * 1.5f : m.AttackRange + 20 * 1.5f) > 0);
+            }
+        }
+
+        public static IEnumerable<Obj_AI_Hero> MeleeEnemiesTowardsMe
+        {
+            get
+            {
+                return
+                    GameObjects.EnemyHeroes.Where(
+                        m => m.IsMelee && m.DistanceSquared(ObjectManager.Player) <= m.AttackRange * m.AttackRange
+                            && (m.ServerPosition.ToVector2() + (m.BoundingRadius + 25f) * m.Direction.ToVector2().Perpendicular()).DistanceSquared(ObjectManager.Player.ServerPosition.ToVector2()) <= m.ServerPosition.DistanceSquared(ObjectManager.Player.ServerPosition)
+                            && m.IsValidTarget(1500));
+            }
+        }
+        #endregion
 
         #region Unit Extensions
         public static bool Has2WStacks(this Obj_AI_Hero target)
@@ -116,17 +141,17 @@
             return pointList;
         }
 
-        private static IEnumerable<Obj_AI_Hero> EnemiesClose
+        
+        public static float GetRealAutoAttackRange(Obj_AI_Hero Attacker, AttackableUnit target)
         {
-            get
+            var result = Attacker.AttackRange + Attacker.BoundingRadius;
+            if (target.IsValidTarget())
             {
-                return
-                    GameObjects.EnemyHeroes.Where(
-                        m =>
-                            m.DistanceSquared(ObjectManager.Player) <= Math.Pow(1500,2) && m.IsValidTarget(1500, false) &&
-                            m.CountEnemiesInRange(m.IsMelee() ? m.AttackRange * 1.5f : m.AttackRange + 20 * 1.5f) > 0);
+                return result + target.BoundingRadius;
             }
+            return result;
         }
+
         #endregion
 
         #region Old Common/VHR Extensions

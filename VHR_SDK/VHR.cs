@@ -101,9 +101,6 @@
                 return;
             }
 
-            Orbwalker.Attack = !VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.general"]["disableaa"].GetValue<MenuBool>().Value;
-            Orbwalker.Movement = !VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.general"]["disablemovement"].GetValue<MenuBool>().Value;
-
             switch (Orbwalker.ActiveMode)
             {
                 case OrbwalkerMode.Orbwalk:
@@ -121,6 +118,9 @@
                         }
                     break;
             }
+
+            Orbwalker.Attack = !VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.general"]["disableaa"].GetValue<MenuBool>().Value;
+            Orbwalker.Movement = !VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.general"]["disablemovement"].GetValue<MenuBool>().Value;
 
             foreach (var Module in VhrModules.Where(module => module.ShouldRun()))
             {
@@ -272,9 +272,10 @@
             }
         }
 
-        private static void UseTumble(Vector3 Position, Obj_AI_Base Target = null)
+        private static void UseTumble(Vector3 Position, Obj_AI_Base Target)
         {
             var extendedPosition = ObjectManager.Player.ServerPosition.Extend(Position, 300f);
+
             var distanceAfterTumble = Vector3.DistanceSquared(extendedPosition, Target.ServerPosition);
 
             if (VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.tumble"]["limitQ"].GetValue<MenuBool>().Value)
@@ -308,8 +309,31 @@
 
         private static void RealQCast(Vector3 Position)
         {
+            if (Position == Game.CursorPos)
+            {
+                switch (VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.tumble"]["qlogic"].GetValue<MenuList<string>>().Index)
+                {
+                    case 0:
+                        if (VHRExtensions.MeleeEnemiesTowardsMe.Any() &&
+                            !VHRExtensions.MeleeEnemiesTowardsMe.All(m => m.HealthPercent <= 15))
+                        {
+                            var ClosestEnemy = VHRExtensions.MeleeEnemiesTowardsMe.OrderBy(m => m.Distance(ObjectManager.Player)).First();
+                            var whereToQ = ClosestEnemy.ServerPosition.Extend(ObjectManager.Player.ServerPosition, ClosestEnemy.Distance(ObjectManager.Player) + 300f);
+                            if (whereToQ.IsSafePosition())
+                            {
+                                spells[SpellSlot.Q].Cast(whereToQ);
+                                return;
+                            }
+                        }
+                        break;
+                    case 1:
+                              spells[SpellSlot.Q].Cast(Position);
+                        break;
+                }
+            }
+
             spells[SpellSlot.Q].Cast(Position);
-            DelayAction.Add((int)(Game.Ping / 2f + spells[SpellSlot.Q].Delay * 1000 + 300f / 1650f + 50f), Orbwalker.ResetAutoAttackTimer);
+           // DelayAction.Add((int)(Game.Ping / 2f + spells[SpellSlot.Q].Delay * 1000 + 300f / 1650f + 50f), Orbwalker.ResetAutoAttackTimer);
         }
         #endregion
 
