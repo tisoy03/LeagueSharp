@@ -14,7 +14,7 @@ namespace VHR_SDK.Modules
     {
         public bool ShouldBeLoaded()
         {
-            return false;
+            return true;
         }
 
         public string GetModuleName()

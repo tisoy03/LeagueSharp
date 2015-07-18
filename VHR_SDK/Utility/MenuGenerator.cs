@@ -75,12 +75,12 @@
                 
                 miscEMenu.Add(new MenuSeparator("sepE2", "E Prediction Settings (Only VHR Method)"));
                 miscEMenu.Add(new MenuSlider("predictionNumber", "Number of Predictions (Higher = Laggier)", 10, 1, 15));
-                miscEMenu.Add(new MenuSlider("accuracy", "Condemn Accuracy", 75));
+                miscEMenu.Add(new MenuSlider("accuracy", "Condemn Accuracy", 50));
                 miscEMenu.Add(new MenuSlider("nextprediction", "Last Prediction Time (Don't touch unless you know what you're doing)", 500, 0, 1000));
                 ////miscEMenu.Add(new MenuList<string>("enemymode", "Enemy Bounding Box", new[] { "Circle", "Point"}));
 
                 miscEMenu.Add(new MenuSeparator("sepE3", "E Skill Settings (Both)"));
-                miscEMenu.Add(new MenuSlider("pushdistance", "E Push Distance", 425, 350, 470)); //Done
+                miscEMenu.Add(new MenuSlider("pushdistance", "E Push Distance", 460, 350, 470)); //Done
                 miscEMenu.Add(new MenuBool("onlystuncurrent", "Only stun current target")); //Done
                 miscEMenu.Add(new MenuSlider("noeaa", "Don't E if Target can be killed in X AA (0 = Always E)", 1, 0, 4)); //Done
                 miscEMenu.Add(new MenuBool("condemnflag", "Condemn to J4 flag", true)); //Done
