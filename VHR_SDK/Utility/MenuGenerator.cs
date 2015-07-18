@@ -98,18 +98,18 @@
             var miscGeneralSubMenu = new Menu("dz191.vhr.misc.general", "General");
             {
                 miscGeneralSubMenu.Add(new MenuSeparator("sepGeneral1", "AntiGP & Interrupter"));
-                miscGeneralSubMenu.Add(new MenuBool("antigp", "Anti Gapcloser", true));
-                miscGeneralSubMenu.Add(new MenuBool("interrupt", "Interrupter", true));
-                miscGeneralSubMenu.Add(new MenuSlider("antigpdelay", "Anti Gapcloser Delay (ms)", 0, 0, 1000));
+                miscGeneralSubMenu.Add(new MenuBool("antigp", "Anti Gapcloser", true)); //Done
+                miscGeneralSubMenu.Add(new MenuBool("interrupt", "Interrupter", true)); //Done
+                miscGeneralSubMenu.Add(new MenuSlider("antigpdelay", "Anti Gapcloser Delay (ms)", 0, 0, 1000)); //Done
 
                 miscGeneralSubMenu.Add(new MenuSeparator("sepGeneral2", "Various"));
-                miscGeneralSubMenu.Add(new MenuBool("specialfocus", "Focus targets with 2 W marks"));
-                miscGeneralSubMenu.Add(new MenuBool("reveal", "Stealth Reveal (Pink Ward)"));
-                miscGeneralSubMenu.Add(new MenuBool("disablemovement", "Disable Orbwalker Movement"));
-                miscGeneralSubMenu.Add(new MenuBool("disableaa", "Disable Orbwalker AA"));
+                miscGeneralSubMenu.Add(new MenuBool("specialfocus", "Focus targets with 2 W marks")); //Done
+                miscGeneralSubMenu.Add(new MenuBool("reveal", "Stealth Reveal (Pink Ward)")); //Done
+                miscGeneralSubMenu.Add(new MenuBool("disablemovement", "Disable Orbwalker Movement")); //Done
+                miscGeneralSubMenu.Add(new MenuBool("disableaa", "Disable Orbwalker AA")); //Done
 
                 miscGeneralSubMenu.Add(new MenuSeparator("sepGeneral3", "Performance"));
-                miscGeneralSubMenu.Add(new MenuBool("lightweight", "Lightweight mode"));
+                miscGeneralSubMenu.Add(new MenuBool("lightweight", "Lightweight mode")); //Semi-Done
                 ////TODO When Lightweight is enabled then double all the intervals in the TickLimiters.
             }
 

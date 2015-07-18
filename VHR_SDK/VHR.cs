@@ -1,4 +1,6 @@
-﻿namespace VHR_SDK
+﻿using LeagueSharp.SDK.Core.Events;
+
+namespace VHR_SDK
 {
     #region
     using System;
@@ -44,14 +46,17 @@
             { SpellSlot.R, new Spell(SpellSlot.R) }
         };
 
-        private static Spell TrinketSpell = new Spell(SpellSlot.Trinket);
+        private static readonly Spell TrinketSpell = new Spell(SpellSlot.Trinket);
 
         public static List<IVHRModule> VhrModules = new List<IVHRModule>()
         {
             new AutoEModule(),
             new EKSModule(),
-            new LowLifePeel()
+            new LowLifePeel(),
+            new Focus2Stacks()
         };
+
+        private const int PINK_WARD = 2043;
         #endregion
 
         #region Initialization, Public Methods and operators
@@ -75,6 +80,10 @@
         {
             Orbwalker.OnAction += Orbwalker_OnAction;
             Game.OnUpdate += Game_OnUpdate;
+            Gapcloser.OnGapCloser += GapcloserOnOnGapCloser;
+            InterruptableSpell.OnInterruptableTarget += InterruptableSpellOnOnInterruptableTarget;
+            Stealth.OnStealth += Stealth_OnStealth;
+            
         }
 
         private static void LoadModules()
@@ -143,6 +152,47 @@
                     break;
             }
         }
+
+        private static void GapcloserOnOnGapCloser(object sender, Gapcloser.GapCloserEventArgs gapCloserEventArgs)
+        {
+            if (VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.general"]["antigp"].GetValue<MenuBool>().Value &&
+                spells[SpellSlot.E].IsReady() && gapCloserEventArgs.Sender.IsValidTarget(spells[SpellSlot.E].Range))
+            {
+                var antiGPDelay = VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.general"]["antigpdelay"].GetValue<MenuSlider>().Value;
+
+                DelayAction.Add(antiGPDelay, () =>
+                {
+                    if (gapCloserEventArgs.Sender.IsValidTarget(spells[SpellSlot.E].Range))
+                    {
+                        spells[SpellSlot.E].Cast(gapCloserEventArgs.Sender);
+                    } 
+                });
+            }
+        }
+
+        private static void InterruptableSpellOnOnInterruptableTarget(object sender, InterruptableSpell.InterruptableTargetEventArgs interruptableTargetEventArgs)
+        {
+            if (VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.general"]["interrupt"].GetValue<MenuBool>().Value 
+                &&spells[SpellSlot.E].IsReady() 
+                && interruptableTargetEventArgs.Sender.IsValidTarget(spells[SpellSlot.E].Range) 
+                && interruptableTargetEventArgs.DangerLevel >= DangerLevel.Medium)
+            {
+                   spells[SpellSlot.E].Cast(interruptableTargetEventArgs.Sender);
+            }
+        }
+        private static void Stealth_OnStealth(object sender, Stealth.OnStealthEventArgs e)
+        {
+            if (VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.general"]["reveal"].GetValue<MenuBool>().Value &&
+                e.Sender.DistanceSquared(ObjectManager.Player) <= 360000 && e.IsStealthed && !e.Sender.IsMe)
+            {
+                if (Items.HasItem(PINK_WARD) && Items.CanUseItem(PINK_WARD))
+                {
+                    Items.UseItem(PINK_WARD, e.Sender.ServerPosition.Extend(ObjectManager.Player.ServerPosition, 400f));
+                }
+            }
+
+        }
+
         #endregion
 
         #region Private Methods and operators
@@ -157,6 +207,9 @@
                         break;
                     case OrbwalkerMode.Hybrid:
                         PreliminaryQCheck((Obj_AI_Base) e.Target, OrbwalkerMode.Hybrid);
+                        break;
+                    case OrbwalkerMode.LaneClear:
+                        OnFarm(e);
                         break;
                 }
 
@@ -186,6 +239,29 @@
             }
              * */
         }
+        private static void OnFarm(Orbwalker.OrbwalkerActionArgs e)
+        {
+            //TODO Redo this using OnNonKillableMinion
+            //TODO Reenable once GetSpellDamage for Vayne is bik
+            if (spells[SpellSlot.Q].IsEnabledAndReady(OrbwalkerMode.LaneClear))
+            {
+                return;
+                var minionsInRange = GameObjects.EnemyMinions.Where(m => m.DistanceSquared(ObjectManager.Player.ServerPosition) <= ObjectManager.Player.AttackRange * ObjectManager.Player.AttackRange && m.Health <= ObjectManager.Player.GetAutoAttackDamage(m) + ObjectManager.Player.GetSpellDamage(m, SpellSlot.Q)).ToList();
+                
+                if (!minionsInRange.Any())
+                {
+                    return;
+                }
+
+                if (minionsInRange.Count > 1)
+                {
+                    var firstMinion = minionsInRange.OrderBy(m => m.HealthPercent).First();
+                    UseTumble(firstMinion);
+                    Orbwalker.OrbwalkTarget = firstMinion;
+                }
+            }
+        }
+
         #endregion
 
         #region Skills Usage
@@ -363,6 +439,7 @@
         }
         #endregion
 
+        #region Condemn Logic
         public static Obj_AI_Hero GetCondemnTarget(Vector3 FromPosition)
         {
             if (TickLimiter.CanTick("CondemnLimiter"))
@@ -489,6 +566,7 @@
             }
             return null;
         }
+        #endregion
 
         #region Condemn Utility Methods
         private static bool IsJ4Flag(Vector3 endPosition, Obj_AI_Base Target)

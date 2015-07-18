@@ -57,6 +57,7 @@
   <ItemGroup>
     <Compile Include="Interfaces\IBootstrapComponent.cs" />
     <Compile Include="Interfaces\IVHRModule.cs" />
+    <Compile Include="Modules\Focus2Stacks.cs" />
     <Compile Include="Modules\LowLifePeelModule.cs" />
     <Compile Include="Modules\EKSModule.cs" />
     <Compile Include="Modules\AutoEModule.cs" />
