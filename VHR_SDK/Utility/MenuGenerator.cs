@@ -51,21 +51,21 @@
             var miscQMenu = new Menu("dz191.vhr.misc.tumble", "Tumble");
             {
                 miscQMenu.Add(new MenuSeparator("sepQ1", "Q Mode Settings"));
-                miscQMenu.Add(new MenuList<string>("qlogic", "Q Logic", new[] { "Normal", "Kite Melees when Possible" }));
+                miscQMenu.Add(new MenuList<string>("qlogic", "Q Logic", new[] { "Normal", "Kite Melees when Possible" })); //Done
 
                 miscQMenu.Add(new MenuSeparator("sepQ2", "Q Safety Checks")); //Done
-                miscQMenu.Add(new MenuBool("noqenemies", "Don't Q into enemies", true));
-                miscQMenu.Add(new MenuBool("dynamicqsafety", "Dynamic Q Safety Distance"));
-                miscQMenu.Add(new MenuBool("limitQ", "Limit Q"));
-                miscQMenu.Add(new MenuBool("qspam", "Ignore Q checks"));
+                miscQMenu.Add(new MenuBool("noqenemies", "Don't Q into enemies", true)); //Done
+                miscQMenu.Add(new MenuBool("dynamicqsafety", "Dynamic Q Safety Distance")); //Done
+                miscQMenu.Add(new MenuBool("limitQ", "Limit Q")); //Done
+                miscQMenu.Add(new MenuBool("qspam", "Ignore Q checks")); //Done
 
                 miscQMenu.Add(new MenuSeparator("sepQ3", "Q Integration"));
                 miscQMenu.Add(new MenuBool("smartq", "Try to QE First")); //Done
-                miscQMenu.Add(new MenuBool("noaastealth", "Don't AA while stealthed"));
+                miscQMenu.Add(new MenuBool("noaastealth", "Don't AA while stealthed")); //TODO Disabled?
 
                 miscQMenu.Add(new MenuSeparator("sepQ4", "Q Miscellaneous"));
-                miscQMenu.Add(new MenuBool("qinrange", "Q To KS if Enemy Killable", true));
-                miscQMenu.Add(new MenuKeyBind("walltumble", "Tumble Over Wall (WallTumble)", Keys.Y, KeyBindType.Press));
+                miscQMenu.Add(new MenuBool("qinrange", "Q To KS if Enemy Killable", true)); //TODO
+                miscQMenu.Add(new MenuKeyBind("walltumble", "Tumble Over Wall (WallTumble)", Keys.Y, KeyBindType.Press)); //TODO
             }
 
             var miscEMenu = new Menu("dz191.vhr.misc.condemn", "Condemn"); //All Done
@@ -87,10 +87,10 @@
                 miscEMenu.Add(new MenuBool("noeturret", "No E Under enemy turret", true)); //Done
 
                 miscEMenu.Add(new MenuSeparator("sepE4", "E Miscellaneous (Both)"));
-                miscEMenu.Add(new MenuKeyBind("enextauto", "E Next Auto", Keys.T, KeyBindType.Toggle));
+                miscEMenu.Add(new MenuKeyBind("enextauto", "E Next Auto", Keys.T, KeyBindType.Toggle)); //Done
                 miscEMenu.Add(new MenuBool("autoe", "Auto E")); //Done
                 miscEMenu.Add(new MenuBool("eks", "Smart E Ks")); //Done
-                miscEMenu.Add(new MenuBool("trinketbush", "Trinket Bush on Condemn", true));
+                miscEMenu.Add(new MenuBool("trinketbush", "Trinket Bush on Condemn", true)); //Done
                 miscEMenu.Add(new MenuBool("lowlifepeel", "Peel with E when low")); //Done
 
             }

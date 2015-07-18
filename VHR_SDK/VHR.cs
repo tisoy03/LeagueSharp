@@ -107,14 +107,14 @@
                         var condemnTarget = GetCondemnTarget(ObjectManager.Player.ServerPosition);
                         if (spells[SpellSlot.E].IsEnabledAndReady(OrbwalkerMode.Orbwalk) && condemnTarget.IsValidTarget())
                         {
-                            spells[SpellSlot.E].Cast(condemnTarget);
+                            CastCondemn(condemnTarget);
                         }
                     break;
                 case OrbwalkerMode.Hybrid:
                         var condemnTarget_Harass = GetCondemnTarget(ObjectManager.Player.ServerPosition);
                         if (spells[SpellSlot.E].IsEnabledAndReady(OrbwalkerMode.Hybrid) && condemnTarget_Harass.IsValidTarget())
                         {
-                            spells[SpellSlot.E].Cast(condemnTarget_Harass);
+                            CastCondemn(condemnTarget_Harass);
                         }
                     break;
             }
@@ -148,7 +148,6 @@
         #region Private Methods and operators
         private static void OnAfterAttack(Orbwalker.OrbwalkerActionArgs e)
         {
-
             if (e.Target.IsValidTarget() && (e.Target is Obj_AI_Base))
             {
                 switch (Orbwalker.ActiveMode)
@@ -159,6 +158,12 @@
                     case OrbwalkerMode.Hybrid:
                         PreliminaryQCheck((Obj_AI_Base) e.Target, OrbwalkerMode.Hybrid);
                         break;
+                }
+
+                if (VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.condemn"]["enextauto"].GetValue<MenuKeyBind>().Active && spells[SpellSlot.E].IsReady() && (e.Target is Obj_AI_Hero))
+                {
+                    spells[SpellSlot.E].Cast((Obj_AI_Hero) e.Target);
+                    VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.condemn"]["enextauto"].Toggled = false;
                 }
             }
         }
@@ -340,8 +345,25 @@
         #endregion
 
         #region Condemn
+        
+        #region Condemn Casting
 
-        public static Obj_AI_Base GetCondemnTarget(Vector3 FromPosition)
+        private static void CastCondemn(Obj_AI_Hero target)
+        {
+            spells[SpellSlot.E].Cast(target);
+
+            if (VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.condemn"]["trinketbush"].GetValue<MenuBool>().Value && TrinketSpell.IsReady())
+            {
+                var endPosition = target.ServerPosition.Extend(ObjectManager.Player.ServerPosition, -400);
+                if (NavMesh.IsWallOfGrass(endPosition, 65))
+                {
+                    TrinketSpell.Cast(endPosition);
+                }
+            }
+        }
+        #endregion
+
+        public static Obj_AI_Hero GetCondemnTarget(Vector3 FromPosition)
         {
             if (TickLimiter.CanTick("CondemnLimiter"))
             {
