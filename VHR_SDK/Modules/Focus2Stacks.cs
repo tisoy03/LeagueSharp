@@ -35,7 +35,7 @@ namespace VHR_SDK.Modules
         public void Run()
         {
             var TwoStacksTarget = VHRExtensions.GetHeroWith2WStacks();
-            if (TwoStacksTarget != null && TwoStacksTarget.IsValidTarget(ObjectManager.Player.AttackRange + 65) &&
+            if (TwoStacksTarget != null && TwoStacksTarget.IsValidTarget(ObjectManager.Player.AttackRange + (1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1)) &&
                 TwoStacksTarget != Orbwalker.OrbwalkTarget && !ObjectManager.Player.IsWindingUp)
             {
                 Orbwalker.OrbwalkTarget = TwoStacksTarget;
