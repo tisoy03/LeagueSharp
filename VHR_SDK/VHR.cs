@@ -223,21 +223,6 @@ namespace VHR_SDK
 
         private static void OnBeforeAttack(Orbwalker.OrbwalkerActionArgs e)
         {
-            /**
-            if (VHRMenu["dz191.vhr.misc.general"]["specialfocus"].GetValue<MenuBool>().Value)
-            {
-                var currentTarget = e.Target;
-                if (currentTarget is Obj_AI_Hero)
-                {
-                    var target = (Obj_AI_Hero) currentTarget;
-                    var TwoStacksTarget = VHRExtensions.GetHeroWith2WStacks();
-                    if (TwoStacksTarget != null && TwoStacksTarget != target)
-                    {
-                        Orbwalker.OrbwalkTarget = TwoStacksTarget;
-                    }
-                }
-            }
-             * */
         }
         private static void OnFarm(Orbwalker.OrbwalkerActionArgs e)
         {
@@ -330,7 +315,7 @@ namespace VHR_SDK
                 {
                     if (extendedPosition.IsSafePosition() && extendedPosition.PassesNoQIntoEnemiesCheck())
                     {
-                        RealQCast(extendedPosition, Target);
+                        RealQCast(extendedPosition);
                     }
                 }
                 else
@@ -339,7 +324,7 @@ namespace VHR_SDK
                     {
                         if (extendedPosition.IsSafePosition() && extendedPosition.PassesNoQIntoEnemiesCheck())
                         {
-                            RealQCast(extendedPosition, Target);
+                            RealQCast(extendedPosition);
                         }
                     }
                 }
@@ -348,7 +333,7 @@ namespace VHR_SDK
             {
                 if (extendedPosition.IsSafePosition() && extendedPosition.PassesNoQIntoEnemiesCheck())
                 {
-                    RealQCast(extendedPosition, Target);
+                    RealQCast(extendedPosition);
                 }
             }
         }
@@ -365,7 +350,7 @@ namespace VHR_SDK
                 {
                     if (extendedPosition.IsSafePosition() && extendedPosition.PassesNoQIntoEnemiesCheck())
                     {
-                        RealQCast(extendedPosition, Target);
+                        RealQCast(extendedPosition);
                     }
                 }
                 else
@@ -374,7 +359,7 @@ namespace VHR_SDK
                     {
                         if (extendedPosition.IsSafePosition() && extendedPosition.PassesNoQIntoEnemiesCheck())
                         {
-                            RealQCast(extendedPosition, Target);
+                            RealQCast(extendedPosition);
                         }
                     }
                 }
@@ -383,19 +368,21 @@ namespace VHR_SDK
             {
                 if (extendedPosition.IsSafePosition() && extendedPosition.PassesNoQIntoEnemiesCheck())
                 {
-                    RealQCast(extendedPosition, Target);
+                    RealQCast(extendedPosition);
                 }
             }
         }
 
-        private static void RealQCast(Vector3 Position, Obj_AI_Base target)
+        private static void RealQCast(Vector3 Position)
         {
-            
-            if (Position == Game.CursorPos)
+            var extendedPosition = ObjectManager.Player.ServerPosition.Extend(Position, 300f);
+            if (Position == extendedPosition)
             {
+
                 switch (VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.tumble"]["qlogic"].GetValue<MenuList<string>>().Index)
                 {
                     case 0:
+
                         if (VHRExtensions.MeleeEnemiesTowardsMe.Any() &&
                             !VHRExtensions.MeleeEnemiesTowardsMe.All(m => m.HealthPercent <= 15))
                         {
@@ -404,36 +391,32 @@ namespace VHR_SDK
                             if (whereToQ.IsSafePosition())
                             {
                                 if (spells[SpellSlot.R].IsEnabledAndReady(OrbwalkerMode.Orbwalk) &&
-                                    ObjectManager.Player.CountEnemiesInRange(1200f) >= VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.tumble"]["rMinEnemies"].GetValue<MenuSlider>().Value)
+                                    ObjectManager.Player.CountEnemiesInRange(1200f) >= VHRMenu["dz191.vhr.orbwalk"]["rMinEnemies"].GetValue<MenuSlider>().Value)
                                 {
                                     spells[SpellSlot.R].Cast();
                                 }
                                 spells[SpellSlot.Q].Cast(whereToQ);
-                                Orbwalker.OrbwalkTarget = target;
                                 return;
                             }
                         }
                         break;
                     case 1:
-                            if (spells[SpellSlot.R].IsEnabledAndReady(OrbwalkerMode.Orbwalk) 
-                                && ObjectManager.Player.CountEnemiesInRange(1200f) >= VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.tumble"]["rMinEnemies"].GetValue<MenuSlider>().Value)
+                            if (spells[SpellSlot.R].IsEnabledAndReady(OrbwalkerMode.Orbwalk)
+                                && ObjectManager.Player.CountEnemiesInRange(1200f) >= VHRMenu["dz191.vhr.orbwalk"]["rMinEnemies"].GetValue<MenuSlider>().Value)
                                {
                                    spells[SpellSlot.R].Cast();
                                }
                               spells[SpellSlot.Q].Cast(Position);
-                              Orbwalker.OrbwalkTarget = target;
-                        break;
+                        return;
                 }
             }
 
             if (spells[SpellSlot.R].IsEnabledAndReady(OrbwalkerMode.Orbwalk) &&
-                                    ObjectManager.Player.CountEnemiesInRange(1200f) >= VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.tumble"]["rMinEnemies"].GetValue<MenuSlider>().Value)
+                                    ObjectManager.Player.CountEnemiesInRange(1200f) >= VHRMenu["dz191.vhr.orbwalk"]["rMinEnemies"].GetValue<MenuSlider>().Value)
             {
                 spells[SpellSlot.R].Cast();
             }
-
             spells[SpellSlot.Q].Cast(Position);
-            Orbwalker.OrbwalkTarget = target;
             //DelayAction.Add((int)(Game.Ping / 2f + spells[SpellSlot.Q].Delay * 1000 + 300f / 1650f + 50f), Orbwalker.ResetAutoAttackTimer);
         }
         #endregion
@@ -530,7 +513,7 @@ namespace VHR_SDK
                                 }
 
                                 var WallListCount = ExtendedList.Count(h => h.IsWall() || IsJ4Flag(h, Hero));
-                                Console.WriteLine("Actual Preds: {0} Walllist count: {1} TotalList: {2} Percent: {3}", PredictionsList.Count, WallListCount, ExtendedList.Count, ((float)WallListCount / (float)ExtendedList.Count));
+                                //Console.WriteLine("Actual Preds: {0} Walllist count: {1} TotalList: {2} Percent: {3}", PredictionsList.Count, WallListCount, ExtendedList.Count, ((float)WallListCount / (float)ExtendedList.Count));
 
                                 if (((float)WallListCount / (float)ExtendedList.Count) >= MinChecksPercent / 100f)
                                 {
