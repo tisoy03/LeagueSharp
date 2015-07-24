@@ -1,5 +1,6 @@
 ﻿using LeagueSharp.SDK.Core;
 using LeagueSharp.SDK.Core.Enumerations;
+using LeagueSharp.SDK.Core.Utils;
 using VHR_SDK.Utility.Helpers;
 
 namespace VHR_SDK.Modules
@@ -38,7 +39,15 @@ namespace VHR_SDK.Modules
             if (TwoStacksTarget != null && TwoStacksTarget.IsValidTarget(ObjectManager.Player.AttackRange + (1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1)) &&
                 TwoStacksTarget != Orbwalker.OrbwalkTarget && !ObjectManager.Player.IsWindingUp)
             {
-                Orbwalker.OrbwalkTarget = TwoStacksTarget;
+                    if (TwoStacksTarget.IsValidTarget())
+                    {
+                        Orbwalker.Attack = false;
+                        ObjectManager.Player.IssueOrder(GameObjectOrder.AttackUnit, TwoStacksTarget);
+                        DelayAction.Add((int)(Game.Ping / 2f + ObjectManager.Player.AttackDelay * 1000 + 250 + 50), () =>
+                        {
+                            Orbwalker.Attack = true;
+                        });
+                    }
             }
         }
     }
