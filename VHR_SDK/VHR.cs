@@ -203,7 +203,10 @@ namespace VHR_SDK
                 switch (Orbwalker.ActiveMode)
                 {
                     case OrbwalkerMode.Orbwalk:
-                        PreliminaryQCheck((Obj_AI_Base) e.Target, OrbwalkerMode.Orbwalk);
+                        if (e.Target is Obj_AI_Hero)
+                        {
+                            PreliminaryQCheck((Obj_AI_Base)e.Target, OrbwalkerMode.Orbwalk);
+                        }
                         break;
                     case OrbwalkerMode.Hybrid:
                         PreliminaryQCheck((Obj_AI_Base) e.Target, OrbwalkerMode.Hybrid);
