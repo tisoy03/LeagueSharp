@@ -39,7 +39,7 @@ namespace VHR_SDK.Modules
             if (TwoStacksTarget != null && TwoStacksTarget.IsValidTarget(ObjectManager.Player.AttackRange + (1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1)) &&
                 TwoStacksTarget != Orbwalker.OrbwalkTarget && !ObjectManager.Player.IsWindingUp)
             {
-                    if (TwoStacksTarget.IsValidTarget())
+                    if (TwoStacksTarget.IsValidTarget() && !ObjectManager.Player.IsWindingUp)
                     {
                         Orbwalker.Attack = false;
                         ObjectManager.Player.IssueOrder(GameObjectOrder.AttackUnit, TwoStacksTarget);
