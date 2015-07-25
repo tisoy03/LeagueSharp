@@ -203,7 +203,10 @@ namespace VHR_SDK
                 switch (Orbwalker.ActiveMode)
                 {
                     case OrbwalkerMode.Orbwalk:
-                        PreliminaryQCheck((Obj_AI_Base) e.Target, OrbwalkerMode.Orbwalk);
+                        if (e.Target is Obj_AI_Hero)
+                        {
+                            PreliminaryQCheck((Obj_AI_Base)e.Target, OrbwalkerMode.Orbwalk);
+                        }
                         break;
                     case OrbwalkerMode.Hybrid:
                         PreliminaryQCheck((Obj_AI_Base) e.Target, OrbwalkerMode.Hybrid);
@@ -395,7 +398,8 @@ namespace VHR_SDK
                                 {
                                     spells[SpellSlot.R].Cast();
                                 }
-                                spells[SpellSlot.Q].Cast(whereToQ);
+
+                                Tumble(whereToQ);
                                 return;
                             }
                         }
@@ -406,7 +410,8 @@ namespace VHR_SDK
                                {
                                    spells[SpellSlot.R].Cast();
                                }
-                              spells[SpellSlot.Q].Cast(Position);
+
+                              Tumble(Position);
                         return;
                 }
             }
@@ -416,8 +421,26 @@ namespace VHR_SDK
             {
                 spells[SpellSlot.R].Cast();
             }
+
+            Tumble(Position);
+        }
+
+        private static void Tumble(Vector3 Position)
+        {
             spells[SpellSlot.Q].Cast(Position);
-            //DelayAction.Add((int)(Game.Ping / 2f + spells[SpellSlot.Q].Delay * 1000 + 300f / 1650f + 50f), Orbwalker.ResetAutoAttackTimer);
+
+            DelayAction.Add((int)(Game.Ping / 2f + spells[SpellSlot.Q].Delay * 1000 + 300f / 1000f + 50f), () =>
+            {
+                if (Orbwalker.GetTarget(Orbwalker.ActiveMode).IsValidTarget() && !ObjectManager.Player.IsWindingUp)
+                {
+                    Orbwalker.Attack = false;
+                    ObjectManager.Player.IssueOrder(GameObjectOrder.AttackUnit, Orbwalker.GetTarget(Orbwalker.ActiveMode));
+                    DelayAction.Add((int)(Game.Ping / 2f + ObjectManager.Player.AttackDelay * 1000 + 250 + 50), () =>
+                    {
+                        Orbwalker.Attack = true;
+                    });
+                }
+            });
         }
         #endregion
 
