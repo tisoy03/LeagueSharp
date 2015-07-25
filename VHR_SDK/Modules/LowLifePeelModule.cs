@@ -28,7 +28,7 @@
 
         public bool ShouldRun()
         {
-            return VHR.spells[SpellSlot.E].IsReady() && VHR.VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.condemn"]["lowlifepeel"].GetValue<MenuBool>().Value;
+            return VHR.spells[SpellSlot.E].IsReady() && VHR.VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.condemn"]["lowlifepeel"].GetValue<MenuBool>().Value && (ObjectManager.Player.HealthPercent <= 25);
         }
 
         public void Run()
