@@ -17,6 +17,8 @@ LeagueSharp Profile: https://www.joduska.me/forum/user/106-asuna/
 
 #List of assemblies:
 
+-VayneHunter Revolution [VHR_SDK] -> Requires LeagueSharp.SDK ( https://github.com/LeagueSharp/LeagueSharp.SDK )
+
 -VayneHunter Reborn
 
 -Vayne Hunter Rework
