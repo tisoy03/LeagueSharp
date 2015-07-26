@@ -25,7 +25,7 @@
 
         public bool ShouldRun()
         {
-            return VHR.spells[SpellSlot.E].IsReady() && VHR.VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.condemn"]["autoe"].GetValue<MenuBool>().Value;
+            return VHR.VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.condemn"]["autoe"].GetValue<MenuBool>().Value && VHR.spells[SpellSlot.E].IsReady();
         }
 
         public void Run()

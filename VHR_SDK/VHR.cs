@@ -112,8 +112,6 @@ namespace VHR_SDK
             {
                 return;
             }
-            var target = TargetSelector.GetTarget(600f);
-            Console.WriteLine("[VHR] SDK Q Damage {0}", SpellSlot.E.GetVHRSpellDamage(target));
 
             switch (Orbwalker.ActiveMode)
             {
