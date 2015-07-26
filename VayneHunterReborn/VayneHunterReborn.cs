@@ -271,6 +271,10 @@
             {
                 return;
             }
+
+            var Target = TargetSelector.GetTarget(600f, TargetSelector.DamageType.Physical);
+            Console.WriteLine("[VHR] Reborn Q Damage {0}", _spells[SpellSlot.E].GetDamage(Target));
+
             if (CustomTargetSelector.IsActive())
             {
                 if (CustomTargetSelector.GetTarget(Orbwalking.GetRealAutoAttackRange(null)) != null)

@@ -26,19 +26,15 @@ namespace VHR_SDK.Utility.Helpers
             {
                 case SpellSlot.Q:
 
-                    realDamage = new float[] { 30, 35, 40, 45, 50 }[level] / 100 * (ObjectManager.Player.BaseAttackDamage + ObjectManager.Player.FlatPhysicalDamageMod);
+                    realDamage = new float[] { 30, 35, 40, 45, 50 }[level] / 100 * (ObjectManager.Player.BaseAttackDamage + ObjectManager.Player.FlatPhysicalDamageMod) - 5f;
                     break;
                 case SpellSlot.W:
-
-                    if (target.GetBuffCount("vaynesilvereddebuff") == 2)
-                    {
                          dmgType = DamageType.True;
                          realDamage = new float[] { 20, 30, 40, 50, 60 }[level] +
-                                 (new float[] { 4, 5, 6, 7, 8 }[level] / 100) * target.MaxHealth;
-                    }
+                                 (new float[] { 4, 5, 6, 7, 8 }[level] / 100) * target.MaxHealth - 30f;
                     break;
                 case SpellSlot.E:
-                    realDamage = new float[] { 45, 80, 115, 150, 185 }[level] + 0.5f * ObjectManager.Player.FlatPhysicalDamageMod;
+                    realDamage = new float[] { 45, 80, 115, 150, 185 }[level] + 0.5f * ObjectManager.Player.FlatPhysicalDamageMod - 30f;
                     break;
             }
 

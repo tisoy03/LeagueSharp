@@ -33,6 +33,7 @@ namespace VHR_SDK
         /**
          * Special Credits and mentions:
          * Exory - Being a great guy and helping me test, as well as giving constant feedback!
+         * Kazuma - Helping me in custom game debugging damages!
          * */
 
         #region Variables and fields
@@ -82,7 +83,7 @@ namespace VHR_SDK
             Game.OnUpdate += Game_OnUpdate;
             InterruptableSpell.OnInterruptableTarget += InterruptableSpellOnOnInterruptableTarget;
             Stealth.OnStealth += Stealth_OnStealth;
-            //Gapcloser.OnGapCloser += GapcloserOnOnGapCloser;
+            Gapcloser.OnGapCloser += GapcloserOnOnGapCloser;
 
         }
 
@@ -109,6 +110,8 @@ namespace VHR_SDK
             {
                 return;
             }
+            var target = TargetSelector.GetTarget(600f);
+            Console.WriteLine("[VHR] SDK Q Damage {0}", SpellSlot.E.GetVHRSpellDamage(target));
 
             switch (Orbwalker.ActiveMode)
             {
@@ -235,8 +238,8 @@ namespace VHR_SDK
             //TODO Reenable once GetSpellDamage for Vayne is bik
             if (spells[SpellSlot.Q].IsEnabledAndReady(OrbwalkerMode.LaneClear))
             {
-                return;
-                var minionsInRange = GameObjects.EnemyMinions.Where(m => m.DistanceSquared(ObjectManager.Player.ServerPosition) <= ObjectManager.Player.AttackRange * ObjectManager.Player.AttackRange && m.Health <= ObjectManager.Player.GetAutoAttackDamage(m) + ObjectManager.Player.GetSpellDamage(m, SpellSlot.Q)).ToList();
+                //TODO Change here
+                var minionsInRange = GameObjects.EnemyMinions.Where(m => m.DistanceSquared(ObjectManager.Player.ServerPosition) <= ObjectManager.Player.AttackRange * ObjectManager.Player.AttackRange && m.Health <= ObjectManager.Player.GetAutoAttackDamage(m) + SpellSlot.Q.GetVHRSpellDamage(m)).ToList();
                 
                 if (!minionsInRange.Any())
                 {
