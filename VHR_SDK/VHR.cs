@@ -329,6 +329,11 @@ namespace VHR_SDK
         #region Tumble Overloads
         private static void UseTumble(Obj_AI_Base Target)
         {
+            if (Health.GetPrediction(Target, Game.Ping) <= 0)
+            {
+                return;
+            }
+
             var Position = Game.CursorPos;
             var extendedPosition = ObjectManager.Player.ServerPosition.Extend(Position, 300f);
             var distanceAfterTumble = Vector3.DistanceSquared(extendedPosition, Target.ServerPosition);
@@ -364,6 +369,11 @@ namespace VHR_SDK
 
         private static void UseTumble(Vector3 Position, Obj_AI_Base Target)
         {
+            if (Health.GetPrediction(Target, Game.Ping) <= 0)
+            {
+                return;
+            }
+
             var extendedPosition = ObjectManager.Player.ServerPosition.Extend(Position, 300f);
 
             var distanceAfterTumble = Vector3.DistanceSquared(extendedPosition, Target.ServerPosition);
