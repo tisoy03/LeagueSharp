@@ -1,4 +1,6 @@
-﻿namespace VHR_SDK.Utility
+﻿using System.Reflection;
+
+namespace VHR_SDK.Utility
 {
     using System.Windows.Forms;
     using LeagueSharp.SDK.Core.Enumerations;
@@ -37,7 +39,7 @@
             }
             VHR.VHRMenu.Add(harassMenu);
 
-            var farmMenu = new Menu("dz191.vhr.laneclear", "[VHR] Farm");
+            var farmMenu = new Menu("dz191.vhr.laneclear", "[VHR] Farm"); //Done, sort of.
             {
                 farmMenu.Add(new MenuBool("UseQ", "Use Q", true));
                 farmMenu.Add(new MenuSeparator("sepFarm", "Mana Manager"));
@@ -64,7 +66,7 @@
                 miscQMenu.Add(new MenuBool("noaastealth", "Don't AA while stealthed")); //TODO Disabled?
 
                 miscQMenu.Add(new MenuSeparator("sepQ4", "Q Miscellaneous"));
-                miscQMenu.Add(new MenuBool("qinrange", "Q To KS if Enemy Killable", true)); //TODO
+                miscQMenu.Add(new MenuBool("qinrange", "Q To KS if Enemy Killable", true)); //Done
                 miscQMenu.Add(new MenuKeyBind("walltumble", "Tumble Over Wall (WallTumble)", Keys.Y, KeyBindType.Press));
             }
 
@@ -118,6 +120,9 @@
             miscMenu.Add(miscGeneralSubMenu);
             VHR.VHRMenu.Add(miscMenu);
 
+            VHR.VHRMenu.Add(
+                new MenuSeparator(
+                    "sepVersion", "VH Revolution by Asuna v." + Assembly.GetExecutingAssembly().GetName().Version));
             #endregion
 
             VHR.VHRMenu.Attach();
