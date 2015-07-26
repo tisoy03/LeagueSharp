@@ -210,6 +210,7 @@ namespace VHR_SDK
                         break;
                     case OrbwalkerMode.Hybrid:
                         PreliminaryQCheck((Obj_AI_Base) e.Target, OrbwalkerMode.Hybrid);
+                        TryEThird((Obj_AI_Base) e.Target);
                         break;
                     case OrbwalkerMode.LaneClear:
                         OnFarm(e);
@@ -227,6 +228,7 @@ namespace VHR_SDK
         private static void OnBeforeAttack(Orbwalker.OrbwalkerActionArgs e)
         {
         }
+
         private static void OnFarm(Orbwalker.OrbwalkerActionArgs e)
         {
             //TODO Redo this using OnNonKillableMinion
@@ -250,6 +252,18 @@ namespace VHR_SDK
             }
         }
 
+        private static void TryEThird(Obj_AI_Base Target)
+        {
+            if (!(Target is Obj_AI_Hero) || !(spells[SpellSlot.E].IsReady()) || !(Target.IsValidTarget(spells[SpellSlot.E].Range)))
+            {
+                return;
+            }
+
+            if (Target.GetBuffCount("vaynesilvereddebuff") == 1 && VHRMenu["dz191.vhr.hybrid"]["eThird"].GetValue<MenuBool>().Value)
+            {
+                spells[SpellSlot.E].Cast(Target);
+            }
+        }
         #endregion
 
         #region Skills Usage

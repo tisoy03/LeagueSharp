@@ -62,6 +62,7 @@
     <Compile Include="Modules\EKSModule.cs" />
     <Compile Include="Modules\AutoEModule.cs" />
     <Compile Include="Modules\TestModule.cs" />
+    <Compile Include="Utility\Helpers\VHRDamage.cs" />
     <Compile Include="Utility\Helpers\VHRGeometry.cs" />
     <Compile Include="Utility\TickLimiter.cs" />
     <Compile Include="Utility\VHRDebug.cs" />
