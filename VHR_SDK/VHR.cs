@@ -253,7 +253,6 @@ namespace VHR_SDK
                 {
                     var firstMinion = minionsInRange.OrderBy(m => m.HealthPercent).First();
                     UseTumble(firstMinion);
-                    Orbwalker.OrbwalkTarget = firstMinion;
                 }
             }
         }
