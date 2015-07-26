@@ -36,7 +36,6 @@ namespace VHR_SDK.Utility.Helpers
                          realDamage = new float[] { 20, 30, 40, 50, 60 }[level] +
                                  (new float[] { 4, 5, 6, 7, 8 }[level] / 100) * target.MaxHealth;
                     }
-                    realDamage = 0f;
                     break;
                 case SpellSlot.E:
                     realDamage = new float[] { 45, 80, 115, 150, 185 }[level] + 0.5f * ObjectManager.Player.FlatPhysicalDamageMod;
