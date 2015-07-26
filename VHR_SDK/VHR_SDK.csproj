@@ -61,9 +61,12 @@
     <Compile Include="Modules\LowLifePeelModule.cs" />
     <Compile Include="Modules\EKSModule.cs" />
     <Compile Include="Modules\AutoEModule.cs" />
+    <Compile Include="Modules\QKsModule.cs" />
     <Compile Include="Modules\TestModule.cs" />
+    <Compile Include="Modules\WallTumbleModule.cs" />
     <Compile Include="Utility\Helpers\VHRDamage.cs" />
     <Compile Include="Utility\Helpers\VHRGeometry.cs" />
+    <Compile Include="Utility\Helpers\VHRHelpers.cs" />
     <Compile Include="Utility\TickLimiter.cs" />
     <Compile Include="Utility\VHRDebug.cs" />
     <Compile Include="Utility\MenuGenerator.cs" />

@@ -54,7 +54,9 @@ namespace VHR_SDK
             new AutoEModule(),
             new EKSModule(),
             new LowLifePeel(),
-            new Focus2Stacks()
+            new Focus2Stacks(),
+            new WallTumbleModule(),
+            new QKsModule()
         };
 
         private const int PINK_WARD = 2043;
@@ -134,7 +136,7 @@ namespace VHR_SDK
             Orbwalker.Attack = !VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.general"]["disableaa"].GetValue<MenuBool>().Value;
             Orbwalker.Movement = !VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.general"]["disablemovement"].GetValue<MenuBool>().Value;
 
-            foreach (var Module in VhrModules.Where(module => module.ShouldRun()))
+            foreach (var Module in VhrModules.Where(module => module.ShouldBeLoaded() && module.ShouldRun()))
             {
                 Module.Run();
             }
@@ -239,7 +241,7 @@ namespace VHR_SDK
             if (spells[SpellSlot.Q].IsEnabledAndReady(OrbwalkerMode.LaneClear))
             {
                 //TODO Change here
-                var minionsInRange = GameObjects.EnemyMinions.Where(m => m.DistanceSquared(ObjectManager.Player.ServerPosition) <= ObjectManager.Player.AttackRange * ObjectManager.Player.AttackRange && m.Health <= ObjectManager.Player.GetAutoAttackDamage(m) + SpellSlot.Q.GetVHRSpellDamage(m)).ToList();
+                var minionsInRange = GameObjects.EnemyMinions.Where(m => m.DistanceSquared(ObjectManager.Player.ServerPosition) <= ObjectManager.Player.AttackRange * ObjectManager.Player.AttackRange && m.Health <= ObjectManager.Player.GetAutoAttackDamage(m) + SpellSlot.Q.GetVHRSpellDamage(m) - 20).ToList();
                 
                 if (!minionsInRange.Any())
                 {
@@ -272,6 +274,7 @@ namespace VHR_SDK
         #region Skills Usage
 
         #region Tumble
+
 
         private static void PreliminaryQCheck(Obj_AI_Base target, OrbwalkerMode mode)
         {
@@ -442,7 +445,7 @@ namespace VHR_SDK
             Tumble(Position);
         }
 
-        private static void Tumble(Vector3 Position)
+        public static void Tumble(Vector3 Position)
         {
             spells[SpellSlot.Q].Cast(Position);
 
@@ -459,12 +462,29 @@ namespace VHR_SDK
                 }
             });
         }
+        public static void Tumble(Vector3 Position, Obj_AI_Base target)
+        {
+            spells[SpellSlot.Q].Cast(Position);
+
+            DelayAction.Add((int)(Game.Ping / 2f + spells[SpellSlot.Q].Delay * 1000 + 300f / 1000f + 50f), () =>
+            {
+                if (target.IsValidTarget(ObjectManager.Player.AttackRange + ObjectManager.Player.BoundingRadius, true, Position) && !ObjectManager.Player.IsWindingUp)
+                {
+                    Orbwalker.Attack = false;
+                    ObjectManager.Player.IssueOrder(GameObjectOrder.AttackUnit, target);
+                    DelayAction.Add((int)(Game.Ping / 2f + ObjectManager.Player.AttackDelay * 1000 + 250 + 50), () =>
+                    {
+                        Orbwalker.Attack = true;
+                    });
+                }
+            });
+        }
         #endregion
 
         #endregion
 
         #region Condemn
-        
+
         #region Condemn Casting
 
         private static void CastCondemn(Obj_AI_Hero target)

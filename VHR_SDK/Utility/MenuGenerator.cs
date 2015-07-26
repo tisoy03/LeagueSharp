@@ -65,7 +65,7 @@
 
                 miscQMenu.Add(new MenuSeparator("sepQ4", "Q Miscellaneous"));
                 miscQMenu.Add(new MenuBool("qinrange", "Q To KS if Enemy Killable", true)); //TODO
-                miscQMenu.Add(new MenuKeyBind("walltumble", "Tumble Over Wall (WallTumble)", Keys.Y, KeyBindType.Press)); //TODO
+                miscQMenu.Add(new MenuKeyBind("walltumble", "Tumble Over Wall (WallTumble)", Keys.Y, KeyBindType.Press));
             }
 
             var miscEMenu = new Menu("dz191.vhr.misc.condemn", "Condemn"); //All Done
