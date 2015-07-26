@@ -212,7 +212,10 @@ namespace VHR_SDK
                         }
                         break;
                     case OrbwalkerMode.Hybrid:
-                        PreliminaryQCheck((Obj_AI_Base) e.Target, OrbwalkerMode.Hybrid);
+                        if (e.Target is Obj_AI_Hero)
+                        {
+                            PreliminaryQCheck((Obj_AI_Base) e.Target, OrbwalkerMode.Hybrid);
+                        }
                         TryEThird((Obj_AI_Base) e.Target);
                         break;
                     case OrbwalkerMode.LaneClear:
@@ -239,7 +242,7 @@ namespace VHR_SDK
             if (spells[SpellSlot.Q].IsEnabledAndReady(OrbwalkerMode.LaneClear))
             {
                 //TODO Change here
-                var minionsInRange = GameObjects.EnemyMinions.Where(m => m.DistanceSquared(ObjectManager.Player.ServerPosition) <= ObjectManager.Player.AttackRange * ObjectManager.Player.AttackRange && m.Health <= ObjectManager.Player.GetAutoAttackDamage(m) + SpellSlot.Q.GetVHRSpellDamage(m) - 20).ToList();
+                var minionsInRange = GameObjects.EnemyMinions.Where(m => m.DistanceSquared(ObjectManager.Player.ServerPosition) <= ObjectManager.Player.AttackRange * ObjectManager.Player.AttackRange && m.Health <= ObjectManager.Player.GetAutoAttackDamage(m) + SpellSlot.Q.GetVHRSpellDamage(m)).ToList();
                 
                 if (!minionsInRange.Any())
                 {
@@ -453,11 +456,11 @@ namespace VHR_SDK
                 {
                     Orbwalker.Attack = false;
                     ObjectManager.Player.IssueOrder(GameObjectOrder.AttackUnit, Orbwalker.GetTarget(Orbwalker.ActiveMode));
-                    DelayAction.Add((int)(Game.Ping / 2f + ObjectManager.Player.AttackDelay * 1000 + 250 + 50), () =>
-                    {
-                        Orbwalker.Attack = true;
-                    });
                 }
+                DelayAction.Add((int)(Game.Ping / 2f + ObjectManager.Player.AttackDelay * 1000 + 250 + 50), () =>
+                {
+                    Orbwalker.Attack = true;
+                });
             });
         }
         public static void Tumble(Vector3 Position, Obj_AI_Base target)
@@ -470,11 +473,11 @@ namespace VHR_SDK
                 {
                     Orbwalker.Attack = false;
                     ObjectManager.Player.IssueOrder(GameObjectOrder.AttackUnit, target);
-                    DelayAction.Add((int)(Game.Ping / 2f + ObjectManager.Player.AttackDelay * 1000 + 250 + 50), () =>
-                    {
-                        Orbwalker.Attack = true;
-                    });
                 }
+                DelayAction.Add((int)(Game.Ping / 2f + ObjectManager.Player.AttackDelay * 1000 + 250 + 50), () =>
+                {
+                    Orbwalker.Attack = true;
+                });
             });
         }
         #endregion
