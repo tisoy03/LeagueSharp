@@ -148,14 +148,14 @@ namespace VayneHunter_Reborn.MapPosition
         }
         public static List<Vector2> GetAllyPoints()
         {
-            var polygonsList = AlliesClose.Select(ally => new Geometry.Circle(ally.ServerPosition.To2D(), (ally.IsMeele?ally.AttackRange*1.5f:ally.AttackRange) + ally.BoundingRadius + RangeOffsetAlly).ToPolygon()).ToList();
+            var polygonsList = AlliesClose.Select(ally => new Geometry.Circle(ally.ServerPosition.To2D(), (ally.IsMelee?ally.AttackRange*1.5f:ally.AttackRange) + ally.BoundingRadius + RangeOffsetAlly).ToPolygon()).ToList();
             var pathList = Geometry.ClipPolygons(polygonsList);
             var pointList = pathList.SelectMany(path => path, (path, point) => new Vector2(point.X, point.Y)).Where(currentPoint => !currentPoint.IsWall()).ToList();
             return pointList;
         }
         public static List<Vector2> GetEnemyPoints()
         {
-            var polygonsList = EnemiesClose.Select(enemy => new Geometry.Circle(enemy.ServerPosition.To2D(), (enemy.IsMeele ? enemy.AttackRange * 1.5f : enemy.AttackRange) + enemy.BoundingRadius + RangeOffsetEnemy).ToPolygon()).ToList();
+            var polygonsList = EnemiesClose.Select(enemy => new Geometry.Circle(enemy.ServerPosition.To2D(), (enemy.IsMelee ? enemy.AttackRange * 1.5f : enemy.AttackRange) + enemy.BoundingRadius + RangeOffsetEnemy).ToPolygon()).ToList();
             var pathList = Geometry.ClipPolygons(polygonsList);
             var pointList = pathList.SelectMany(path => path, (path, point) => new Vector2(point.X, point.Y)).Where(currentPoint => !currentPoint.IsWall()).ToList();
             return pointList;
