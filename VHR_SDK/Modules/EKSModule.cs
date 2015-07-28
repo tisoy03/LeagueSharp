@@ -34,7 +34,7 @@
         public void Run()
         {
             var target = GameObjects.EnemyHeroes.Find(en => en.IsValidTarget(VHR.spells[SpellSlot.E].Range) && en.Has2WStacks());
-            if (target != null && target.Health + 60 <= (ObjectManager.Player.GetSpellDamage(target, SpellSlot.E) + ObjectManager.Player.GetSpellDamage(target, SpellSlot.W)))
+            if (target != null && !target.IsInvulnerable(DamageType.Physical, false) && target.Health + 60 <= (ObjectManager.Player.GetSpellDamage(target, SpellSlot.E) + ObjectManager.Player.GetSpellDamage(target, SpellSlot.W)))
             {
                 VHR.spells[SpellSlot.E].Cast(target);
             }
