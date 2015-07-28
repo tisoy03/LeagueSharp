@@ -67,7 +67,7 @@ namespace VHR_SDK.Utility
 
                 miscQMenu.Add(new MenuSeparator("sepQ4", "Q Miscellaneous"));
                 miscQMenu.Add(new MenuBool("qinrange", "Q To KS if Enemy Killable", true)); //Done
-                miscQMenu.Add(new MenuBool("qburst", "Try to Q to wall for fast AA reset if possible", true)); //Done
+                miscQMenu.Add(new MenuBool("qburst", "Q Wall Burst (Mirin Mode!)", true)); //Done
                 miscQMenu.Add(new MenuKeyBind("walltumble", "Tumble Over Wall (WallTumble)", Keys.Y, KeyBindType.Press));
             }
 

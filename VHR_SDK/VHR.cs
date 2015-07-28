@@ -508,7 +508,7 @@ namespace VHR_SDK
         #region Q To Wall
         public static Vector3 GetQWallPosition(Obj_AI_Base target)
         {
-            if (!VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.tumble"]["qburst"].GetValue<MenuBool>().Value)
+            if (!VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.tumble"]["qburst"].GetValue<MenuBool>().Value || target.HealthPercent >= 45 || target.HealthPercent > ObjectManager.Player.HealthPercent)
             {
                 return Vector3.Zero;
             }
