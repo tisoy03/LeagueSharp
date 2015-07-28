@@ -237,6 +237,7 @@ namespace VHR_SDK
 
         private static void OnFarm(Orbwalker.OrbwalkerActionArgs e)
         {
+            return;
             //TODO Redo this using OnNonKillableMinion
             //TODO Reenable once GetSpellDamage for Vayne is bik
             if (spells[SpellSlot.Q].IsEnabledAndReady(OrbwalkerMode.LaneClear))
