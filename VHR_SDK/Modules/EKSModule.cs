@@ -28,7 +28,7 @@
 
         public bool ShouldRun()
         {
-            return VHR.spells[SpellSlot.E].IsReady() && VHR.VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.condemn"]["eks"].GetValue<MenuBool>().Value && !ObjectManager.Player.HasBuff("vaynetumblebonus");
+            return VHR.spells[SpellSlot.E].IsReady() && !VHR.spells[SpellSlot.Q].IsReady() && VHR.VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.condemn"]["eks"].GetValue<MenuBool>().Value && !ObjectManager.Player.HasBuff("vaynetumblebonus");
         }
 
         public void Run()
