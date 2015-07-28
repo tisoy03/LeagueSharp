@@ -86,6 +86,11 @@ namespace VHR_SDK
             InterruptableSpell.OnInterruptableTarget += InterruptableSpellOnOnInterruptableTarget;
             Stealth.OnStealth += Stealth_OnStealth;
             Gapcloser.OnGapCloser += GapcloserOnOnGapCloser;
+            Drawing.OnDraw += Drawing_OnDraw;
+        }
+
+        static void Drawing_OnDraw(EventArgs args)
+        {
 
         }
 
@@ -298,7 +303,15 @@ namespace VHR_SDK
                 }
                 else
                 {
-                    UseTumble(target);
+                    var QWallPosition = GetQWallPosition(target);
+                    if (QWallPosition != Vector3.Zero)
+                    {
+                        Tumble(QWallPosition, target);
+                    }
+                    else
+                    {
+                        UseTumble(target);
+                    }
                 }
             }
         }
@@ -489,6 +502,36 @@ namespace VHR_SDK
                     Orbwalker.Attack = true;
                 });
             });
+        }
+        #endregion
+
+        #region Q To Wall
+        public static Vector3 GetQWallPosition(Obj_AI_Base target)
+        {
+            if (!VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.tumble"]["qburst"].GetValue<MenuBool>().Value)
+            {
+                return Vector3.Zero;
+            }
+
+            var Positions = GetCheckWallPositions(70).ToList().OrderBy(t => t.DistanceSquared(target.ServerPosition));
+            foreach (var pos in Positions)
+            {
+                if (pos.IsWall() && pos.IsSafePosition() && pos.PassesNoQIntoEnemiesCheck())
+                {
+                    return pos;
+                }
+            }
+            return Vector3.Zero;
+        }
+
+        public static Vector3[] GetCheckWallPositions(float range)
+        {
+            Vector3[] V3List =
+            {
+                    (ObjectManager.Player.Position.ToVector2() + range * ObjectManager.Player.Direction.ToVector2()).ToVector3(),
+                    (ObjectManager.Player.Position.ToVector2() - range * ObjectManager.Player.Direction.ToVector2()).ToVector3()
+            };
+            return V3List;
         }
         #endregion
 
