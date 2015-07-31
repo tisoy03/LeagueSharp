@@ -9,6 +9,6 @@ namespace VHR_SDK.Utility.Activator
 {
     class Activator
     {
-        public static List<IVHRItem> activatorItems 
+        public static List<IVHRItem> activatorItems;
     }
 }
