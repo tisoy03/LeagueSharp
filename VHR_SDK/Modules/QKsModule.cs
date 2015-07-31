@@ -49,8 +49,8 @@ namespace VHR_SDK.Modules
             {
                 return;
             }
-
-            if (currentTarget.Health + 25 < ObjectManager.Player.GetAutoAttackDamage(currentTarget) + SpellSlot.Q.GetVHRSpellDamage(currentTarget))
+            var WHealth = currentTarget.Has2WStacks() ? SpellSlot.W.GetVHRSpellDamage(currentTarget) : 0;
+            if (currentTarget.Health + 35 < ObjectManager.Player.GetAutoAttackDamage(currentTarget) + SpellSlot.Q.GetVHRSpellDamage(currentTarget) + WHealth)
             {
                 var extendedPosition = ObjectManager.Player.ServerPosition.Extend(
                     currentTarget.ServerPosition, 300f);

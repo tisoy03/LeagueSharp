@@ -55,7 +55,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Enumerations\ItemTypes.cs" />
     <Compile Include="Interfaces\IBootstrapComponent.cs" />
+    <Compile Include="Interfaces\IVHRItem.cs" />
     <Compile Include="Interfaces\IVHRModule.cs" />
     <Compile Include="Modules\Focus2Stacks.cs" />
     <Compile Include="Modules\LowLifePeelModule.cs" />
@@ -64,6 +66,8 @@
     <Compile Include="Modules\QKsModule.cs" />
     <Compile Include="Modules\TestModule.cs" />
     <Compile Include="Modules\WallTumbleModule.cs" />
+    <Compile Include="Utility\Activator\Activator.cs" />
+    <Compile Include="Utility\Activator\ActivatorMenu.cs" />
     <Compile Include="Utility\Helpers\VHRDamage.cs" />
     <Compile Include="Utility\Helpers\VHRGeometry.cs" />
     <Compile Include="Utility\Helpers\VHRHelpers.cs" />
@@ -81,6 +85,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Math\" />
+    <Folder Include="Utility\Activator\Items\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
