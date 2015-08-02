@@ -433,7 +433,7 @@ namespace VHR_SDK
                         if (VHRExtensions.MeleeEnemiesTowardsMe.Any() &&
                             !VHRExtensions.MeleeEnemiesTowardsMe.All(m => m.HealthPercent <= 15))
                         {
-                            var ClosestEnemy = VHRExtensions.MeleeEnemiesTowardsMe.OrderBy(m => m.Distance(ObjectManager.Player)).First();
+                            var ClosestEnemy = VHRExtensions.MeleeEnemiesTowardsMe.OrderBy(m => m.DistanceSquared(ObjectManager.Player)).First();
                             var whereToQ = ClosestEnemy.ServerPosition.Extend(ObjectManager.Player.ServerPosition, ClosestEnemy.Distance(ObjectManager.Player) + 300f);
                             if (whereToQ.IsSafePosition())
                             {
