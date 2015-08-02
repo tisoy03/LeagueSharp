@@ -15,7 +15,6 @@ namespace Thresh___Soul_Hunter.Utility
     {
         internal static void Generate(Menu RootMenu)
         {
-            RootMenu = new Menu("dz191.thresh", "Thresh - Soul Hunter", true);
 
             var keysMenu = new Menu("dz191.thresh.keys", "Keys");
             {
@@ -35,10 +34,10 @@ namespace Thresh___Soul_Hunter.Utility
 
                 ////Mana Manager
                 comboMenu.Add(new MenuSeparator("separatorMana", "Combo - Mana Manager"));
-                comboMenu.Add(new MenuSlider("qManaCombo", "Q Mana", 15));
-                comboMenu.Add(new MenuSlider("wManaCombo", "W Mana", 30));
-                comboMenu.Add(new MenuSlider("eManaCombo", "E Mana", 10));
-                comboMenu.Add(new MenuSlider("rManaCombo", "R Mana", 15));
+                comboMenu.Add(new MenuSlider("QMana", "Q Mana", 15));
+                comboMenu.Add(new MenuSlider("WMana", "W Mana", 30));
+                comboMenu.Add(new MenuSlider("EMana", "E Mana", 10));
+                comboMenu.Add(new MenuSlider("RMana", "R Mana", 15));
 
                 ////Skills Options
                 comboMenu.Add(new MenuSeparator("separatorOptions", "Combo - Skill Options"));
@@ -56,8 +55,8 @@ namespace Thresh___Soul_Hunter.Utility
 
                 ////Mana Manager
                 harassMenu.Add(new MenuSeparator("separatorHMana", "Harass - Mana Manager"));
-                harassMenu.Add(new MenuSlider("qManaHarass", "Q Mana", 15));
-                harassMenu.Add(new MenuSlider("eManaHarass", "E Mana", 10));
+                harassMenu.Add(new MenuSlider("QMana", "Q Mana", 15));
+                harassMenu.Add(new MenuSlider("EMana", "E Mana", 10));
 
                 RootMenu.Add(harassMenu);
             }

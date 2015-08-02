@@ -49,12 +49,19 @@ namespace Thresh___Soul_Hunter
             Obj_AI_Base.OnBuffAdd += OnBuffAdd;
             Game.OnUpdate += (args) => { OnUpdate(); };
             Orbwalker.OnAction += Orbwalker_OnAction;
+            Drawing.OnDraw += Drawing_OnDraw;
+        }
+
+        static void Drawing_OnDraw(EventArgs args)
+        {
+            Drawing.DrawText(20f, 20f, System.Drawing.Color.White, GetQState().ToString());
         }
 
         #region Combo, Harass, Update Methods
 
         private static void OnCombo()
         {
+            
             var target = HookedUnit ?? TargetSelector.GetTarget(spells[Spells.Q].Range, DamageType.Magical);
             if (spells[Spells.E].IsEnabledAndReady(OrbwalkerMode.Orbwalk) && target.IsValidTarget() &&
                 (GameObjects.Player.DistanceSquared(target) <= Math.Pow(spells[Spells.E].Range, 2)))
@@ -71,23 +78,28 @@ namespace Thresh___Soul_Hunter
             }
 
            var QStage = GetQState();
-
-           if (spells[Spells.Q].IsEnabledAndReady(OrbwalkerMode.Orbwalk) && target.IsValidTarget() &&
-                (GameObjects.Player.DistanceSquared(target) <= Math.Pow(spells[Spells.Q].Range, 2)))
+           if (spells[Spells.Q].IsEnabledAndReady(OrbwalkerMode.Orbwalk) && target.IsValidTarget(spells[Spells.Q].Range))
            {
                  switch (QStage)
                  {
                      case QStates.Q1:
-                         spells[Spells.Q].CastIfHitchanceEquals(
-                             target, HitChance.VeryHigh);
+                         var prediction = spells[Spells.Q].GetPrediction(target);
+                         if (prediction.Hitchance >= HitChance.VeryHigh)
+                         {
+                             var endPosition = prediction.CastPosition;
+                             
+                             spells[Spells.Q].Cast(endPosition);
+                         }
                          break;
                      case QStates.Q2:
+                         Console.WriteLine("Casted 2");
+
                          ////vvv TODO Redundant and just for debugging purpouses. Removed it for final release.
                          if (target == HookedUnit && HookEndTick - Variables.TickCount < 650 && IsSafePosition(target.ServerPosition))
                          {
                              ////TODO Lantern ally in before flying if lantern is enabled (Thresh Pain train)
 
-                             spells[Spells.Q].Cast();
+                            // spells[Spells.Q].Cast();
                          }
                          break;
                      case QStates.Unknown:
@@ -228,19 +240,16 @@ namespace Thresh___Soul_Hunter
 
         private static void CastFlayPull(Obj_AI_Hero target, OrbwalkerMode Mode)
         {
-            if (target.IsValidTarget() && RootMenu[MenuPrefix + Mode.ToString().ToLowerInvariant()]["useE"].GetValue<MenuBool>().Value)
+            if (target.IsValidTarget(spells[Spells.E].Range) && RootMenu[MenuPrefix + Mode.ToString().ToLowerInvariant()]["useE"].GetValue<MenuBool>().Value)
             {
                 var targetPrediction = Movement.GetPrediction(target, 0.25f);
-                if (targetPrediction.UnitPosition.DistanceSquared(ObjectManager.Player.ServerPosition) <=
-                    Math.Pow(spells[Spells.E].Range, 2))
-                {
+
                     var finalPosition = 
                         targetPrediction.UnitPosition.Extend(
                             ObjectManager.Player.ServerPosition,
                             ObjectManager.Player.Distance(targetPrediction.UnitPosition) + 100f
                             );
                     spells[Spells.E].Cast(finalPosition);
-                }
             }
         }
 
@@ -261,11 +270,13 @@ namespace Thresh___Soul_Hunter
 
         private static void LoadSkills()
         {
-            spells[Spells.Q].SetSkillshot(0.500f, 70f, 1900f, true, SkillshotType.SkillshotLine);
+            spells[Spells.Q].SetSkillshot(0.500f, 60f, 1900f, true, SkillshotType.SkillshotLine);
         }
 
         private static void LoadMenu()
         {
+            RootMenu = new Menu("dz191.thresh", "Thresh - Soul Hunter", true);
+
             MenuGenerator.Generate(RootMenu);
         }
         #endregion

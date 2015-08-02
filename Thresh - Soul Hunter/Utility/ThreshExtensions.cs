@@ -1,4 +1,5 @@
-﻿using LeagueSharp;
+﻿using System;
+using LeagueSharp;
 using LeagueSharp.SDK.Core.Enumerations;
 using LeagueSharp.SDK.Core.Extensions;
 using LeagueSharp.SDK.Core.UI.IMenu.Values;
@@ -15,12 +16,15 @@ namespace Thresh___Soul_Hunter.Utility
                 Thresh.RootMenu[string.Format("dz191.thresh.{0}", modeString)][
                     string.Format("use{0}", spell.Slot.GetStringFromSlot())].GetValue<MenuBool>().Value;
 
-            var Ready = spell.IsReady();
-
-            var ManaManagerCheck = ObjectManager.Player.ManaPercent >= Thresh.RootMenu[string.Format("dz191.vhr.{0}", modeString)][
+            
+            var ManaManagerCheck = ObjectManager.Player.ManaPercent >= Thresh.RootMenu[string.Format("dz191.thresh.{0}", modeString)][
                     string.Format("{0}Mana", spell.Slot.GetStringFromSlot())].GetValue<MenuSlider>().Value;
-
+            
+             
+            var Ready = spell.IsReady();
+            
             return EnabledInMenu && Ready && ManaManagerCheck;
+             
         }
 
         public static string GetStringFromSlot(this SpellSlot slot)
