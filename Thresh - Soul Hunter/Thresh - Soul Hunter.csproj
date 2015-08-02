@@ -57,7 +57,9 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Thresh.cs" />
+    <Compile Include="Utility\MenuGenerator.cs" />
     <Compile Include="Utility\Polygon.cs" />
+    <Compile Include="Utility\ThreshExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
