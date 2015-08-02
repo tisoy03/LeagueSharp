@@ -927,12 +927,7 @@
 
         #region WallTumble
         private static void WallTumble()
-        {
-            if (!Helpers.IsSummonersRift())
-            {
-                return;
-            }
-            
+        { 
             Vector2 drakeWallQPos = new Vector2(11514, 4462);
             
             if (Player.Position.X < 12000 || Player.Position.X > 12070 || Player.Position.Y < 4800 ||
@@ -943,7 +938,11 @@
             else
             {
                 Helpers.MoveToLimited(new Vector2(12050, 4827).To3D());
-                _spells[SpellSlot.Q].Cast(drakeWallQPos, true);
+                LeagueSharp.Common.Utility.DelayAction.Add((int)(100 + Game.Ping/2f), () =>
+                {
+                    _spells[SpellSlot.Q].Cast(drakeWallQPos, true);
+
+                });
             }
         }
 
