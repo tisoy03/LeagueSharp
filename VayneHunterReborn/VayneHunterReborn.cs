@@ -272,8 +272,6 @@
                 return;
             }
 
-            var Target = TargetSelector.GetTarget(600f, TargetSelector.DamageType.Physical);
-            Console.WriteLine("[VHR] Reborn Q Damage {0}", _spells[SpellSlot.E].GetDamage(Target));
 
             if (CustomTargetSelector.IsActive())
             {
@@ -546,7 +544,7 @@
             if (MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.eks") && _spells[SpellSlot.E].IsReady() && !ObjectManager.Player.HasBuff("vaynetumblebonus"))
             {
                 var target = HeroManager.Enemies.Find(en => en.IsValidTarget(_spells[SpellSlot.E].Range) && en.Has2WStacks());
-                if (target != null && target.Health + 60 <= (_spells[SpellSlot.E].GetDamage(target) + _spells[SpellSlot.W].GetDamage(target)) && (target is Obj_AI_Hero))
+                if (target != null &&  target.IsValidTarget() && target.Health + 60 <= (_spells[SpellSlot.E].GetDamage(target) + _spells[SpellSlot.W].GetDamage(target)) && (target is Obj_AI_Hero))
                 {
                     _spells[SpellSlot.E].Cast(target);
                 }
@@ -929,21 +927,43 @@
         private static void WallTumble()
         { 
             Vector2 drakeWallQPos = new Vector2(11514, 4462);
-            
-            if (Player.Position.X < 12000 || Player.Position.X > 12070 || Player.Position.Y < 4800 ||
-                Player.Position.Y > 4872)
+            Vector2 midWallQPos = new Vector2(6707.485f, 8802.744f);
+            if (Player.Distance(midWallQPos) >= Player.Distance(drakeWallQPos))
             {
-                Helpers.MoveToLimited(new Vector2(12050, 4827).To3D());
+
+                if (Player.Position.X < 12000 || Player.Position.X > 12070 || Player.Position.Y < 4800 ||
+                    Player.Position.Y > 4872)
+                {
+                    Helpers.MoveToLimited(new Vector2(12050, 4827).To3D());
+                }
+                else
+                {
+                    Helpers.MoveToLimited(new Vector2(12050, 4827).To3D());
+                    LeagueSharp.Common.Utility.DelayAction.Add((int)(100 + Game.Ping / 2f), () =>
+                    {
+                        _spells[SpellSlot.Q].Cast(drakeWallQPos);
+
+                    });
+                }
             }
             else
             {
-                Helpers.MoveToLimited(new Vector2(12050, 4827).To3D());
-                LeagueSharp.Common.Utility.DelayAction.Add((int)(100 + Game.Ping/2f), () =>
+                if (Player.Position.X < 6908 || Player.Position.X > 6978 || Player.Position.Y < 8917 ||
+                    Player.Position.Y > 8989)
                 {
-                    _spells[SpellSlot.Q].Cast(drakeWallQPos, true);
+                    Helpers.MoveToLimited(new Vector2(6958, 8944).To3D());
+                }
+                else
+                {
+                    Helpers.MoveToLimited(new Vector2(6958, 8944).To3D());
+                    LeagueSharp.Common.Utility.DelayAction.Add((int)(100 + Game.Ping / 2f), () =>
+                    {
+                        _spells[SpellSlot.Q].Cast(midWallQPos);
 
-                });
+                    });
+                }
             }
+            
         }
 
         #endregion

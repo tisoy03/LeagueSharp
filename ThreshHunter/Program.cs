@@ -12,6 +12,8 @@ namespace ThreshHunter
     {
         static void Main(string[] args)
         {
+            CustomEvents.Game.OnGameLoad += eventArgs =>
+            { THBootstrap.Init(); };
         }
     }
 }
