@@ -277,6 +277,19 @@
             return EnabledInMenu && Ready && ManaManagerCheck;
         }
 
+        public static bool IsRunningAway(this Obj_AI_Hero target)
+        {
+            var runningDirection = (ObjectManager.Player.Position.ToVector2() +
+             200 * ObjectManager.Player.Direction.Perpendicular().ToVector2()).ToVector3();
+            if (ObjectManager.Player.ServerPosition.DistanceSquared(runningDirection) >
+                ObjectManager.Player.ServerPosition.DistanceSquared(target.ServerPosition) &&
+                !target.IsFacing(ObjectManager.Player))
+            {
+                return true;
+            }
+            return false;
+        }
+
         public static string GetStringFromSlot(this SpellSlot slot)
         {
             switch (slot)

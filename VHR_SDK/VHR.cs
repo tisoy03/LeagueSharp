@@ -213,13 +213,13 @@ namespace VHR_SDK
                     case OrbwalkerMode.Orbwalk:
                         if (e.Target is Obj_AI_Hero)
                         {
-                            PreliminaryQCheck((Obj_AI_Base)e.Target, OrbwalkerMode.Orbwalk);
+                            PreliminaryQCheck((Obj_AI_Hero)e.Target, OrbwalkerMode.Orbwalk);
                         }
                         break;
                     case OrbwalkerMode.Hybrid:
                         if (e.Target is Obj_AI_Hero)
                         {
-                            PreliminaryQCheck((Obj_AI_Base) e.Target, OrbwalkerMode.Hybrid);
+                            PreliminaryQCheck((Obj_AI_Hero)e.Target, OrbwalkerMode.Hybrid);
                         }
                         TryEThird((Obj_AI_Base) e.Target);
                         break;
@@ -303,7 +303,7 @@ namespace VHR_SDK
                 }
                 else
                 {
-                    var QWallPosition = GetQWallPosition(target);
+                    var QWallPosition = GetQWallPosition((Obj_AI_Hero)target);
                     if (QWallPosition != Vector3.Zero)
                     {
                         Tumble(QWallPosition, target);
@@ -506,9 +506,10 @@ namespace VHR_SDK
         #endregion
 
         #region Q To Wall
-        public static Vector3 GetQWallPosition(Obj_AI_Base target)
+        public static Vector3 GetQWallPosition(Obj_AI_Hero target)
         {
-            if (!VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.tumble"]["qburst"].GetValue<MenuBool>().Value || target.HealthPercent >= 45 || target.HealthPercent > ObjectManager.Player.HealthPercent)
+            
+            if (!VHRMenu["dz191.vhr.misc"]["dz191.vhr.misc.tumble"]["qburst"].GetValue<MenuBool>().Value || target.HealthPercent >= 45 || target.HealthPercent > ObjectManager.Player.HealthPercent || (target.IsRunningAway()))
             {
                 return Vector3.Zero;
             }
