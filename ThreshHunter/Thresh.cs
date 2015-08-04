@@ -12,6 +12,8 @@ namespace ThreshHunter
         #region Fields
         public static Menu RootMenu { get; set; }
 
+        public static Orbwalking.Orbwalker Orbwalker;
+
         public static readonly Dictionary<SpellSlot, Spell> spells = new Dictionary<SpellSlot, Spell>
         {
             {SpellSlot.Q, new Spell(SpellSlot.Q, 1100f)},
