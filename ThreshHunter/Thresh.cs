@@ -55,7 +55,12 @@ namespace ThreshHunter
         #region Event Delegates
         private static void OnUpdate()
         {
-            throw new NotImplementedException();
+            switch (Orbwalker.ActiveMode)
+            {
+                case Orbwalking.OrbwalkingMode.Combo:
+                    Combo();
+                    break;
+            }
         }
 
         private static void OW_BeforeAttack(Orbwalking.BeforeAttackEventArgs args)
@@ -76,6 +81,10 @@ namespace ThreshHunter
 
         #region Combo
 
+        private static void Combo()
+        {
+            
+        }
         #endregion
 
     }

@@ -58,6 +58,7 @@
     <Compile Include="Thresh.cs" />
     <Compile Include="Utility\Enumerations.cs" />
     <Compile Include="Utility\MenuGenerator.cs" />
+    <Compile Include="Utility\THExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
