@@ -279,10 +279,11 @@
 
         public static bool IsRunningAway(this Obj_AI_Hero target)
         {
-            var runningDirection = (ObjectManager.Player.Position.ToVector2() +
-             200 * ObjectManager.Player.Direction.Perpendicular().ToVector2()).ToVector3();
+            var runningDirection = (target.Position.ToVector2() +
+             200 * target.Direction.Perpendicular().ToVector2()).ToVector3();
             if (ObjectManager.Player.ServerPosition.DistanceSquared(runningDirection) >
-                ObjectManager.Player.ServerPosition.DistanceSquared(target.ServerPosition) &&
+                ObjectManager.Player.ServerPosition.DistanceSquared(target.ServerPosition)
+                && target.ServerPosition.DistanceSquared(runningDirection) > 200*200  &&
                 !target.IsFacing(ObjectManager.Player))
             {
                 return true;
