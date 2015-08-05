@@ -472,7 +472,7 @@ namespace VHR_SDK
         public static void Tumble(Vector3 Position)
         {
             spells[SpellSlot.Q].Cast(Position);
-
+            /**
             DelayAction.Add((int)(Game.Ping / 2f + spells[SpellSlot.Q].Delay * 1000 + 300f / 1000f + 50f), () =>
             {
                 if (Orbwalker.GetTarget(Orbwalker.ActiveMode).IsValidTarget() && !ObjectManager.Player.IsWindingUp)
@@ -485,11 +485,13 @@ namespace VHR_SDK
                     Orbwalker.Attack = true;
                 });
             });
+             * */
         }
         public static void Tumble(Vector3 Position, Obj_AI_Base target)
         {
             spells[SpellSlot.Q].Cast(Position);
 
+            /**
             DelayAction.Add((int)(Game.Ping / 2f + spells[SpellSlot.Q].Delay * 1000 + 300f / 1000f + 50f), () =>
             {
                 if (target.IsValidTarget(ObjectManager.Player.AttackRange + ObjectManager.Player.BoundingRadius, true, Position) && !ObjectManager.Player.IsWindingUp)
@@ -502,6 +504,7 @@ namespace VHR_SDK
                     Orbwalker.Attack = true;
                 });
             });
+             * */
         }
         #endregion
 
