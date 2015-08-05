@@ -30,18 +30,6 @@ namespace ThreshHunter
 
         public static List<ITHModule> THModules = new List<ITHModule>() { };
 
-        public static List<ChampWrapper> listChamp = new List<ChampWrapper>()
-        {
-            new ChampWrapper
-            {
-                Name = "Blitzcrank",
-                spellSlots = new List<SpellSlot>()
-                {
-                    SpellSlot.W
-                }
-            }
-        };
-
         #endregion
 
         #region Initializations, Skills, Events
@@ -102,11 +90,5 @@ namespace ThreshHunter
         }
         #endregion
 
-    }
-
-    internal class ChampWrapper
-    {
-        public string Name { get; set; }
-        public List<SpellSlot> spellSlots { get; set; } 
     }
 }
