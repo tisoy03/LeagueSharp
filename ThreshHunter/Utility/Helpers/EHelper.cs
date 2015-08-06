@@ -1,4 +1,5 @@
-﻿using LeagueSharp;
+﻿using System;
+using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
 
@@ -11,39 +12,33 @@ namespace ThreshHunter.Utility.Helpers
             switch (Thresh.RootMenu.Item("dz191.thresh.misc.emode").GetValue<StringList>().SelectedIndex)
             {
                 case 0:
-                    return EMode.Pull;
+                    return EMode.Push;
                 case 1:
                     return EMode.Pull;
                 default:
-                    return EMode.Push;
+                    return EMode.Pull;
             }
         }
 
         public static void CastFlayPush(Obj_AI_Hero target, Orbwalking.OrbwalkingMode Mode)
         {
-            if (target.IsValidTarget(Thresh.spells[SpellSlot.E].Range) && Thresh.spells[SpellSlot.E].IsEnabledAndReady(Mode))
-            {
                 var targetPrediction = Prediction.GetPrediction(target, 0.25f);
-                    var finalPosition = targetPrediction.UnitPosition.Extend(
+                    var finalPosition = target.ServerPosition.Extend(
                         ObjectManager.Player.ServerPosition,
                         ObjectManager.Player.ServerPosition.Distance(targetPrediction.UnitPosition) / 2f);
                     Thresh.spells[SpellSlot.E].Cast(finalPosition);
-            }
         }
 
         public static void CastFlayPull(Obj_AI_Hero target, Orbwalking.OrbwalkingMode Mode)
         {
-            if (target.IsValidTarget(Thresh.spells[SpellSlot.E].Range) && Thresh.spells[SpellSlot.E].IsEnabledAndReady(Mode))
-            {
-                var targetPrediction = Prediction.GetPrediction(target, 0.25f);
 
                 var finalPosition =
-                    targetPrediction.UnitPosition.Extend(
+                    target.ServerPosition.Extend(
                         ObjectManager.Player.ServerPosition,
-                        ObjectManager.Player.Distance(targetPrediction.UnitPosition) + 100f
+                        ObjectManager.Player.Distance(target.ServerPosition) + 100f
                         );
+
                 Thresh.spells[SpellSlot.E].Cast(finalPosition);
-            }
         }
 
         public static Geometry.Polygon getERectangle(Vector3 finalPosition, float BoundingRadius)

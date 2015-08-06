@@ -106,7 +106,7 @@ namespace ThreshHunter
 
         private static void Combo()
         {
-            var target = HookedUnit ?? TargetSelector.GetTarget(spells[SpellSlot.Q].Range, TargetSelector.DamageType.Magical);
+            var target = TargetSelector.GetTarget(spells[SpellSlot.Q].Range, TargetSelector.DamageType.Magical);
             if (target.IsValidTarget())
             {
                 if (spells[SpellSlot.E].IsEnabledAndReady(Orbwalking.OrbwalkingMode.Combo) && target.IsValidTarget(spells[SpellSlot.E].Range))
@@ -114,6 +114,7 @@ namespace ThreshHunter
                     switch (EHelper.GetEMode())
                     {
                         case EMode.Pull:
+
                             EHelper.CastFlayPull(target, Orbwalking.OrbwalkingMode.Combo);
                             break;
                         case EMode.Push:
