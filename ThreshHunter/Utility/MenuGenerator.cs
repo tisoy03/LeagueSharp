@@ -90,6 +90,7 @@ namespace ThreshHunter.Utility
                 RootMenu.AddSubMenu(MiscMenu);
             }
 
+            RootMenu.AddToMainMenu();
         }
     }
 }

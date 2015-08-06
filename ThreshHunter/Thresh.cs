@@ -71,7 +71,7 @@ namespace ThreshHunter
 
         private static void OW_BeforeAttack(Orbwalking.BeforeAttackEventArgs args)
         {
-            throw new NotImplementedException();
+            
         }
 
         private static void OnBuffAdd(Obj_AI_Base sender, Obj_AI_BaseBuffAddEventArgs args)
@@ -85,6 +85,9 @@ namespace ThreshHunter
             if ((sender is Obj_AI_Hero) && sender.IsValidTarget() && (args.Buff.Name == "threshqfakeknockup" || args.Buff.Name == "ThreshQ"))
             {
                 HookedUnit = (Obj_AI_Hero)sender;
+
+                Console.WriteLine("Hooked - {0}", HookedUnit.ChampionName);
+
                 HookEndTick = Utils.TickCount + 1500f;
                 LeagueSharp.Common.Utility.DelayAction.Add((1500 + Game.Ping + 250), () =>
                 {
@@ -104,18 +107,53 @@ namespace ThreshHunter
         private static void Combo()
         {
             var target = HookedUnit ?? TargetSelector.GetTarget(spells[SpellSlot.Q].Range, TargetSelector.DamageType.Magical);
-            if (spells[SpellSlot.E].IsEnabledAndReady(Orbwalking.OrbwalkingMode.Combo) && target.IsValidTarget(spells[SpellSlot.E].Range))
+            if (target.IsValidTarget())
             {
-                switch (EHelper.GetEMode())
+                if (spells[SpellSlot.E].IsEnabledAndReady(Orbwalking.OrbwalkingMode.Combo) && target.IsValidTarget(spells[SpellSlot.E].Range))
                 {
-                    case EMode.Pull:
-                        EHelper.CastFlayPull(target, Orbwalking.OrbwalkingMode.Combo);
-                        break;
-                    case EMode.Push:
-                        EHelper.CastFlayPush(target, Orbwalking.OrbwalkingMode.Combo);
-                        break;
+                    switch (EHelper.GetEMode())
+                    {
+                        case EMode.Pull:
+                            EHelper.CastFlayPull(target, Orbwalking.OrbwalkingMode.Combo);
+                            break;
+                        case EMode.Push:
+                            EHelper.CastFlayPush(target, Orbwalking.OrbwalkingMode.Combo);
+                            break;
+                    }
+                }
+
+                var QStage = QHelper.GetQState();
+                if (spells[SpellSlot.Q].IsEnabledAndReady(Orbwalking.OrbwalkingMode.Combo) && target.IsValidTarget(spells[SpellSlot.Q].Range))
+                {
+                    switch (QStage)
+                    {
+                        case QStates.Q1:
+                            var prediction = spells[SpellSlot.Q].GetPrediction(target);
+                            if (prediction.Hitchance >= HitChance.VeryHigh)
+                            {
+                                var endPosition = prediction.CastPosition;
+
+                                spells[SpellSlot.Q].Cast(endPosition);
+                            }
+                            break;
+                        case QStates.Q2:
+                            Console.WriteLine("Casted 2");
+
+                            ////vvv TODO Redundant and just for debugging purpouses. Removed it for final release.
+                            if (target == HookedUnit && HookEndTick - Utils.TickCount < 650 && target.ServerPosition.IsSafePosition())
+                            {
+                                ////TODO Lantern ally in before flying if lantern is enabled (Thresh Pain train)
+
+                                // spells[Spells.Q].Cast();
+                            }
+                            break;
+                        case QStates.Unknown:
+                            Console.WriteLine("Q Spell State is unknown?!");
+                            break;
+                    }
                 }
             }
+            
         }
         #endregion
 

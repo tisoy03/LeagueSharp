@@ -7,7 +7,7 @@ namespace ThreshHunter
     {
         public static void Init()
         {
-            Thresh.RootMenu = new Menu("dz191.thresh", "Thresh - Soul Hunter", true);
+            Thresh.RootMenu = new Menu("Thresh - Soul Hunter", "dz191.thresh" , true);
 
             MenuGenerator.Init(Thresh.RootMenu);
             Thresh.Init();

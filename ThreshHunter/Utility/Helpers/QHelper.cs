@@ -10,7 +10,7 @@ namespace ThreshHunter.Utility.Helpers
 {
     class QHelper
     {
-        private static QStates GetQState()
+        public static QStates GetQState()
         {
             if (!Thresh.spells[SpellSlot.Q].IsReady())
             {
