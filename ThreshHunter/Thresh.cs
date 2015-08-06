@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
+using SharpDX;
 using ThreshHunter.Interfaces;
+using ThreshHunter.Utility;
+using ThreshHunter.Utility.Helpers;
 
 namespace ThreshHunter
 {
@@ -73,12 +76,26 @@ namespace ThreshHunter
 
         private static void OnBuffAdd(Obj_AI_Base sender, Obj_AI_BaseBuffAddEventArgs args)
         {
-            throw new NotImplementedException();
+            if ((sender is Obj_AI_Hero) && sender.IsValidTarget(float.MaxValue, false))
+            {
+                var h = (Obj_AI_Hero)sender;
+                Console.WriteLine("{0} - {1}", h.ChampionName, args.Buff.Name);
+            }
+
+            if ((sender is Obj_AI_Hero) && sender.IsValidTarget() && (args.Buff.Name == "threshqfakeknockup" || args.Buff.Name == "ThreshQ"))
+            {
+                HookedUnit = (Obj_AI_Hero)sender;
+                HookEndTick = Utils.TickCount + 1500f;
+                LeagueSharp.Common.Utility.DelayAction.Add((1500 + Game.Ping + 250), () =>
+                {
+                    HookEndTick = 0;
+                    HookedUnit = null;
+                });
+            }
         }
 
         private static void OnDraw(EventArgs args)
         {
-            throw new NotImplementedException();
         }
         #endregion
 
@@ -86,7 +103,19 @@ namespace ThreshHunter
 
         private static void Combo()
         {
-            
+            var target = HookedUnit ?? TargetSelector.GetTarget(spells[SpellSlot.Q].Range, TargetSelector.DamageType.Magical);
+            if (spells[SpellSlot.E].IsEnabledAndReady(Orbwalking.OrbwalkingMode.Combo) && target.IsValidTarget(spells[SpellSlot.E].Range))
+            {
+                switch (EHelper.GetEMode())
+                {
+                    case EMode.Pull:
+                        EHelper.CastFlayPull(target, Orbwalking.OrbwalkingMode.Combo);
+                        break;
+                    case EMode.Push:
+                        EHelper.CastFlayPush(target, Orbwalking.OrbwalkingMode.Combo);
+                        break;
+                }
+            }
         }
         #endregion
 

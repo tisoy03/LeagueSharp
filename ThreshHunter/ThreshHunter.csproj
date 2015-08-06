@@ -57,6 +57,9 @@
     <Compile Include="THBootstrap.cs" />
     <Compile Include="Thresh.cs" />
     <Compile Include="Utility\Enumerations.cs" />
+    <Compile Include="Utility\Geometry\Polygon.cs" />
+    <Compile Include="Utility\Helpers\EHelper.cs" />
+    <Compile Include="Utility\Helpers\QHelper.cs" />
     <Compile Include="Utility\MenuGenerator.cs" />
     <Compile Include="Utility\THExtensions.cs" />
   </ItemGroup>
