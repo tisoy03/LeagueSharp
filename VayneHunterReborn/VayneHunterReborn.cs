@@ -193,12 +193,14 @@
             Stealth.OnStealth += Stealth_OnStealth;
             Drawing.OnDraw += Drawing_OnDraw;
             Obj_AI_Base.OnPlayAnimation += Obj_AI_Hero_OnPlayAnimation;
+            Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
             GameObject.OnCreate += GameObject_OnCreate;
             if (CustomTargetSelector.IsActive())
             {
                 CustomTargetSelector.RegisterEvents();
             }
         }
+
 
         #region Delegate Methods.
 
@@ -220,6 +222,24 @@
                     }
                 }
             }
+        }
+        private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
+        {
+            if (sender is Obj_AI_Hero)
+            {
+                var s2 = (Obj_AI_Hero) sender;
+                if (args.Target.IsMe && s2.ChampionName == "Pantheon" && s2.GetSpellSlot(args.SData.Name) == SpellSlot.W)
+                {
+                    if (MenuHelper.isMenuEnabled("dz191.vhr.misc.general.antigp"))
+                    {
+                           if (s2.IsValidTarget(_spells[SpellSlot.E].Range))
+                           {
+                               _spells[SpellSlot.E].Cast(s2);
+                           }
+                    }
+                }
+            }
+            
         }
 
         #region
