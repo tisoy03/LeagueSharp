@@ -35,6 +35,8 @@
         private static float _lastCheckTick;
         private static float _lastCheckTick2;
         private static float _lastCondemnCheck;
+        private static bool goingToTumble;
+        private static Vector3 TumblePosition = Vector3.Zero;
 
         private static readonly Dictionary<SpellSlot, Spell> _spells = new Dictionary<SpellSlot, Spell>
         {
@@ -195,6 +197,7 @@
             Obj_AI_Base.OnPlayAnimation += Obj_AI_Hero_OnPlayAnimation;
             Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
             GameObject.OnCreate += GameObject_OnCreate;
+            Game.OnWndProc += Game_OnWndProc;
             if (CustomTargetSelector.IsActive())
             {
                 CustomTargetSelector.RegisterEvents();
@@ -223,6 +226,35 @@
                 }
             }
         }
+
+        static void Game_OnWndProc(WndEventArgs args)
+        {
+            if (args.Msg != (uint)WindowsMessages.WM_LBUTTONDOWN)
+            {
+                return;
+            }
+            var drakeWallQPos = new Vector2(11514, 4462);
+            var midWallQPos = new Vector2(6962, 8952);
+            var selected = Vector2.Zero;
+
+            if (Game.CursorPos.Distance(new Vector2(12050, 4827).To3D()) <= 75)
+            {
+                selected = drakeWallQPos;
+            }
+
+            if (Game.CursorPos.Distance(midWallQPos.To3D()) <= 75)
+            {
+                selected = midWallQPos;
+            }
+
+            if (selected == drakeWallQPos)
+            {        
+                    goingToTumble = true;
+                    TumblePosition = drakeWallQPos.To3D();
+            }
+            
+        }
+
         private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
             if (sender is Obj_AI_Hero)
@@ -292,6 +324,32 @@
                 return;
             }
 
+            if (goingToTumble && TumblePosition != Vector3.Zero)
+            {
+                Vector2 drakeWallQPos = new Vector2(11514, 4462);
+                Vector2 midWallQPos = new Vector2(6962, 8952);
+
+                if (TumblePosition == drakeWallQPos.To3D())
+                {
+                    if (Player.Position.X < 12000 || Player.Position.X > 12070 || Player.Position.Y < 4800 ||
+                    Player.Position.Y > 4872)
+                    {
+                        Helpers.MoveToLimited(new Vector2(12050, 4827).To3D());
+                    }
+                    else
+                    {
+                        Helpers.MoveToLimited(new Vector2(12050, 4827).To3D());
+                        LeagueSharp.Common.Utility.DelayAction.Add((int)(106 + Game.Ping / 2f), () =>
+                        {
+                            _spells[SpellSlot.Q].Cast(drakeWallQPos);
+
+                            goingToTumble = false;
+                            TumblePosition = Vector3.Zero;
+                        });
+                    }
+                }
+                
+            }
 
             if (CustomTargetSelector.IsActive())
             {
@@ -386,7 +444,7 @@
             {
                 if (ObjectManager.Player.Distance(drakeWallQPos) <= 1500f && Helpers.IsSummonersRift())
                 {
-                    Render.Circle.DrawCircle(drakeWallQPos.To3D2(), 65f, Color.AliceBlue);
+                    Render.Circle.DrawCircle(new Vector2(12050, 4827).To3D(), 65f, Color.AliceBlue);
                 }
             }
         }
