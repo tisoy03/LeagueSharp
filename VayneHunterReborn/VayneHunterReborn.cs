@@ -164,7 +164,7 @@
             drawMenu.AddItem(new MenuItem("dz191.vhr.drawing.drawspots", "Draw Spots").SetValue(true));
             Menu.AddSubMenu(drawMenu);
 
-            Menu.AddItem(new MenuItem("dz191.vhr.info", "VHR by Corey KappaHD v." + Assembly.GetExecutingAssembly().GetName().Version));
+            Menu.AddItem(new MenuItem("dz191.vhr.info", "VHR by Asuna v." + Assembly.GetExecutingAssembly().GetName().Version));
 
             Menu.Item("dz191.vhr.misc.condemn.enextauto").Permashow(Menu.Item("dz191.vhr.misc.condemn.enextauto").GetValue<KeyBind>().Active, "E Next Auto");
 
