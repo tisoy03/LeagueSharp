@@ -17,13 +17,17 @@ namespace ExoCondemn
 
         static void Main(string[] args)
         {
-            if (ObjectManager.Player.ChampionName != "Vayne")
+            CustomEvents.Game.OnGameLoad += eventArgs =>
             {
-                Console.WriteLine("Omfg noob.");
-                return;
-            }
-            Condemn = new Spell(SpellSlot.E, 590f);
-            OnLoad();
+                if (ObjectManager.Player.ChampionName != "Vayne")
+                {
+                    Console.WriteLine("Omfg noob.");
+                    return;
+                }
+                Condemn = new Spell(SpellSlot.E, 590f);
+                OnLoad();
+            };
+
         }
 
         private static void OnLoad()
