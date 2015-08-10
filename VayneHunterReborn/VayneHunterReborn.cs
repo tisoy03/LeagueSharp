@@ -19,14 +19,7 @@
 
     class VayneHunterReborn
     {
-        /// <summary>
-        /// TODO Log:
-        /// Rewrite most of the core part of the code, since it is so ugly.
-        /// 
-        /// Add Support for xSalice Orbwalker   
-        /// Antigapcloser/Interrupter List
-        /// </summary>
-       
+        #region Fields & Operators
         public static Menu Menu;
         public static Obj_AI_Hero Player = ObjectManager.Player;
         public static Orbwalking.Orbwalker Orbwalker;
@@ -48,7 +41,8 @@
 
         private static Spell trinketSpell;
         private static readonly Notification CondemnNotification = new Notification("Condemned",5500);
-       
+        #endregion
+
         /// <summary>
         /// Method Called when the Assembly is loaded.
         /// </summary>
@@ -64,6 +58,7 @@
             SetUpSkills();
         }
 
+        #region Menu, Skills, Events
         /// <summary>
         /// Sets up the Menu
         /// </summary>
@@ -203,30 +198,9 @@
                 CustomTargetSelector.RegisterEvents();
             }
         }
-
+        #endregion
 
         #region Delegate Methods.
-
-        /// <summary>
-        /// Delegate called when a Game Object is created.
-        /// </summary>
-        /// <param name="sender">The Created Gameobject.</param>
-        /// <param name="args">The event args'</param>
-        private static void GameObject_OnCreate(GameObject sender, EventArgs args)
-        {
-            if (MenuHelper.isMenuEnabled("dz191.vhr.misc.general.antigp") && _spells[SpellSlot.E].IsReady())
-            {
-                if (sender.IsEnemy && sender.Name == "Rengar_LeapSound.troy")
-                {
-                    var rengarEntity = HeroManager.Enemies.Find(h => h.ChampionName.Equals("Rengar") && h.IsValidTarget(_spells[SpellSlot.E].Range));
-                    if (rengarEntity != null)
-                    {
-                        _spells[SpellSlot.E].Cast(rengarEntity);
-                    }
-                }
-            }
-        }
-
         static void Game_OnWndProc(WndEventArgs args)
         {
             if (args.Msg != (uint)WindowsMessages.WM_LBUTTONDOWN)
@@ -255,6 +229,7 @@
             
         }
 
+        #region Special AntiGP Methods
         private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
             if (sender is Obj_AI_Hero)
@@ -273,6 +248,29 @@
             }
             
         }
+
+
+        /// <summary>
+        /// Delegate called when a Game Object is created.
+        /// </summary>
+        /// <param name="sender">The Created Gameobject.</param>
+        /// <param name="args">The event args'</param>
+        private static void GameObject_OnCreate(GameObject sender, EventArgs args)
+        {
+            if (MenuHelper.isMenuEnabled("dz191.vhr.misc.general.antigp") && _spells[SpellSlot.E].IsReady())
+            {
+                if (sender.IsEnemy && sender.Name == "Rengar_LeapSound.troy")
+                {
+                    var rengarEntity = HeroManager.Enemies.Find(h => h.ChampionName.Equals("Rengar") && h.IsValidTarget(_spells[SpellSlot.E].Range));
+                    if (rengarEntity != null)
+                    {
+                        _spells[SpellSlot.E].Cast(rengarEntity);
+                    }
+                }
+            }
+        }
+
+        #endregion 
 
         #region
         static void Obj_AI_Hero_OnPlayAnimation(Obj_AI_Base sender, GameObjectPlayAnimationEventArgs args)
@@ -324,6 +322,7 @@
                 return;
             }
 
+            #region TS & WallTumble
             if (goingToTumble && TumblePosition != Vector3.Zero)
             {
                 Vector2 drakeWallQPos = new Vector2(11514, 4462);
@@ -363,6 +362,7 @@
 
                 }
             }
+            #endregion
 
             switch (Orbwalker.ActiveMode)
             {
@@ -448,7 +448,8 @@
                 }
             }
         }
-        
+
+        #region Gapcloser & Interrupter
         /// <summary>
         /// Called when an unit gapcloses onto the Player.
         /// </summary>
@@ -488,6 +489,7 @@
                 }
             }
         }
+        #endregion
 
         #endregion
 
