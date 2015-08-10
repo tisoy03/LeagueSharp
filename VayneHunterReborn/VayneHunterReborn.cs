@@ -107,8 +107,13 @@
 
             var miscEMenu = new Menu("Misc - Condemn", "dz191.vhr.misc.condemn");
             {
-                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.condemnmethod", "Condemn Method").SetValue(new StringList(new[] { "VH Reborn", "Marksman/Gosu", "VH Rework" })));
-                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.pushdistance", "E Push Distance").SetValue(new Slider(375, 350, 500)));
+                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.condemnmethod", "Condemn Method").SetValue(new StringList(new[] { "VH Revolution", "VH Reborn", "Marksman/Gosu", "VH Rework" })));
+                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.pushdistance", "E Push Distance").SetValue(new Slider(420, 350, 500)));
+
+                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.rev.predictionNumber", "Number of Predictions (Revolution Only)").SetValue(new Slider(10, 2, 15)));
+                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.rev.accuracy", "Accuracy (Revolution Only)").SetValue(new Slider(60, 1)));
+                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.rev.nextprediction", "Last Prediction (Rev. Only - Don't touch)").SetValue(new Slider(500, 1, 1000)));
+
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.enextauto", "E Next Auto").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Toggle)));
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.onlystuncurrent", "Only stun current target").SetValue(false));
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.autoe", "Auto E").SetValue(false));
@@ -854,6 +859,93 @@
             switch (Menu.Item("dz191.vhr.misc.condemn.condemnmethod").GetValue<StringList>().SelectedIndex)
             {
                 case 0:
+                    //VH revolution
+                    var HeroList =
+                                HeroManager.Enemies.Where(
+                                    h =>
+                                        h.IsValidTarget(_spells[SpellSlot.E].Range) &&
+                                        !h.HasBuffOfType(BuffType.SpellShield) &&
+                                        !h.HasBuffOfType(BuffType.SpellImmunity));
+                    var NumberOfChecks = MenuHelper.getSliderValue("dz191.vhr.misc.condemn.rev.predictionNumber");
+                    //dz191.vhr.misc.condemn.rev.accuracy
+                    //dz191.vhr.misc.condemn.rev.nextprediction
+                    var MinChecksPercent = MenuHelper.getSliderValue("dz191.vhr.misc.condemn.rev.accuracy");
+                    var PushDistance = MenuHelper.getSliderValue("dz191.vhr.misc.condemn.pushdistance");
+                    var NextPrediction = (MenuHelper.getSliderValue("dz191.vhr.misc.condemn.rev.nextprediction"));
+                    var interval = NextPrediction / NumberOfChecks;
+                    var currentInterval = interval;
+                    var LastUnitPosition = Vector3.Zero;
+
+                    if (ObjectManager.Player.ServerPosition.UnderTurret(true))
+                    {
+                        tg = null;
+                        return false;
+                    }
+
+                    foreach (var Hero in HeroList)
+                    {
+                        var finalPosition = Hero.ServerPosition.Extend(fromPosition, -PushDistance);
+
+                        if (MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.onlystuncurrent") &&
+                                   Hero.NetworkId != Orbwalker.GetTarget().NetworkId)
+                        {
+                            continue;
+                        }
+
+                        if (Hero.Health + 10 <=
+                                    ObjectManager.Player.GetAutoAttackDamage(Hero) *
+                                    MenuHelper.getSliderValue("dz191.vhr.misc.condemn.noeaa"))
+                        {
+                            continue;
+                        }
+
+                        var PredictionsList = new List<Vector3>();
+
+                        PredictionsList.Add(Hero.ServerPosition);
+
+                        for (var i = 0; i < NumberOfChecks; i++)
+                        {
+                            var Prediction = LeagueSharp.Common.Prediction.GetPrediction(Hero, currentInterval);
+                            var UnitPosition = Prediction.UnitPosition;
+                            if (UnitPosition.Distance(LastUnitPosition, true) >=
+                                (Hero.BoundingRadius / 2f) * (Hero.BoundingRadius / 2f))
+                            {
+                                PredictionsList.Add(UnitPosition);
+                                LastUnitPosition = UnitPosition;
+                                currentInterval += interval;
+                            }
+                        }
+
+                        var ExtendedList = new List<Vector3>();
+
+                        foreach (var position in PredictionsList)
+                        {
+                            ExtendedList.Add(position.Extend(fromPosition, -PushDistance / 4f));
+                            ExtendedList.Add(position.Extend(fromPosition, -PushDistance / 2f));
+                            ExtendedList.Add(position.Extend(fromPosition, -(PushDistance * 0.75f)));
+                            ExtendedList.Add(position.Extend(fromPosition, -PushDistance));
+                        }
+
+                        var WallListCount = ExtendedList.Count(h => h.IsWall() || IsJ4Flag(h, Hero));
+                        //Console.WriteLine("Actual Preds: {0} Walllist count: {1} TotalList: {2} Percent: {3}", PredictionsList.Count, WallListCount, ExtendedList.Count, ((float)WallListCount / (float)ExtendedList.Count));
+
+                        if (((float)WallListCount / (float)ExtendedList.Count) >= MinChecksPercent / 100f)
+                        {
+                            if (MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.trinketbush") &&
+                                    NavMesh.IsWallOfGrass(finalPosition, 25) && trinketSpell != null)
+                            {
+                                var wardPosition = ObjectManager.Player.ServerPosition.Extend(
+                                    finalPosition,
+                                    ObjectManager.Player.ServerPosition.Distance(finalPosition) - 25f);
+                                LeagueSharp.Common.Utility.DelayAction.Add(250, () => trinketSpell.Cast(wardPosition));
+                            }
+
+                            tg = Hero;
+                            return true;
+                        }
+                    }
+                    break;
+                case 1:
                     //VHReborn Condemn Code
                     foreach (var target in HeroManager.Enemies.Where(h => h.IsValidTarget(_spells[SpellSlot.E].Range) && !h.HasBuffOfType(BuffType.SpellShield) && !h.HasBuffOfType(BuffType.SpellImmunity)))
                     {
@@ -910,7 +1002,7 @@
                         }
                     }
                     break;
-                case 1:
+                case 2:
                     //Marksman/Gosu Condemn Code
                     foreach (var target in HeroManager.Enemies.Where(h => h.IsValidTarget(_spells[SpellSlot.E].Range)))
                     {
@@ -942,7 +1034,7 @@
                         }
                     }
                     break;
-                case 2:
+                case 3:
                     //Vayne Hunter Rework
                     foreach (var en in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsEnemy && hero.IsValidTarget() && hero.Distance(Player.Position)<= _spells[SpellSlot.E].Range))
                     {
@@ -987,6 +1079,10 @@
             }
             tg = null;
             return false;
+        }
+        private static bool IsJ4Flag(Vector3 endPosition, Obj_AI_Base Target)
+        {
+            return MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.condemnflag") && Helpers.IsJ4FlagThere(endPosition, (Obj_AI_Hero)Target);
         }
 
         private static bool CondemnBeta(Vector3 fromPosition, out Obj_AI_Hero tg)
