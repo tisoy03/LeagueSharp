@@ -15,27 +15,24 @@ namespace ExoCondemn
         private static Spell Condemn;
         private static Menu AssemblyMenu;
 
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
-            CustomEvents.Game.OnGameLoad += eventArgs =>
-            {
-                if (ObjectManager.Player.ChampionName != "Vayne")
-                {
-                    Console.WriteLine("Omfg noob.");
-                    return;
-                }
-                Condemn = new Spell(SpellSlot.E, 590f);
-                OnLoad();
-            };
+            CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
 
+        }
+
+        static void Game_OnGameLoad(EventArgs args)
+        {
+            if (ObjectManager.Player.ChampionName != "Vayne")
+            {
+                return;
+            }
+            OnLoad();
         }
 
         private static void OnLoad()
         {
-            LoadFlash();
-            Condemn.SetTargetted(0.25f,2000f);
-
-            AssemblyMenu = new Menu("ExoCondemn - Flash E","dz191.exocondemn");
+            AssemblyMenu = new Menu("ExoCondemn - Flash E","dz191.exocondemn", true);
 
             AssemblyMenu.AddItem(
                 new MenuItem("dz191.exocondemn.pushdistance", "Push Distance").SetValue(
@@ -46,6 +43,12 @@ namespace ExoCondemn
                     new KeyBind("Z".ToCharArray()[0], KeyBindType.Press)));
 
             AssemblyMenu.AddToMainMenu();
+            
+
+            Condemn = new Spell(SpellSlot.E, 590f);
+            LoadFlash();
+            Condemn.SetTargetted(0.25f, 2000f);
+
             Game.OnUpdate += Game_OnUpdate;
         }
 
@@ -53,6 +56,11 @@ namespace ExoCondemn
         {
             if (AssemblyMenu.Item("dz191.exocondemn.execute").GetValue<KeyBind>().Active && ObjectManager.Player.CountEnemiesInRange(1200f) == 1)
             {
+                if (CondemnCheck(ObjectManager.Player.ServerPosition) != null)
+                {
+                    return;
+                }
+
                 var myPosition = Vector3.Zero;
                 Obj_AI_Hero myUnit = null;
                 const int currentStep = 35;
@@ -110,6 +118,7 @@ namespace ExoCondemn
             var testSlot = ObjectManager.Player.GetSpellSlot("summonerflash");
             if (testSlot != SpellSlot.Unknown)
             {
+                Console.WriteLine("Flash Slot: {0}", testSlot);
                 FlashSlot = testSlot;
             }
             else
