@@ -63,7 +63,7 @@ namespace ExoCondemn
 
                 var myPosition = Vector3.Zero;
                 Obj_AI_Hero myUnit = null;
-                const int currentStep = 35;
+                const int currentStep = 60;
                 var direction = ObjectManager.Player.Direction.To2D().Perpendicular();
                 for (var i = 0f; i <= 360f; i += currentStep)
                 {
