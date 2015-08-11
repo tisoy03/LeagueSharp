@@ -63,6 +63,7 @@ namespace ExoCondemn
 
                 var myPosition = Vector3.Zero;
                 Obj_AI_Hero myUnit = null;
+                /**
                 const int currentStep = 60;
                 var direction = ObjectManager.Player.Direction.To2D().Perpendicular();
                 for (var i = 0f; i <= 360f; i += currentStep)
@@ -75,6 +76,19 @@ namespace ExoCondemn
                         myPosition = rotatedPosition.To3D();
                         myUnit = possibleUnit;
                         break;
+                    }
+                }
+                */
+
+                var cursorPos = Game.CursorPos;
+                for (int i = 65; i < 425; i += (int) ObjectManager.Player.BoundingRadius)
+                {
+                    var extended = ObjectManager.Player.ServerPosition.Extend(cursorPos, i);
+                    var possibleUnit = CondemnCheck(extended);
+                    if (possibleUnit != null && !extended.UnderTurret(true) && !extended.IsWall())
+                    {
+                        myPosition = extended;
+                        myUnit = possibleUnit;
                     }
                 }
 
