@@ -110,8 +110,8 @@
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.condemnmethod", "Condemn Method").SetValue(new StringList(new[] { "VH Revolution", "VH Reborn", "Marksman/Gosu", "VH Rework" })));
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.pushdistance", "E Push Distance").SetValue(new Slider(420, 350, 500)));
 
-                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.rev.predictionNumber", "Number of Predictions (Revolution Only)").SetValue(new Slider(10, 2, 15)));
-                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.rev.accuracy", "Accuracy (Revolution Only)").SetValue(new Slider(60, 1)));
+                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.rev.predictionNumber", "Number of Predictions (Revolution Only)").SetValue(new Slider(12, 2, 15)));
+                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.rev.accuracy", "Accuracy (Revolution Only)").SetValue(new Slider(45, 1)));
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.rev.nextprediction", "Last Prediction (Rev. Only - Don't touch)").SetValue(new Slider(500, 1, 1000)));
 
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.enextauto", "E Next Auto").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Toggle)));
@@ -237,12 +237,13 @@
         #region Special AntiGP Methods
         private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
-            if (sender is Obj_AI_Hero)
+            
+            if (sender != null && sender is Obj_AI_Hero)
             {
                 var s2 = (Obj_AI_Hero) sender;
-                if (args.Target.IsMe && s2.ChampionName == "Pantheon" && s2.GetSpellSlot(args.SData.Name) == SpellSlot.W)
+                if (s2.IsValidTarget() && s2.ChampionName == "Pantheon" && s2.GetSpellSlot(args.SData.Name) == SpellSlot.W)
                 {
-                    if (MenuHelper.isMenuEnabled("dz191.vhr.misc.general.antigp"))
+                    if (MenuHelper.isMenuEnabled("dz191.vhr.misc.general.antigp") && args.Target.IsMe)
                     {
                            if (s2.IsValidTarget(_spells[SpellSlot.E].Range))
                            {
