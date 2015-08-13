@@ -141,7 +141,7 @@
                                     "VH Reborn",    
                                     "Marksman/Gosu",
                                     "VH Rework"
-                            },0 ));
+                            }, 0));
 
                             Menu.Item("dz191.vhr.misc.condemn.rev.predictionNumber").SetValue(new Slider(15, 2, 15));
                             Menu.Item("dz191.vhr.misc.condemn.rev.accuracy").SetValue(new Slider(1, 1));
@@ -251,6 +251,11 @@
             {        
                     goingToTumble = true;
                     TumblePosition = drakeWallQPos.To3D();
+                LeagueSharp.Common.Utility.DelayAction.Add((int)(750 + Game.Ping/2f), () =>
+                {
+                    goingToTumble = false;
+                    TumblePosition = Vector3.Zero;
+                });
             }
             
         }
