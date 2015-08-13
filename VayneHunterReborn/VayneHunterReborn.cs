@@ -108,7 +108,7 @@
             var miscEMenu = new Menu("Misc - Condemn", "dz191.vhr.misc.condemn");
             {
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.condemnmethod", "Condemn Method").SetValue(new StringList(new[] { "VH Revolution", "VH Reborn", "Marksman/Gosu", "VH Rework" })));
-                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.pushdistance", "E Push Distance").SetValue(new Slider(420, 350, 500)));
+                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.pushdistance", "E Push Distance").SetValue(new Slider(420, 350, 470)));
 
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.rev.predictionNumber", "Number of Predictions (Revolution Only)").SetValue(new Slider(12, 2, 15)));
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.rev.accuracy", "Accuracy (Revolution Only)").SetValue(new Slider(45, 1)));
@@ -127,6 +127,8 @@
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.condemnturret", "Try to Condemn to turret").SetValue(false));
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.condemnflag", "Condemn to J4 flag").SetValue(true));
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.noeturret", "No E Under enemy turret").SetValue(false));
+                
+                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.exory", "Automaticly Set Condemn Options™").SetValue(false));
             }
 
             var miscGeneralSubMenu = new Menu("Misc - General", "dz191.vhr.misc.general");
@@ -662,9 +664,30 @@
             #region Disable Movement
             Orbwalker.SetMovement(!MenuHelper.isMenuEnabled("dz191.vhr.misc.general.disablemovement"));
             #endregion
+            
+            #region Ultimate condemn method Kappa
+            if (MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.exory"))
+            {
+                Menu.Item("dz191.vhr.misc.condemn.condemnmethod").SetValue(
+                    new StringList(
+                        new[] {
+                            "VH Revolution",    
+                            "VH Reborn",    
+                            "Marksman/Gosu",
+                            "VH Rework"
+                        },
+                        0
+                    )
+                );
+                
+                Menu.Item("dz191.vhr.misc.condemn.rev.predictionNumber").SetValue(new Slider(15, 2, 15));
+                Menu.Item("dz191.vhr.misc.condemn.rev.accuracy").SetValue(new Slider(1, 1));
+                Menu.Item("dz191.vhr.misc.condemn.pushdistance").SetValue(new Slider(430, 350, 470));
+            }
+            #endregion
 
         }
-
+        
         #endregion
 
         #region Tumble Region
