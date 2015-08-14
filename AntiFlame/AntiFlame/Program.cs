@@ -831,7 +831,7 @@ namespace AntiFlame
         private static void onGameLoad(EventArgs args)
         {
             Game.PrintChat("AntiFlame by iJabba Loaded - Credits to Pain for word list :^)");
-            Game.OnGameInput += onInput;
+            Game.OnInput += onInput;
         }
 
         private static void onInput(GameInputEventArgs args)
