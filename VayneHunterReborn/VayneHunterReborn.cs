@@ -1130,7 +1130,7 @@
         private static void WallTumble()
         { 
             Vector2 drakeWallQPos = new Vector2(11514, 4462);
-            Vector2 midWallQPos = new Vector2(6962, 8952);
+            Vector2 midWallQPos = new Vector2(6667, 8794);
 
             if (Player.Distance(midWallQPos) >= Player.Distance(drakeWallQPos))
             {
@@ -1155,11 +1155,11 @@
                 if (Player.Position.X < 6908 || Player.Position.X > 6978 || Player.Position.Y < 8917 ||
                     Player.Position.Y > 8989)
                 {
-                    Helpers.MoveToLimited(new Vector2(6958, 8944).To3D());
+                    Helpers.MoveToLimited(new Vector2(6962, 8952).To3D());
                 }
                 else
                 {
-                    Helpers.MoveToLimited(new Vector2(6958, 8944).To3D());
+                    Helpers.MoveToLimited(new Vector2(6962, 8952).To3D());
                     LeagueSharp.Common.Utility.DelayAction.Add((int)(106 + Game.Ping / 2f), () =>
                     {
                         _spells[SpellSlot.Q].Cast(midWallQPos);
