@@ -349,7 +349,7 @@
         /// <param name="args">The Event's args</param>
         private static void Game_OnGameUpdate(EventArgs args)
         {
-            if (ObjectManager.Player.IsDead)
+            if (ObjectManager.Player.IsDead || ObjectManager.Player.IsRecalling() || ObjectManager.Player.InFountain())
             {
                 return;
             }
@@ -671,7 +671,7 @@
             #endregion
 
             #region Low Life Peel
-            if (MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.lowlifepeel") && ObjectManager.Player.HealthPercentage() <= 20 && _spells[SpellSlot.E].IsReady())
+            if (MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.lowlifepeel") && ObjectManager.Player.HealthPercentage() <= 15 && _spells[SpellSlot.E].IsReady())
             {
                 var meleeEnemies = ObjectManager.Player.GetEnemiesInRange(375f).FindAll(m => m.IsMelee());
                 if (meleeEnemies.Any())
@@ -867,6 +867,7 @@
                 tg = null;
                 return false;
             }
+
             _lastCondemnCheck = Environment.TickCount;
 
             if ((fromPosition.UnderTurret(true) && MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.noeturret"))|| !_spells[SpellSlot.E].IsReady())
@@ -874,6 +875,7 @@
                 tg = null;
                 return false;
             }
+
             if (
                 !HeroManager.Enemies.Any(
                     h =>
@@ -883,6 +885,7 @@
                 tg = null;
                 return false;
             }
+
             switch (Menu.Item("dz191.vhr.misc.condemn.condemnmethod").GetValue<StringList>().SelectedIndex)
             {
                 case 0:
