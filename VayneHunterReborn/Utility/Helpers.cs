@@ -12,11 +12,13 @@ namespace VayneHunter_Reborn.Utility
     static class Helpers
     {
         public static float LastMoveC;
+
         #region Utility Methods
         public static bool IsJ4FlagThere(Vector3 position, Obj_AI_Hero target)
         {
             return ObjectManager.Get<Obj_AI_Base>().Any(m => m.Distance(position) <= target.BoundingRadius && m.Name == "Beacon");
         }
+
         public static bool IsFountain(Vector3 position)
         {
             float fountainRange = 750;
@@ -56,7 +58,8 @@ namespace VayneHunter_Reborn.Utility
             LastMoveC = Environment.TickCount;
             ObjectManager.Player.IssueOrder(GameObjectOrder.MoveTo, where);
         }
-        public static bool OkToQ(Vector3 position)
+
+        public static bool OkToQ(this Vector3 position)
         {
             if (position.UnderTurret(true) && !ObjectManager.Player.UnderTurret(true))
                 return false;
@@ -73,7 +76,7 @@ namespace VayneHunter_Reborn.Utility
             return (allies + 1 > enemies - lhEnemies);
         }
 
-        public static bool OkToQ2(Vector3 Position)
+        public static bool OkToQ2(this Vector3 Position)
         {
             if (!MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.mirin"))
             {

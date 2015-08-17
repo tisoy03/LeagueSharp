@@ -219,6 +219,7 @@
             Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
             GameObject.OnCreate += GameObject_OnCreate;
             Game.OnWndProc += Game_OnWndProc;
+
             if (CustomTargetSelector.IsActive())
             {
                 CustomTargetSelector.RegisterEvents();
@@ -264,7 +265,7 @@
         private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
             
-            if (sender != null && sender is Obj_AI_Hero)
+            if (sender is Obj_AI_Hero)
             {
                 var s2 = (Obj_AI_Hero) sender;
                 if (s2.IsValidTarget() && s2.ChampionName == "Pantheon" && s2.GetSpellSlot(args.SData.Name) == SpellSlot.W)
@@ -592,6 +593,7 @@
             }
 
             var minionsInRange = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Player.AttackRange).FindAll(m => m.Health <= Player.GetAutoAttackDamage(m) + _spells[SpellSlot.Q].GetDamage(m)).ToList();
+            
             if (!minionsInRange.Any())
             {
                 return;
@@ -851,6 +853,31 @@
             }
         }
 
+        //TODO Maybe implement this
+        public static Vector3? GetQBurstModePosition()
+        {
+            var positions =
+                GetWallQPositions(70).ToList().OrderBy(pos => pos.Distance(ObjectManager.Player.ServerPosition, true));
+            foreach (var position in positions)
+            {
+                if (position.IsWall() && position.OkToQ())
+                {
+                    return position;
+                }
+            }
+            return null;
+        }
+
+        public static Vector3[] GetWallQPositions(float Range)
+        {
+            Vector3[] vList =
+            {
+                (ObjectManager.Player.ServerPosition.To2D() + Range * ObjectManager.Player.Direction.To2D()).To3D(),
+                (ObjectManager.Player.ServerPosition.To2D() - Range * ObjectManager.Player.Direction.To2D()).To3D()
+
+            };
+            return vList;
+        }
         #endregion
 
         #region E Region
