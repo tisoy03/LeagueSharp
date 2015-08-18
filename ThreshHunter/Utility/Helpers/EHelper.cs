@@ -22,23 +22,14 @@ namespace ThreshHunter.Utility.Helpers
 
         public static void CastFlayPush(Obj_AI_Hero target, Orbwalking.OrbwalkingMode Mode)
         {
-                var targetPrediction = Prediction.GetPrediction(target, 0.25f);
-                    var finalPosition = target.ServerPosition.Extend(
-                        ObjectManager.Player.ServerPosition,
-                        ObjectManager.Player.ServerPosition.Distance(targetPrediction.UnitPosition) / 2f);
-                    Thresh.spells[SpellSlot.E].Cast(finalPosition);
+            var finalPosition = ObjectManager.Player.ServerPosition.Extend(target.ServerPosition, 200f);
+            Thresh.spells[SpellSlot.E].Cast(finalPosition);
         }
 
         public static void CastFlayPull(Obj_AI_Hero target, Orbwalking.OrbwalkingMode Mode)
         {
-
-                var finalPosition =
-                    target.ServerPosition.Extend(
-                        ObjectManager.Player.ServerPosition,
-                        ObjectManager.Player.Distance(target.ServerPosition) + 100f
-                        );
-
-                Thresh.spells[SpellSlot.E].Cast(finalPosition);
+            var finalPosition = ObjectManager.Player.ServerPosition.Extend(target.ServerPosition, -200f);
+            Thresh.spells[SpellSlot.E].Cast(finalPosition);
         }
 
         public static Geometry.Polygon getERectangle(Vector3 finalPosition, float BoundingRadius)

@@ -133,13 +133,13 @@ namespace ThreshHunter
                             if (prediction.Hitchance >= HitChance.VeryHigh)
                             {
                                 var endPosition = prediction.CastPosition;
-
-                                spells[SpellSlot.Q].Cast(endPosition);
+                                if (endPosition.CountEnemiesInRange(65) > 0)
+                                {
+                                    spells[SpellSlot.Q].Cast(endPosition);
+                                }
                             }
                             break;
                         case QStates.Q2:
-                            Console.WriteLine("Casted 2");
-
                             ////vvv TODO Redundant and just for debugging purpouses. Removed it for final release.
                             if (target == HookedUnit && HookEndTick - Utils.TickCount < 650 && target.ServerPosition.IsSafePosition())
                             {
