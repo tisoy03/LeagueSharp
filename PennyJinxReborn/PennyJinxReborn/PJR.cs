@@ -165,7 +165,7 @@
             var qAoeRadius = menu.Item("dz191." + MenuName + ".settings.q.aoeradius").GetValue<Slider>().Value;
 			
             //A bit less range than the actual minigun range, to prevent stuttering.
-            var jinxBaseRange = GetMinigunRange(currentTarget) -10f;
+            var jinxBaseRange = GetMinigunRange(currentTarget) - 20f;
             switch (qSwapMode)
             {
                 case 0:
@@ -337,7 +337,7 @@
                 }
 
                 if (currentDistance < GetMinigunRange(rTarget) + GetFishboneRange() && Spells[SpellSlot.Q].IsReady() &&
-                    !ObjectManager.Player.IsWindingUp && ObjectManager.Player.CanAttack && qEnabled && menu.Item("dz191." + MenuName + ".settings.r.preventoverkill").GetValue<bool>())
+                    !ObjectManager.Player.Spellbook.IsAutoAttacking && ObjectManager.Player.CanAttack && qEnabled && menu.Item("dz191." + MenuName + ".settings.r.preventoverkill").GetValue<bool>())
                 {
                     aaDamageBuffer = (float)(ObjectManager.Player.GetAutoAttackDamage(rTarget) * aaBuffer);
                 }

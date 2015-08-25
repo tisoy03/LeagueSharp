@@ -53,7 +53,29 @@ namespace ExoCondemn
             Condemn.SetTargetted(0.25f, 2000f);
 
             Game.OnUpdate += Game_OnUpdate;
-        }
+            Drawing.OnDraw += args =>
+            {
+                 var myPosition = Vector3.Zero;
+                Obj_AI_Hero myUnit = null;
+
+                var cursorPos = Game.CursorPos;
+                for (int i = 65; i < 425; i += (int) ObjectManager.Player.BoundingRadius)
+                {
+                    var extended = ObjectManager.Player.ServerPosition.Extend(cursorPos, i);
+                    var possibleUnit = CondemnCheck(extended);
+                    if (possibleUnit != null && !extended.UnderTurret(true) && !extended.IsWall() && (extended.Distance(ObjectManager.Player.ServerPosition, true) > ObjectManager.Player.ServerPosition.Distance(possibleUnit.ServerPosition, true)))
+                    {
+                        myPosition = extended;
+                        myUnit = possibleUnit;
+                    }
+                }
+
+                if (myPosition != Vector3.Zero)
+                {
+                    Render.Circle.DrawCircle(myPosition,65, System.Drawing.Color.Red);
+                }
+            };
+            }
 
         private static void Game_OnUpdate(EventArgs args)
         {
