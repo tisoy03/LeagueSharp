@@ -45,7 +45,7 @@ namespace DZBard
                     {
                         var QPrediction = spells[SpellSlot.Q].GetPrediction(ComboTarget);
 
-                        if (QPrediction.Hitchance >= HitChance.VeryHigh)
+                        if (QPrediction.Hitchance >= HitChance.High)
                         {
                             var QPushDistance = GetItemValue<Slider>("dz191.bard.combo.distance").Value;
                             var QAccuracy = GetItemValue<Slider>("dz191.bard.combo.accuracy").Value;
