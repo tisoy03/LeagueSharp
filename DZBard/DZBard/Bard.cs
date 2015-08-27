@@ -89,7 +89,7 @@ namespace DZBard
                             if (PositionsList.Any())
                             {
                                 //We don't want to divide by 0 Kappa
-                                var WallNumber = PositionsList.Count(p => p.IsWall());
+                                var WallNumber = PositionsList.Count(p => p.IsWall()) * 1.3f;
                                 var CollisionPositionCount = CollisionPositions.Count;
                                 var Percent = (WallNumber + CollisionPositionCount) / PositionsList.Count;
                                 var AccuracyEx = QAccuracy/100f;
