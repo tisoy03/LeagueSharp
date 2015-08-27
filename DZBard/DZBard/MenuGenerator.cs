@@ -19,6 +19,7 @@ namespace DZBard
                 comboMenu.AddItem(new MenuItem("dz191.bard.combo.accuracy", "Accuracy").SetValue(new Slider(45, 1)));
 
             }
+            rootMenu.AddSubMenu(comboMenu);
 
             //All Bard needs for now is Q amk
 
