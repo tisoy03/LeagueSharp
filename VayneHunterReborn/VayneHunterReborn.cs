@@ -986,7 +986,7 @@
                         var WallListCount = ExtendedList.Count(h => h.IsWall() || IsJ4Flag(h, Hero));
                         //Console.WriteLine("Actual Preds: {0} Walllist count: {1} TotalList: {2} Percent: {3}", PredictionsList.Count, WallListCount, ExtendedList.Count, ((float)WallListCount / (float)ExtendedList.Count));
 
-                        if (((float)WallListCount / (float)ExtendedList.Count) >= MinChecksPercent / 100f)
+                        if (((float)WallListCount * 1.2f / (float)ExtendedList.Count) >= MinChecksPercent / 100f)
                         {
                             if (MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.trinketbush") &&
                                     NavMesh.IsWallOfGrass(finalPosition, 25) && trinketSpell != null)
