@@ -75,7 +75,7 @@ namespace DZBard
         private static void DoFlee()
         {
             if (IsOverWall(ObjectManager.Player.ServerPosition, Game.CursorPos) 
-                && GetWallLength(ObjectManager.Player.ServerPosition, Game.CursorPos) >= 320f)
+                && GetWallLength(ObjectManager.Player.ServerPosition, Game.CursorPos) >= 250f)
             {
                 MoveToLimited(GetFirstWallPoint(ObjectManager.Player.ServerPosition, Game.CursorPos));
             }
@@ -111,8 +111,8 @@ namespace DZBard
                 var dir = ObjectManager.Player.ServerPosition.To2D() + ObjectManager.Player.Direction.To2D().Perpendicular() * (ObjectManager.Player.BoundingRadius * 2.5f);
                 var Extended = Game.CursorPos;
                 if (dir.IsWall() && IsOverWall(ObjectManager.Player.ServerPosition, Extended) 
-                    && spells[SpellSlot.E].IsReady() 
-                    && GetWallLength(ObjectManager.Player.ServerPosition, Extended) >= 320f)
+                    && spells[SpellSlot.E].IsReady()
+                    && GetWallLength(ObjectManager.Player.ServerPosition, Extended) >= 250f)
                 {
                     spells[SpellSlot.E].Cast(Extended);
                 }
