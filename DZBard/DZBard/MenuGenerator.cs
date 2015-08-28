@@ -19,13 +19,34 @@ namespace DZBard
             var comboMenu = new Menu("Combo","dz191.bard.combo");
             {
                 comboMenu.AddItem(new MenuItem("dz191.bard.combo.useq", "Use Q").SetValue(true));
-                comboMenu.AddItem(new MenuItem("dz191.bard.combo.distance", "Calculation distance").SetValue(new Slider(250, 100, 450)));
-                comboMenu.AddItem(new MenuItem("dz191.bard.combo.accuracy", "Accuracy").SetValue(new Slider(20, 1, 50)));
-
+                comboMenu.AddItem(new MenuItem("dz191.bard.combo.usew", "Use W").SetValue(true));
+                rootMenu.AddSubMenu(comboMenu);
             }
-            rootMenu.AddSubMenu(comboMenu);
 
-            //All Bard needs for now is Q amk
+            var harassMenu = new Menu("Harass", "dz191.bard.mixed");
+            {
+                harassMenu.AddItem(new MenuItem("dz191.bard.mixed.useq", "Use Q").SetValue(true));
+                rootMenu.AddSubMenu(harassMenu);
+            }
+
+            var miscMenu = new Menu("Misc","dz191.bard.misc");
+            {
+                var DontWMenu = new Menu("W Settings", "dz191.bard.wtarget");
+                {
+                    foreach (var hero in HeroManager.Allies)
+                    {
+                        DontWMenu.AddItem(
+                            new MenuItem(string.Format("dz191.bard.wtarget.{0}", hero.ChampionName.ToLower()),
+                                hero.ChampionName).SetValue(true));
+                    }
+                    miscMenu.AddSubMenu(DontWMenu);
+                }
+
+                miscMenu.AddItem(new MenuItem("dz191.bard.misc.sep1", "          Q - Cosmic Binding          "));
+                miscMenu.AddItem(new MenuItem("dz191.bard.misc.distance", "Calculation distance").SetValue(new Slider(250, 100, 450)));
+                miscMenu.AddItem(new MenuItem("dz191.bard.misc.accuracy", "Accuracy").SetValue(new Slider(20, 1, 50)));
+                rootMenu.AddSubMenu(miscMenu);
+            }
 
             rootMenu.AddToMainMenu();
         }
