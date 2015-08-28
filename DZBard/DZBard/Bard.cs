@@ -63,6 +63,44 @@ namespace DZBard
                     }
                     break;
             }
+
+            if (GetItemValue<KeyBind>("dz191.bard.flee.flee").Active)
+            {
+                DoFlee();
+            }
+        }
+
+        private static void DoFlee()
+        {
+            var ComboTarget = TargetSelector.GetTarget(spells[SpellSlot.Q].Range / 1.3f, TargetSelector.DamageType.Magical);
+
+            if (spells[SpellSlot.Q].IsReady() &&
+                        ComboTarget.IsValidTarget())
+            {
+                HandleQ(ComboTarget);
+            }
+
+            var dir = ObjectManager.Player.ServerPosition.To2D() + ObjectManager.Player.Direction.To2D().Perpendicular()* (ObjectManager.Player.BoundingRadius*2);
+            var Extended = Game.CursorPos;
+            if (dir.IsWall() && IsOverWall(ObjectManager.Player.ServerPosition, Extended))
+            {
+                spells[SpellSlot.E].Cast(Extended);
+            }
+        }
+
+        private static bool IsOverWall(Vector3 start, Vector3 end)
+        {
+            double distance = Vector3.Distance(start, end);
+            for (uint i = 0; i < distance; i += 10)
+            {
+                var tempPosition = start.Extend(end, i).To2D();
+                if (tempPosition.IsWall())
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static void HandleQ(Obj_AI_Hero comboTarget)
