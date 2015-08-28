@@ -74,8 +74,8 @@ namespace DZBard
 
                                 if (collisionableObjects.Any())
                                 {
-                                    if (collisionableObjects.First() is Obj_AI_Hero &&
-                                        (collisionableObjects.First().IsValidTarget()))
+                                    if (collisionableObjects.Any(h => h is Obj_AI_Hero) &&
+                                        (collisionableObjects.All(h => h.IsValidTarget())))
                                     {
                                         spells[SpellSlot.Q].Cast(QPrediction.CastPosition);
                                         break;
