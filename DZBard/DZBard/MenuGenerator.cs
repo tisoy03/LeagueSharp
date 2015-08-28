@@ -31,6 +31,10 @@ namespace DZBard
 
             var fleeMenu = new Menu("Flee", "dz191.bard.flee");
             {
+                fleeMenu.AddItem(new MenuItem("dz191.bard.flee.q", "Q Flee").SetValue(true));
+                fleeMenu.AddItem(new MenuItem("dz191.bard.flee.w", "W Flee").SetValue(true));
+                fleeMenu.AddItem(new MenuItem("dz191.bard.flee.e", "E Flee").SetValue(true));
+
                 fleeMenu.AddItem(new MenuItem("dz191.bard.flee.flee", "Flee").SetValue(new KeyBind('T', KeyBindType.Press)));
                 rootMenu.AddSubMenu(fleeMenu);
             }

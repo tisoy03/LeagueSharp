@@ -17,9 +17,11 @@ namespace DZBard
         public static Dictionary<SpellSlot, Spell> spells = new Dictionary<SpellSlot, Spell>()
         {
             {SpellSlot.Q, new Spell(SpellSlot.Q, 950f)},
-            {SpellSlot.W, new Spell(SpellSlot.W, 945f)}
-
+            {SpellSlot.W, new Spell(SpellSlot.W, 945f)},
+            {SpellSlot.E, new Spell(SpellSlot.E, float.MaxValue)}
         };
+
+        public static float LastMoveC;
 
         internal static void OnLoad()
         {
@@ -72,35 +74,49 @@ namespace DZBard
 
         private static void DoFlee()
         {
-            var ComboTarget = TargetSelector.GetTarget(spells[SpellSlot.Q].Range / 1.3f, TargetSelector.DamageType.Magical);
-
-            if (spells[SpellSlot.Q].IsReady() &&
-                        ComboTarget.IsValidTarget())
+            if (IsOverWall(ObjectManager.Player.ServerPosition, Game.CursorPos) 
+                && GetWallLength(ObjectManager.Player.ServerPosition, Game.CursorPos) >= 320f)
             {
-                HandleQ(ComboTarget);
+                MoveToLimited(GetFirstWallPoint(ObjectManager.Player.ServerPosition, Game.CursorPos));
+            }
+            else
+            {
+                MoveToLimited(Game.CursorPos);
             }
 
-            var dir = ObjectManager.Player.ServerPosition.To2D() + ObjectManager.Player.Direction.To2D().Perpendicular()* (ObjectManager.Player.BoundingRadius*2);
-            var Extended = Game.CursorPos;
-            if (dir.IsWall() && IsOverWall(ObjectManager.Player.ServerPosition, Extended))
+            if (GetItemValue<bool>("dz191.bard.flee.q"))
             {
-                spells[SpellSlot.E].Cast(Extended);
-            }
-        }
+                var ComboTarget = TargetSelector.GetTarget(spells[SpellSlot.Q].Range/1.3f,
+                    TargetSelector.DamageType.Magical);
 
-        private static bool IsOverWall(Vector3 start, Vector3 end)
-        {
-            double distance = Vector3.Distance(start, end);
-            for (uint i = 0; i < distance; i += 10)
-            {
-                var tempPosition = start.Extend(end, i).To2D();
-                if (tempPosition.IsWall())
+                if (spells[SpellSlot.Q].IsReady() &&
+                    ComboTarget.IsValidTarget())
                 {
-                    return true;
+                    HandleQ(ComboTarget);
                 }
             }
 
-            return false;
+            if (GetItemValue<bool>("dz191.bard.flee.w"))
+            {
+                if (ObjectManager.Player.CountAlliesInRange(1000f) - 1 < ObjectManager.Player.CountEnemiesInRange(1000f) 
+                    || (ObjectManager.Player.HealthPercent <= 20 && ObjectManager.Player.CountEnemiesInRange(900f) >= 1))
+                {
+                    var castPosition = ObjectManager.Player.ServerPosition.Extend(Game.CursorPos, 65);
+                    spells[SpellSlot.W].Cast(castPosition);
+                }
+            }
+
+            if (GetItemValue<bool>("dz191.bard.flee.e"))
+            {
+                var dir = ObjectManager.Player.ServerPosition.To2D() + ObjectManager.Player.Direction.To2D().Perpendicular() * (ObjectManager.Player.BoundingRadius * 2.5f);
+                var Extended = Game.CursorPos;
+                if (dir.IsWall() && IsOverWall(ObjectManager.Player.ServerPosition, Extended) 
+                    && spells[SpellSlot.E].IsReady() 
+                    && GetWallLength(ObjectManager.Player.ServerPosition, Extended) >= 320f)
+                {
+                    spells[SpellSlot.E].Cast(Extended);
+                }
+            }
         }
 
         private static void HandleQ(Obj_AI_Hero comboTarget)
@@ -218,6 +234,71 @@ namespace DZBard
         private static T GetItemValue<T>(string item)
         {
             return BardMenu.Item(item).GetValue<T>();
+        }
+
+        private static bool IsOverWall(Vector3 start, Vector3 end)
+        {
+            double distance = Vector3.Distance(start, end);
+            for (uint i = 0; i < distance; i += 10)
+            {
+                var tempPosition = start.Extend(end, i).To2D();
+                if (tempPosition.IsWall())
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static Vector3 GetFirstWallPoint(Vector3 start, Vector3 end)
+        {
+            double distance = Vector3.Distance(start, end);
+            for (uint i = 0; i < distance; i += 10)
+            {
+                var tempPosition = start.Extend(end, i);
+                if (tempPosition.IsWall())
+                {
+                    return tempPosition.Extend(start, -35);
+                }
+            }
+
+            return Vector3.Zero;
+        }
+
+        private static float GetWallLength(Vector3 start, Vector3 end)
+        {
+            double distance = Vector3.Distance(start, end);
+            var firstPosition = Vector3.Zero;
+            var lastPosition = Vector3.Zero;
+
+            for (uint i = 0; i < distance; i += 10)
+            {
+                var tempPosition = start.Extend(end, i);
+                if (tempPosition.IsWall() && firstPosition == Vector3.Zero)
+                {
+                    firstPosition = tempPosition;
+                }
+                lastPosition = tempPosition;
+                if (!lastPosition.IsWall() && firstPosition != Vector3.Zero)
+                {
+                    break;
+                }
+            }
+
+            return Vector3.Distance(firstPosition, lastPosition);
+        }
+
+        public static void MoveToLimited(Vector3 where)
+        {
+            if (Environment.TickCount - LastMoveC < 80)
+            {
+                return;
+            }
+
+            LastMoveC = Environment.TickCount;
+
+            ObjectManager.Player.IssueOrder(GameObjectOrder.MoveTo, where);
         }
     }
 }
