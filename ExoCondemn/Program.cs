@@ -14,6 +14,7 @@ namespace ExoCondemn
         private static SpellSlot FlashSlot;
         private static Spell Condemn;
         private static Menu AssemblyMenu;
+        private static Vector3 MyPosition2;
 
         private static void Main(string[] args)
         {
@@ -53,32 +54,31 @@ namespace ExoCondemn
             Condemn.SetTargetted(0.25f, 2000f);
 
             Game.OnUpdate += Game_OnUpdate;
-            Drawing.OnDraw += args =>
+            Drawing.OnDraw += OnDraw;
+        }
+
+        private static void OnDraw(EventArgs args)
+        {
+            if (MyPosition2 != Vector3.Zero)
             {
-                 var myPosition = Vector3.Zero;
-                Obj_AI_Hero myUnit = null;
-
-                var cursorPos = Game.CursorPos;
-                for (int i = 65; i < 425; i += (int) ObjectManager.Player.BoundingRadius)
-                {
-                    var extended = ObjectManager.Player.ServerPosition.Extend(cursorPos, i);
-                    var possibleUnit = CondemnCheck(extended);
-                    if (possibleUnit != null && !extended.UnderTurret(true) && !extended.IsWall() && (extended.Distance(ObjectManager.Player.ServerPosition, true) > ObjectManager.Player.ServerPosition.Distance(possibleUnit.ServerPosition, true)))
-                    {
-                        myPosition = extended;
-                        myUnit = possibleUnit;
-                    }
-                }
-
-                if (myPosition != Vector3.Zero)
-                {
-                    Render.Circle.DrawCircle(myPosition,65, System.Drawing.Color.Red);
-                }
-            };
+                Render.Circle.DrawCircle(MyPosition2, 65, System.Drawing.Color.Red);
             }
+        }
 
         private static void Game_OnUpdate(EventArgs args)
         {
+
+            var cPos = Game.CursorPos;
+            for (int i = 65; i < 425; i += (int)ObjectManager.Player.BoundingRadius)
+            {
+                var extended = ObjectManager.Player.ServerPosition.Extend(cPos, i);
+                var possibleUnit = CondemnCheck(extended);
+                if (possibleUnit != null && !extended.UnderTurret(true) && !extended.IsWall() && (extended.Distance(ObjectManager.Player.ServerPosition, true) > ObjectManager.Player.ServerPosition.Distance(possibleUnit.ServerPosition, true)))
+                {
+                    MyPosition2 = extended;
+                }
+            }
+
             if (AssemblyMenu.Item("dz191.exocondemn.execute").GetValue<KeyBind>().Active && (Condemn.IsReady() && ObjectManager.Player.GetSpell(FlashSlot).State == SpellState.Ready))
             {
                 if (CondemnCheck(ObjectManager.Player.ServerPosition) != null)
