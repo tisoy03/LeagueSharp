@@ -41,20 +41,20 @@ namespace DZBard
             switch (BardOrbwalker.ActiveMode)
             {
                 case Orbwalking.OrbwalkingMode.Combo:
-                    if (spells[SpellSlot.Q].IsReady() && GetItemValue<bool>(string.Format("dz191.bard.{0}.useq", BardOrbwalker.ActiveMode)) &&
+                    if (spells[SpellSlot.Q].IsReady() && GetItemValue<bool>(string.Format("dz191.bard.{0}.useq", BardOrbwalker.ActiveMode.ToString().ToLower())) &&
                         ComboTarget.IsValidTarget())
                     {
                         HandleQ(ComboTarget);
                     }
 
-                    if (GetItemValue<bool>(string.Format("dz191.bard.{0}.usew", BardOrbwalker.ActiveMode)))
+                    if (GetItemValue<bool>(string.Format("dz191.bard.{0}.usew", BardOrbwalker.ActiveMode.ToString().ToLower())))
                     {
                         HandleW();
                     }
 
                     break;
                 case Orbwalking.OrbwalkingMode.Mixed:
-                    if (spells[SpellSlot.Q].IsReady() && GetItemValue<bool>(string.Format("dz191.bard.{0}.useq", BardOrbwalker.ActiveMode)) &&
+                    if (spells[SpellSlot.Q].IsReady() && GetItemValue<bool>(string.Format("dz191.bard.{0}.useq", BardOrbwalker.ActiveMode.ToString().ToLower())) &&
                         ComboTarget.IsValidTarget())
                     {
                         HandleQ(ComboTarget);
