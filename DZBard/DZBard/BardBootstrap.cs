@@ -12,7 +12,7 @@ namespace DZBard
                 return;
             }
 
-            Bard.BardMenu = new Menu("DZBard","dz191.bard", true);
+            Bard.BardMenu = new Menu("Bard - Dreamless Wanderer","dz191.bard", true);
 
             MenuGenerator.OnLoad(Bard.BardMenu);
             Bard.OnLoad();

@@ -22,6 +22,10 @@ namespace DZBard
         };
 
         public static float LastMoveC;
+        public static int TunnelNetworkID;
+        public static Vector3 TunnelEntrance = Vector3.Zero;
+        public static Vector3 TunnelExit = Vector3.Zero;
+
 
         internal static void OnLoad()
         {
@@ -37,6 +41,32 @@ namespace DZBard
         private static void LoadEvents()
         {
             Game.OnUpdate += Game_OnUpdate;
+            GameObject.OnCreate += OnCreate;
+            GameObject.OnDelete += OnDelete;
+        }
+
+        private static void OnDelete(GameObject sender, EventArgs args)
+        {
+            if (sender.Name.Contains("BardDoor_EntranceMinion") && sender.NetworkId == TunnelNetworkID)
+            {
+                TunnelNetworkID = -1;
+                TunnelEntrance = Vector3.Zero;
+                TunnelExit = Vector3.Zero;
+            }
+        }
+
+        private static void OnCreate(GameObject sender, EventArgs args)
+        {
+            if (sender.Name.Contains("BardDoor_EntranceMinion"))
+            {
+                TunnelNetworkID = sender.NetworkId;
+                TunnelEntrance = sender.Position;
+            }
+
+            if (sender.Name.Contains("BardDoor_ExitMinion"))
+            {
+                TunnelExit = sender.Position;
+            }
         }
 
         static void Game_OnUpdate(EventArgs args)
@@ -74,8 +104,10 @@ namespace DZBard
 
         private static void DoFlee()
         {
-            if (IsOverWall(ObjectManager.Player.ServerPosition, Game.CursorPos) 
-                && GetWallLength(ObjectManager.Player.ServerPosition, Game.CursorPos) >= 250f)
+            if ((IsOverWall(ObjectManager.Player.ServerPosition, Game.CursorPos) 
+                && GetWallLength(ObjectManager.Player.ServerPosition, Game.CursorPos) >= 250f) && (spells[SpellSlot.E].IsReady() 
+                || (TunnelNetworkID != -1 
+                && (ObjectManager.Player.ServerPosition.Distance(TunnelEntrance) < 250f))))
             {
                 MoveToLimited(GetFirstWallPoint(ObjectManager.Player.ServerPosition, Game.CursorPos));
             }

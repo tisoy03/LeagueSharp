@@ -1,4 +1,5 @@
-﻿using LeagueSharp.Common;
+﻿using System.Reflection;
+using LeagueSharp.Common;
 
 namespace DZBard
 {
@@ -59,6 +60,8 @@ namespace DZBard
                 miscMenu.AddItem(new MenuItem("dz191.bard.misc.accuracy", "Accuracy").SetValue(new Slider(20, 1, 50)));
                 rootMenu.AddSubMenu(miscMenu);
             }
+
+            rootMenu.AddItem(new MenuItem("dz191.bard.info", "Bard - Dreamless Wanderer by Asuna v." + Assembly.GetExecutingAssembly().GetName().Version));
 
             rootMenu.AddToMainMenu();
         }
