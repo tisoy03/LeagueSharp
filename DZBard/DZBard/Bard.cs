@@ -16,7 +16,9 @@ namespace DZBard
         //DO YOU HAVE A MOMENT TO TALK ABOUT DIKTIONARIESS!=!=!=!==??!?!? -Everance 2k15
         public static Dictionary<SpellSlot, Spell> spells = new Dictionary<SpellSlot, Spell>()
         {
-            {SpellSlot.Q, new Spell(SpellSlot.Q, 950f)}//TODO Check
+            {SpellSlot.Q, new Spell(SpellSlot.Q, 950f)},
+            {SpellSlot.W, new Spell(SpellSlot.W, 945f)}
+
         };
 
         internal static void OnLoad()
@@ -27,7 +29,7 @@ namespace DZBard
 
         private static void LoadSpells()
         {
-            spells[SpellSlot.Q].SetSkillshot(0.25f, 65f, 1600f, false, SkillshotType.SkillshotLine);
+            spells[SpellSlot.Q].SetSkillshot(0.25f, 65f, 1600f, true, SkillshotType.SkillshotLine);
         }
 
         private static void LoadEvents()
@@ -66,7 +68,7 @@ namespace DZBard
         private static void HandleQ(Obj_AI_Hero comboTarget)
         {
                 var QPrediction = spells[SpellSlot.Q].GetPrediction(comboTarget);
-
+                
                 if (QPrediction.Hitchance >= HitChance.High)
                 {
                     if (spells[SpellSlot.Q].GetDamage(comboTarget) > comboTarget.Health + 15)
@@ -132,6 +134,14 @@ namespace DZBard
                         {
                             spells[SpellSlot.Q].Cast(QPrediction.CastPosition);
                         }
+                        
+                    }
+                }else if (QPrediction.Hitchance == HitChance.Collision)
+                {
+                    var QCollision = QPrediction.CollisionObjects;
+                    if (QCollision.Count == 1)
+                    {
+                        spells[SpellSlot.Q].Cast(QPrediction.CastPosition);
                     }
                 }
         }
@@ -155,8 +165,8 @@ namespace DZBard
                 .Where(ally => ally.IsValidTarget(spells[SpellSlot.W].Range, false)
                     && ally.HealthPercent <= 25
                     && GetItemValue<bool>(string.Format("dz191.bard.wtarget.{0}", ally.ChampionName.ToLower())))
-                .OrderBy(TargetSelector.GetPriority)
-                .ThenBy(ally => ally.Health)
+                //.OrderBy(TargetSelector.GetPriority)
+                .OrderBy(ally => ally.Health)
                 .FirstOrDefault();
 
             if (LowHealthAlly != null)
