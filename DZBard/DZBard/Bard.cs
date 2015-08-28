@@ -98,8 +98,8 @@ namespace DZBard
 
             if (GetItemValue<bool>("dz191.bard.flee.w"))
             {
-                if (ObjectManager.Player.CountAlliesInRange(1000f) - 1 < ObjectManager.Player.CountEnemiesInRange(1000f) 
-                    || (ObjectManager.Player.HealthPercent <= 20 && ObjectManager.Player.CountEnemiesInRange(900f) >= 1))
+                if (ObjectManager.Player.CountAlliesInRange(1000f) - 1 < ObjectManager.Player.CountEnemiesInRange(1000f)
+                    || (ObjectManager.Player.HealthPercent <= GetItemValue<Slider>("dz191.bard.wtarget.healthpercent").Value && ObjectManager.Player.CountEnemiesInRange(900f) >= 1))
                 {
                     var castPosition = ObjectManager.Player.ServerPosition.Extend(Game.CursorPos, 65);
                     spells[SpellSlot.W].Cast(castPosition);
@@ -208,7 +208,7 @@ namespace DZBard
                 return;
             }
 
-            if (ObjectManager.Player.HealthPercent <= 20)
+            if (ObjectManager.Player.HealthPercent <= GetItemValue<Slider>("dz191.bard.wtarget.healthpercent").Value)
             {
                 var castPosition = ObjectManager.Player.ServerPosition.Extend(Game.CursorPos, 65);
                 spells[SpellSlot.W].Cast(castPosition);
@@ -217,7 +217,7 @@ namespace DZBard
 
             var LowHealthAlly = HeroManager.Allies
                 .Where(ally => ally.IsValidTarget(spells[SpellSlot.W].Range, false)
-                    && ally.HealthPercent <= 25
+                    && ally.HealthPercent <= GetItemValue<Slider>("dz191.bard.wtarget.healthpercent").Value
                     && GetItemValue<bool>(string.Format("dz191.bard.wtarget.{0}", ally.ChampionName.ToLower())))
                 //.OrderBy(TargetSelector.GetPriority)
                 .OrderBy(ally => ally.Health)

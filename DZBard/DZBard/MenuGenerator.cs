@@ -48,11 +48,13 @@ namespace DZBard
                         DontWMenu.AddItem(
                             new MenuItem(string.Format("dz191.bard.wtarget.{0}", hero.ChampionName.ToLower()),
                                 hero.ChampionName).SetValue(true));
+                        DontWMenu.AddItem(
+                            new MenuItem("dz191.bard.wtarget.healthpercent", "Health % for W").SetValue(new Slider(25, 1)));
                     }
                     miscMenu.AddSubMenu(DontWMenu);
                 }
 
-                miscMenu.AddItem(new MenuItem("dz191.bard.misc.sep1", "          Q - Cosmic Binding          "));
+                miscMenu.AddItem(new MenuItem("dz191.bard.misc.sep1", "                     Q - Cosmic Binding          "));
                 miscMenu.AddItem(new MenuItem("dz191.bard.misc.distance", "Calculation distance").SetValue(new Slider(250, 100, 450)));
                 miscMenu.AddItem(new MenuItem("dz191.bard.misc.accuracy", "Accuracy").SetValue(new Slider(20, 1, 50)));
                 rootMenu.AddSubMenu(miscMenu);
