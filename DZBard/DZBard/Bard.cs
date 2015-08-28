@@ -74,6 +74,13 @@ namespace DZBard
 
                                 if (collisionableObjects.Any())
                                 {
+                                    if (collisionableObjects.First() is Obj_AI_Hero &&
+                                        (collisionableObjects.First().IsValidTarget()))
+                                    {
+                                        spells[SpellSlot.Q].Cast(QPrediction.CastPosition);
+                                        break;
+                                    }
+
                                     for (var i = 0; i < QPushDistance; i += (int) ComboTarget.BoundingRadius)
                                     {
                                         CollisionPositions.Add(position.Extend(PlayerPosition, -i));
@@ -99,6 +106,7 @@ namespace DZBard
                                 }
                             }
                         }
+                        
                     }
                     break;
             }
