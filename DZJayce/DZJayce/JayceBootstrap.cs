@@ -21,6 +21,7 @@ namespace DZJayce
             Jayce.RootMenu = new Menu("DZJayce","dz191.jayce", true);
             MenuGenerator.OnLoad(Jayce.RootMenu);
             SpellHandler.OnLoad();
+            Jayce.OnLoad();
         }
     }
 }

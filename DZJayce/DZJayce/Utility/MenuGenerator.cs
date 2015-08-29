@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using LeagueSharp.Common;
+﻿using LeagueSharp.Common;
 
 namespace DZJayce.Utility
 {
@@ -11,6 +6,16 @@ namespace DZJayce.Utility
     {
         public static void OnLoad(Menu RootMenu)
         {
+            var OrbwalkerMenu = new Menu("Orbwalker", "dz191.jayce.orbwalker");
+            Jayce.Orbwalker = new Orbwalking.Orbwalker(OrbwalkerMenu);
+            RootMenu.AddSubMenu(OrbwalkerMenu);
+
+            var TSMenu = new Menu("TargetSelector", "dz191.jayce.ts");
+
+            TargetSelector.AddToMenu(TSMenu);
+
+            RootMenu.AddSubMenu(TSMenu);
+
             var ComboMenu = new Menu("Combo","dz191.jayce.combo");
             {
                 ComboMenu.AddItem(new MenuItem("dz191.jayce.combo.qranged", "Use Q Ranged").SetValue(true));
