@@ -36,8 +36,22 @@ namespace DZJayce
 
             switch (Orbwalker.ActiveMode)
             {
-                
+                case Orbwalking.OrbwalkingMode.Combo:
+                    OnCombo();
+                    break;
+                case Orbwalking.OrbwalkingMode.Mixed:
+                    OnMixed();
             }
+        }
+
+        private static void OnCombo()
+        {
+            throw new NotImplementedException();
+        }
+
+        private static void OnMixed()
+        {
+            throw new NotImplementedException();
         }
     }
 }
