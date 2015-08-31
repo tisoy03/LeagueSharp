@@ -28,6 +28,14 @@ namespace DZJayce.Utility
                 RootMenu.AddSubMenu(ComboMenu);
             }
 
+            var MiscMenu = new Menu("MiscMenu", "dz191.jayce.misc");
+            {
+                MiscMenu.AddItem(new MenuItem("dz191.jayce.misc.gatemode", "Gate Mode").SetValue(new StringList(new []{"Horizontal", "Vertical"})));
+                MiscMenu.AddItem(new MenuItem("dz191.jayce.misc.castqe", "Cast QE to best target").SetValue(new KeyBind('T', KeyBindType.Press)));
+                MiscMenu.AddItem(new MenuItem("dz191.jayce.misc.castqemouse", "Cast QE to mouse").SetValue(new KeyBind('Z', KeyBindType.Press)));
+                RootMenu.AddSubMenu(MiscMenu);
+            }
+
             RootMenu.AddToMainMenu();
         }
     }

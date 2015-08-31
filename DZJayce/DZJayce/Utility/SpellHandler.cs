@@ -118,8 +118,8 @@ namespace DZJayce.Utility
 
         public static float GetCooldown(Spells Spell)
         {
-            return Spell == Spells.R 
-                ? ObjectManager.Player.GetSpell(SpellSlot.R).SData.Cooldown 
+            return Spell == Spells.R  ?
+                  ((Utils.GameTimeTickCount - ObjectManager.Player.GetSpell(SpellSlot.R).SData.Cooldown > 0) ? Utils.GameTimeTickCount - ObjectManager.Player.GetSpell(SpellSlot.R).SData.Cooldown : 0)
                 : (Utils.GameTimeTickCount - spellCooldowns[Spell] > 0) ? Utils.GameTimeTickCount - spellCooldowns[Spell] : 0 ;
         }
 
