@@ -462,6 +462,7 @@
         {
             var drawE = Menu.Item("VayneDrawE").GetValue<Circle>();
             var drakeWallQPos = new Vector2(11514, 4462);
+            var midWallQPos = new Vector2(6962, 8952);
 
             if (drawE.Active)
             {
@@ -478,6 +479,10 @@
                 if (ObjectManager.Player.Distance(drakeWallQPos) <= 1500f && Helpers.IsSummonersRift())
                 {
                     Render.Circle.DrawCircle(new Vector2(12050, 4827).To3D(), 65f, Color.AliceBlue);
+                }
+                if (ObjectManager.Player.Distance(midWallQPos) <= 1500f && Helpers.IsSummonersRift())
+                {
+                    Render.Circle.DrawCircle(new Vector2(6962, 8952).To3D(), 65f, Color.AliceBlue);
                 }
             }
         }
