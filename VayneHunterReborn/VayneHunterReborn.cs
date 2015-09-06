@@ -104,6 +104,9 @@ namespace VayneHunter_Reborn
                 miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.tumble.qspam", "Ignore Q checks").SetValue(false));
                 miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.tumble.qinrange", "Q For KS").SetValue(true));
                 miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.tumble.mirin", "Use old 'Don't Q into enemies' check (Mirin) ").SetValue(false));
+                miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.tumble.walltumble.warning", "Click and hold Walltumble").SetFontStyle(FontStyle.Bold, SharpDX.Color.Red));
+                miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.tumble.walltumble.warning.2", "It will work to the nearest tumble spot and tumble").SetFontStyle(FontStyle.Bold, SharpDX.Color.Red));
+
                 miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.tumble.walltumble", "Tumble Over Wall (WallTumble)").SetValue(new KeyBind("Y".ToCharArray()[0], KeyBindType.Press)));
             }
 
