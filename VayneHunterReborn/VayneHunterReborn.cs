@@ -112,11 +112,11 @@ namespace VayneHunter_Reborn
 
             var miscEMenu = new Menu("Misc - Condemn", "dz191.vhr.misc.condemn");
             {
-                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.condemnmethod", "Condemn Method").SetValue(new StringList(new[] { "VH Revolution", "VH Reborn", "Marksman/Gosu", "VH Rework" })));
+                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.condemnmethod", "Condemn Method").SetValue(new StringList(new[] { "VH Revolution", "VH Reborn", "Marksman/Gosu", "VH Rework", "Shine#" })));
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.pushdistance", "E Push Distance").SetValue(new Slider(395, 350, 470)));
 
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.rev.predictionNumber", "Number of Predictions (Revolution Only)").SetValue(new Slider(13, 2, 15)));
-                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.rev.accuracy", "Accuracy (Revolution Only)").SetValue(new Slider(40, 1)));
+                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.rev.accuracy", "Accuracy (Revolution Only)").SetValue(new Slider(33, 1)));
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.rev.nextprediction", "Last Prediction (Rev. Only - Don't touch)").SetValue(new Slider(500, 1, 1000)));
 
                 miscEMenu.AddItem(
@@ -131,11 +131,12 @@ namespace VayneHunter_Reborn
                                     "VH Revolution",    
                                     "VH Reborn",    
                                     "Marksman/Gosu",
-                                    "VH Rework"
+                                    "VH Rework",
+                                    "Shine#"
                             }, 0));
 
                             Menu.Item("dz191.vhr.misc.condemn.rev.predictionNumber").SetValue(new Slider(13, 2, 15));
-                            Menu.Item("dz191.vhr.misc.condemn.rev.accuracy").SetValue(new Slider(40, 1));
+                            Menu.Item("dz191.vhr.misc.condemn.rev.accuracy").SetValue(new Slider(33, 1));
                             Menu.Item("dz191.vhr.misc.condemn.pushdistance").SetValue(new Slider(395, 350, 470));
                             Menu.Item("dz191.vhr.misc.general.antigp").SetValue(false);
                             LeagueSharp.Common.Utility.DelayAction.Add((int)(Game.Ping/2f + 250f), () =>
@@ -281,11 +282,41 @@ namespace VayneHunter_Reborn
 
         private static void Spellbook_OnCastSpell(Spellbook sender, SpellbookCastSpellEventArgs args)
         {
-            if (args.Slot == SpellSlot.E && !(args.Target is Obj_AI_Hero) &&
-                Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
+            if (sender.Owner.IsMe && args.Slot == SpellSlot.E && (Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo))
             {
-                args.Process = false;
+                if (!(args.Target is Obj_AI_Hero))
+                {
+                    args.Process = false;
+                    return;
+                }
+
+                Obj_AI_Hero tg;
+                if (CondemnCheck(ObjectManager.Player.ServerPosition, out tg))
+                {
+                    //Using Shine's method for double check
+                    var target = tg;
+                    var pushDistance = MenuHelper.getSliderValue("dz191.vhr.misc.condemn.pushdistance");
+                    var targetPosition = _spells[SpellSlot.E].GetPrediction(target).UnitPosition;
+                    var pushDirection = (targetPosition - ObjectManager.Player.ServerPosition).Normalized();
+                    float checkDistance = pushDistance / 40f;
+                    for (int i = 0; i < 40; i++)
+                    {
+                        Vector3 finalPosition = targetPosition + (pushDirection * checkDistance * i);
+                        var collFlags = NavMesh.GetCollisionFlags(finalPosition);
+                        var underTurret = MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.condemnturret") && (finalPosition.UnderTurret(false) || Helpers.IsFountain(finalPosition));
+                        var j4Flag = MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.condemnflag") && (Helpers.IsJ4FlagThere(finalPosition, target) || Helpers.IsJ4FlagThere(finalPosition, target));
+                        if ((collFlags == CollisionFlags.Wall || collFlags == CollisionFlags.Building || underTurret || j4Flag) 
+                            && finalPosition.GetWallsInRange(target).Any()) //not sure about building, I think its turrets, nexus etc
+                        {
+                            return;
+                        }
+                    }
+                    args.Process = false;
+                    Console.WriteLine("Blocked Condemn");
+                }
+                
             }
+
         }
 
         static void Obj_AI_Base_OnIssueOrder(Obj_AI_Base sender, GameObjectIssueOrderEventArgs args)
@@ -1018,10 +1049,10 @@ namespace VayneHunter_Reborn
                             ExtendedList.Add(position.Extend(fromPosition, -PushDistance));
                         }
 
-                        var WallListCount = ExtendedList.Count(h => h.IsWall() || IsJ4Flag(h, Hero));
+                        var WallListCount = ExtendedList.Count(h => (NavMesh.GetCollisionFlags(h) == CollisionFlags.Building || NavMesh.GetCollisionFlags(h) == CollisionFlags.Wall) || IsJ4Flag(h, Hero));
                         //Console.WriteLine("Actual Preds: {0} Walllist count: {1} TotalList: {2} Percent: {3}", PredictionsList.Count, WallListCount, ExtendedList.Count, ((float)WallListCount / (float)ExtendedList.Count));
 
-                        if (((float)WallListCount * 1.13f / (float)ExtendedList.Count) >= MinChecksPercent / 100f)
+                        if (((float)WallListCount * 1.2f / (float)ExtendedList.Count) >= MinChecksPercent / 100f)
                         {
                             if (MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.trinketbush") &&
                                     NavMesh.IsWallOfGrass(finalPosition, 25) && trinketSpell != null)
@@ -1031,9 +1062,11 @@ namespace VayneHunter_Reborn
                                     ObjectManager.Player.ServerPosition.Distance(finalPosition) - 25f);
                                 LeagueSharp.Common.Utility.DelayAction.Add(250, () => trinketSpell.Cast(wardPosition));
                             }
-
-                            tg = Hero;
-                            return true;
+                            //var finalPosition2 = Hero.ServerPosition.Extend(fromPosition, -PushDistance /4f);
+                            //var finalPosition3 = Hero.ServerPosition.Extend(fromPosition, -PushDistance /2f);
+                            //var finalPosition4 = Hero.ServerPosition.Extend(fromPosition, -PushDistance *0.75f);
+                                tg = Hero;
+                                return true;            
                         }
                     }
                     break;
@@ -1164,6 +1197,43 @@ namespace VayneHunter_Reborn
 
                                 tg = en;
                                 return true; 
+                            }
+                        }
+                    }
+                    break;
+                case 4:
+                    //Shine
+                    foreach (var target in HeroManager.Enemies.Where(h => h.IsValidTarget(_spells[SpellSlot.E].Range)))
+                    {
+                        var pushDistance = MenuHelper.getSliderValue("dz191.vhr.misc.condemn.pushdistance");
+                        var targetPosition = _spells[SpellSlot.E].GetPrediction(target).UnitPosition;
+                        var pushDirection = (targetPosition - ObjectManager.Player.ServerPosition).Normalized();
+                        float checkDistance = pushDistance / 40f;
+                        for (int i = 0; i < 40; i++)
+                        {
+                            Vector3 finalPosition = targetPosition + (pushDirection * checkDistance * i);
+                            var collFlags = NavMesh.GetCollisionFlags(finalPosition);
+                            var underTurret = MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.condemnturret") && (finalPosition.UnderTurret(false) || Helpers.IsFountain(finalPosition));
+                            var j4Flag = MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.condemnflag") && (Helpers.IsJ4FlagThere(finalPosition, target) || Helpers.IsJ4FlagThere(finalPosition, target));
+                            if (collFlags == CollisionFlags.Wall || collFlags == CollisionFlags.Building || underTurret || j4Flag) //not sure about building, I think its turrets, nexus etc
+                            {
+                                if (MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.onlystuncurrent") &&
+                                                !target.Equals(Orbwalker.GetTarget()))
+                                {
+                                    tg = null;
+                                    return false;
+                                }
+
+                                if (target.Health + 10 <=
+                                                ObjectManager.Player.GetAutoAttackDamage(target) *
+                                                MenuHelper.getSliderValue("dz191.vhr.misc.condemn.noeaa"))
+                                {
+                                    tg = null;
+                                    return false;
+                                }
+
+                                tg = target;
+                                return true;
                             }
                         }
                     }

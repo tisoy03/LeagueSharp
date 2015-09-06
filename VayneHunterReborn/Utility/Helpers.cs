@@ -59,6 +59,25 @@ namespace VayneHunter_Reborn.Utility
             ObjectManager.Player.IssueOrder(GameObjectOrder.MoveTo, where);
         }
 
+        public static List<Vector3> GetWallsInRange(this Vector3 pos, Obj_AI_Hero target)
+        {
+            var list = new List<Vector3>();
+            const int currentStep = 30;
+            var direction = target.Direction.To2D().Perpendicular();
+            for (var i = 0f; i < 360f; i += currentStep)
+            {
+                var angleRad = Geometry.DegreeToRadian(i);
+                var rotatedPosition = pos.To2D() + (target.BoundingRadius * 1.25f * direction.Rotated(angleRad));
+                var collFlags = NavMesh.GetCollisionFlags(rotatedPosition.To3D());
+                if (collFlags == CollisionFlags.Wall || collFlags == CollisionFlags.Building)
+                {
+                    list.Add(rotatedPosition.To3D());
+                    break;
+                }
+            }
+            return list;
+        }
+
         public static bool OkToQ(this Vector3 position)
         {
             if (position.UnderTurret(true) && !ObjectManager.Player.UnderTurret(true))
