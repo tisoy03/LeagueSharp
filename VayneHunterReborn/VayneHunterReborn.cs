@@ -134,10 +134,11 @@ namespace VayneHunter_Reborn
                                     "VH Rework"
                             }, 0));
 
-                            Menu.Item("dz191.vhr.misc.condemn.rev.predictionNumber").SetValue(new Slider(10, 2, 15));
-                            Menu.Item("dz191.vhr.misc.condemn.rev.accuracy").SetValue(new Slider(55, 1));
-                            Menu.Item("dz191.vhr.misc.condemn.pushdistance").SetValue(new Slider(425, 350, 470));
+                            Menu.Item("dz191.vhr.misc.condemn.rev.predictionNumber").SetValue(new Slider(13, 2, 15));
+                            Menu.Item("dz191.vhr.misc.condemn.rev.accuracy").SetValue(new Slider(70, 1));
+                            Menu.Item("dz191.vhr.misc.condemn.pushdistance").SetValue(new Slider(395, 350, 470));
                             Menu.Item("dz191.vhr.misc.general.antigp").SetValue(false);
+                            Menu.Item("dz191.vhr.misc.condemn.exory").SetValue(false);
                         }
                     };
 
