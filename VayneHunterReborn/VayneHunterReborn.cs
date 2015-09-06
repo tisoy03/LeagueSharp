@@ -205,7 +205,7 @@ namespace VayneHunter_Reborn
         /// </summary>
         private static void SetUpSkills()
         {
-            _spells[SpellSlot.E].SetTargetted(0.25f,2000f);
+            _spells[SpellSlot.E].SetTargetted(0.25f,1400f);
             trinketSpell = new Spell(SpellSlot.Trinket);
         }
 
@@ -228,6 +228,7 @@ namespace VayneHunter_Reborn
             GameObject.OnCreate += GameObject_OnCreate;
             Game.OnWndProc += Game_OnWndProc;
             Spellbook.OnCastSpell += Spellbook_OnCastSpell;
+            Obj_AI_Base.OnIssueOrder += Obj_AI_Base_OnIssueOrder;
             if (CustomTargetSelector.IsActive())
             {
                 CustomTargetSelector.RegisterEvents();
@@ -277,9 +278,20 @@ namespace VayneHunter_Reborn
 
         private static void Spellbook_OnCastSpell(Spellbook sender, SpellbookCastSpellEventArgs args)
         {
-            return;
             if (args.Slot == SpellSlot.E && !(args.Target is Obj_AI_Hero) &&
                 Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
+            {
+                args.Process = false;
+            }
+        }
+
+        static void Obj_AI_Base_OnIssueOrder(Obj_AI_Base sender, GameObjectIssueOrderEventArgs args)
+        {
+            if (sender.IsMe 
+                && args.Order == GameObjectOrder.AttackTo
+                && MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.noaastealth") && ObjectManager.Player.CountEnemiesInRange(1000f) > 1
+                && (Helpers.IsPlayerFaded() || ObjectManager.Player.HasBuffOfType(BuffType.Invisibility))
+                && Orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.None)
             {
                 args.Process = false;
             }
@@ -674,13 +686,6 @@ namespace VayneHunter_Reborn
             }
             #endregion
 
-            #region Disable AA Stealth
-            if (MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.noaastealth") && ObjectManager.Player.CountEnemiesInRange(1000f) > 1)
-            {
-                Orbwalker.SetAttack(!Helpers.IsPlayerFaded());
-            }
-            #endregion
-
             #region Condemn KS
             if (MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.eks") && _spells[SpellSlot.E].IsReady() && !ObjectManager.Player.HasBuff("vaynetumblebonus"))
             {
@@ -1013,7 +1018,7 @@ namespace VayneHunter_Reborn
                         var WallListCount = ExtendedList.Count(h => h.IsWall() || IsJ4Flag(h, Hero));
                         //Console.WriteLine("Actual Preds: {0} Walllist count: {1} TotalList: {2} Percent: {3}", PredictionsList.Count, WallListCount, ExtendedList.Count, ((float)WallListCount / (float)ExtendedList.Count));
 
-                        if (((float)WallListCount * 1.2f / (float)ExtendedList.Count) >= MinChecksPercent / 100f)
+                        if (((float)WallListCount * 1.13f / (float)ExtendedList.Count) >= MinChecksPercent / 100f)
                         {
                             if (MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.trinketbush") &&
                                     NavMesh.IsWallOfGrass(finalPosition, 25) && trinketSpell != null)
