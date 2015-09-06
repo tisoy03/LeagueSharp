@@ -113,14 +113,14 @@ namespace VayneHunter_Reborn
             var miscEMenu = new Menu("Misc - Condemn", "dz191.vhr.misc.condemn");
             {
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.condemnmethod", "Condemn Method").SetValue(new StringList(new[] { "VH Revolution", "VH Reborn", "Marksman/Gosu", "VH Rework" })));
-                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.pushdistance", "E Push Distance").SetValue(new Slider(420, 350, 470)));
+                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.pushdistance", "E Push Distance").SetValue(new Slider(395, 350, 470)));
 
-                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.rev.predictionNumber", "Number of Predictions (Revolution Only)").SetValue(new Slider(12, 2, 15)));
+                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.rev.predictionNumber", "Number of Predictions (Revolution Only)").SetValue(new Slider(13, 2, 15)));
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.rev.accuracy", "Accuracy (Revolution Only)").SetValue(new Slider(40, 1)));
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.rev.nextprediction", "Last Prediction (Rev. Only - Don't touch)").SetValue(new Slider(500, 1, 1000)));
 
                 miscEMenu.AddItem(
-                    new MenuItem("dz191.vhr.misc.condemn.exory", ">>>        Press here if Condemn Bad™       <<<").SetFontStyle(FontStyle.Bold, SharpDX.Color.Yellow).SetValue(false))
+                    new MenuItem("dz191.vhr.misc.condemn.asuna", ">>>        Asuna Condemn Settings™       <<<").SetFontStyle(FontStyle.Bold, SharpDX.Color.Yellow).SetValue(false))
                     .ValueChanged += (s, args) =>
                     {
                         if (args.GetNewValue<bool>())
@@ -138,7 +138,10 @@ namespace VayneHunter_Reborn
                             Menu.Item("dz191.vhr.misc.condemn.rev.accuracy").SetValue(new Slider(40, 1));
                             Menu.Item("dz191.vhr.misc.condemn.pushdistance").SetValue(new Slider(395, 350, 470));
                             Menu.Item("dz191.vhr.misc.general.antigp").SetValue(false);
-                            Menu.Item("dz191.vhr.misc.condemn.exory").SetValue(false);
+                            LeagueSharp.Common.Utility.DelayAction.Add((int)(Game.Ping/2f + 250f), () =>
+                            {
+                                  Menu.Item("dz191.vhr.misc.condemn.asuna").SetValue(false);
+                            });
                         }
                     };
 
