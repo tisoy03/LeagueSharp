@@ -1,4 +1,6 @@
-﻿namespace VayneHunter_Reborn
+﻿using System.Drawing;
+
+namespace VayneHunter_Reborn
 {
     #region References
     using System;
@@ -94,15 +96,15 @@
             var miscMenu = new Menu("[VHR] Misc", "dz191.vhr.misc");
             var miscQMenu = new Menu("Misc - Tumble", "dz191.vhr.misc.tumble");
             {
-                miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.qlogic", "Q Logic").SetValue(new StringList(new[] { "Normal", "Away from enemies" })));
-                miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.tumble.smartq", "Try to QE First").SetValue(false));
+                miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.qlogic", "Q Logic").SetValue(new StringList(new[] { "Normal", "Kite melees" })));
+                miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.tumble.smartq", "Try to QE when possible").SetValue(false));
                 miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.tumble.noaastealth", "Don't AA while stealthed").SetValue(false));
                 miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.tumble.noqenemies", "Don't Q into enemies").SetValue(false));
-                miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.tumble.dynamicqsafety", "Dynamic Q Safety Distance").SetValue(false));
+                miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.tumble.dynamicqsafety", "Use dynamic Q Safety Distance").SetValue(false));
                 miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.tumble.qspam", "Ignore Q checks").SetValue(false));
-                miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.tumble.qinrange", "Q In Range if Enemy Health < Q+AA Dmg").SetValue(true));
+                miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.tumble.qinrange", "Q For KS").SetValue(true));
+                miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.tumble.mirin", "Use old 'Don't Q into enemies' check (Mirin) ").SetValue(false));
                 miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.tumble.walltumble", "Tumble Over Wall (WallTumble)").SetValue(new KeyBind("Y".ToCharArray()[0], KeyBindType.Press)));
-                miscQMenu.AddItem(new MenuItem("dz191.vhr.misc.tumble.mirin", "Enable this if you're Mirin").SetValue(false));
             }
 
             var miscEMenu = new Menu("Misc - Condemn", "dz191.vhr.misc.condemn");
@@ -111,7 +113,7 @@
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.pushdistance", "E Push Distance").SetValue(new Slider(420, 350, 470)));
 
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.rev.predictionNumber", "Number of Predictions (Revolution Only)").SetValue(new Slider(12, 2, 15)));
-                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.rev.accuracy", "Accuracy (Revolution Only)").SetValue(new Slider(45, 1)));
+                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.rev.accuracy", "Accuracy (Revolution Only)").SetValue(new Slider(40, 1)));
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.rev.nextprediction", "Last Prediction (Rev. Only - Don't touch)").SetValue(new Slider(500, 1, 1000)));
 
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.enextauto", "E Next Auto").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Toggle)));
@@ -122,14 +124,14 @@
 
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.trinketbush", "Trinket Bush on Condemn").SetValue(true));
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.ethird", "E 3rd proc in Harass").SetValue(false));
-                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.lowlifepeel", "Peel with E when low").SetValue(false));
+                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.lowlifepeel", "Peel with E when low health").SetValue(false));
 
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.condemnturret", "Try to Condemn to turret").SetValue(false));
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.condemnflag", "Condemn to J4 flag").SetValue(true));
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.noeturret", "No E Under enemy turret").SetValue(false));
 
                 miscEMenu.AddItem(
-                    new MenuItem("dz191.vhr.misc.condemn.exory", "Press here if no Condemn™").SetValue(false))
+                    new MenuItem("dz191.vhr.misc.condemn.exory", ">>>        Press here if Condemn Bad™       <<<").SetFontStyle(FontStyle.Bold, SharpDX.Color.Yellow).SetValue(false))
                     .ValueChanged += (s, args) =>
                     {
                         if (args.GetNewValue<bool>())
@@ -143,22 +145,23 @@
                                     "VH Rework"
                             }, 0));
 
-                            Menu.Item("dz191.vhr.misc.condemn.rev.predictionNumber").SetValue(new Slider(15, 2, 15));
-                            Menu.Item("dz191.vhr.misc.condemn.rev.accuracy").SetValue(new Slider(1, 1));
-                            Menu.Item("dz191.vhr.misc.condemn.pushdistance").SetValue(new Slider(400, 350, 470));
+                            Menu.Item("dz191.vhr.misc.condemn.rev.predictionNumber").SetValue(new Slider(10, 2, 15));
+                            Menu.Item("dz191.vhr.misc.condemn.rev.accuracy").SetValue(new Slider(25, 1));
+                            Menu.Item("dz191.vhr.misc.condemn.pushdistance").SetValue(new Slider(425, 350, 470));
+                            Menu.Item("dz191.vhr.misc.general.antigp").SetValue(false);
                         }
                     };
             }
 
             var miscGeneralSubMenu = new Menu("Misc - General", "dz191.vhr.misc.general");
             {
-                miscGeneralSubMenu.AddItem(new MenuItem("dz191.vhr.misc.general.antigp", "Anti Gapcloser")).SetValue(true);
+                miscGeneralSubMenu.AddItem(new MenuItem("dz191.vhr.misc.general.antigp", "Anti Gapcloser")).SetValue(false);
                 miscGeneralSubMenu.AddItem(new MenuItem("dz191.vhr.misc.general.interrupt", "Interrupter").SetValue(true));
                 miscGeneralSubMenu.AddItem(new MenuItem("dz191.vhr.misc.general.antigpdelay", "Anti Gapcloser Delay (ms)")).SetValue(new Slider(0,0,1000));
                 miscGeneralSubMenu.AddItem(new MenuItem("dz191.vhr.misc.general.specialfocus", "Focus targets with 2 W marks").SetValue(false));
                 miscGeneralSubMenu.AddItem(new MenuItem("dz191.vhr.misc.general.reveal", "Stealth Reveal (Pink Ward)").SetValue(false));
                 miscGeneralSubMenu.AddItem(new MenuItem("dz191.vhr.misc.general.disablemovement", "Disable Orbwalker Movement").SetValue(false));
-                miscGeneralSubMenu.AddItem(new MenuItem("dz191.vhr.misc.general.permashow", "PermaShow").SetShared().SetValue(true)).ValueChanged += (s, args) =>
+                miscGeneralSubMenu.AddItem(new MenuItem("dz191.vhr.misc.general.permashow", "PermaShow").SetValue(true)).ValueChanged += (s, args) =>
                 {
                     if (args.GetNewValue<bool>())
                     {
@@ -219,15 +222,18 @@
             Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
             GameObject.OnCreate += GameObject_OnCreate;
             Game.OnWndProc += Game_OnWndProc;
-
+            Spellbook.OnCastSpell += Spellbook_OnCastSpell;
             if (CustomTargetSelector.IsActive())
             {
                 CustomTargetSelector.RegisterEvents();
             }
         }
+
         #endregion
 
         #region Delegate Methods.
+
+        #region
         static void Game_OnWndProc(WndEventArgs args)
         {
             /**
@@ -260,6 +266,18 @@
                 });
             }
             */
+        }
+
+        #endregion
+
+        private static void Spellbook_OnCastSpell(Spellbook sender, SpellbookCastSpellEventArgs args)
+        {
+            return;
+            if (args.Slot == SpellSlot.E && !(args.Target is Obj_AI_Hero) &&
+                Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
+            {
+                args.Process = false;
+            }
         }
 
         #region Special AntiGP Methods
@@ -646,9 +664,7 @@
                 var target = HeroManager.Enemies.Find(en => en.IsValidTarget(ObjectManager.Player.AttackRange) && en.Has2WStacks());
                 if (target != null)
                 {
-                    Orbwalker.ForceTarget(target);
-                    CustomTargetSelector.scriptSelectedHero = target;
-                    Hud.SelectedUnit = target;
+                    TargetSelector.SetTarget(target);
                 }
             }
             #endregion
@@ -664,7 +680,7 @@
             if (MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.eks") && _spells[SpellSlot.E].IsReady() && !ObjectManager.Player.HasBuff("vaynetumblebonus"))
             {
                 var target = HeroManager.Enemies.Find(en => en.IsValidTarget(_spells[SpellSlot.E].Range) && en.Has2WStacks());
-                if (target != null &&  target.IsValidTarget() && target.Health + 60 <= (_spells[SpellSlot.E].GetDamage(target) + _spells[SpellSlot.W].GetDamage(target)) && (target is Obj_AI_Hero))
+                if (target.IsValidTarget() && target.Health + 60 <= (_spells[SpellSlot.E].GetDamage(target) + _spells[SpellSlot.W].GetDamage(target)) && (target is Obj_AI_Hero))
                 {
                     _spells[SpellSlot.E].Cast(target);
                 }
@@ -679,7 +695,7 @@
             #endregion
 
             #region Low Life Peel
-            if (MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.lowlifepeel") && ObjectManager.Player.HealthPercentage() <= 15 && _spells[SpellSlot.E].IsReady())
+            if (MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.lowlifepeel") && ObjectManager.Player.HealthPercent <= 15 && _spells[SpellSlot.E].IsReady())
             {
                 var meleeEnemies = ObjectManager.Player.GetEnemiesInRange(375f).FindAll(m => m.IsMelee());
                 if (meleeEnemies.Any())
@@ -725,7 +741,7 @@
                 {
                     var extendedPosition = ObjectManager.Player.ServerPosition.Extend(
                         currentTarget.ServerPosition, 300f);
-                    if (Helpers.OkToQ(extendedPosition))
+                    if (extendedPosition.OkToQ())
                     {
                         _spells[SpellSlot.Q].Cast(extendedPosition);
                         Orbwalking.ResetAutoAttackTimer();
@@ -748,7 +764,7 @@
                 {
                     var angleRad = Geometry.DegreeToRadian(i);
                     var rotatedPosition = ObjectManager.Player.Position.To2D() + (300f * direction.Rotated(angleRad));
-                    if (CondemnCheck(rotatedPosition.To3D(), out myTarget) && Helpers.OkToQ(rotatedPosition.To3D()))
+                    if (CondemnCheck(rotatedPosition.To3D(), out myTarget) && rotatedPosition.To3D().OkToQ())
                     {
                         myPosition = rotatedPosition.To3D();
                         break;
@@ -788,7 +804,7 @@
             var distanceAfterTumble = Vector3.DistanceSquared(posAfterTumble, target.ServerPosition);
             if ((distanceAfterTumble <= 550 * 550 && distanceAfterTumble >= 100 * 100) || (MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.qspam")))
             {
-                if (!Helpers.OkToQ2(posAfterTumble) && MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.noqenemies"))
+                if (!posAfterTumble.OkToQ2() && MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.noqenemies"))
                 {
                     if(!(MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.qspam")))
                     {
@@ -815,7 +831,7 @@
                 switch (Menu.Item("dz191.vhr.misc.condemn.qlogic").GetValue<StringList>().SelectedIndex)
                 {
                     case 0:
-                        if (!Helpers.OkToQ2(posAfterTumble) &&
+                        if (!posAfterTumble.OkToQ2() &&
                             MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.noqenemies"))
                         {
                             if (!(MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.qspam")))
@@ -835,8 +851,8 @@
                                     .First();
                             var whereToQ = Closest.ServerPosition.Extend(
                                 ObjectManager.Player.ServerPosition, Closest.Distance(ObjectManager.Player) + 300f);
-                            if ((Helpers.OkToQ2(whereToQ) ||
-                                 (!Helpers.OkToQ2(whereToQ) && MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.qspam"))) &&
+                            if ((whereToQ.OkToQ2() ||
+                                 (!whereToQ.OkToQ2() && MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.qspam"))) &&
                                 !whereToQ.UnderTurret(true))
                             {
                                 _spells[SpellSlot.Q].Cast(whereToQ);
