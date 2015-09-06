@@ -119,20 +119,6 @@ namespace VayneHunter_Reborn
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.rev.accuracy", "Accuracy (Revolution Only)").SetValue(new Slider(40, 1)));
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.rev.nextprediction", "Last Prediction (Rev. Only - Don't touch)").SetValue(new Slider(500, 1, 1000)));
 
-                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.enextauto", "E Next Auto").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Toggle)));
-                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.onlystuncurrent", "Only stun current target").SetValue(false));
-                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.autoe", "Auto E").SetValue(false));
-                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.eks", "Smart E Ks").SetValue(false));
-                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.noeaa", "Don't E if Target can be killed in X AA").SetValue(new Slider(1, 0, 4)));
-
-                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.trinketbush", "Trinket Bush on Condemn").SetValue(true));
-                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.ethird", "E 3rd proc in Harass").SetValue(false));
-                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.lowlifepeel", "Peel with E when low health").SetValue(false));
-
-                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.condemnturret", "Try to Condemn to turret").SetValue(false));
-                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.condemnflag", "Condemn to J4 flag").SetValue(true));
-                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.noeturret", "No E Under enemy turret").SetValue(false));
-
                 miscEMenu.AddItem(
                     new MenuItem("dz191.vhr.misc.condemn.exory", ">>>        Press here if Condemn Bad™       <<<").SetFontStyle(FontStyle.Bold, SharpDX.Color.Yellow).SetValue(false))
                     .ValueChanged += (s, args) =>
@@ -149,11 +135,25 @@ namespace VayneHunter_Reborn
                             }, 0));
 
                             Menu.Item("dz191.vhr.misc.condemn.rev.predictionNumber").SetValue(new Slider(10, 2, 15));
-                            Menu.Item("dz191.vhr.misc.condemn.rev.accuracy").SetValue(new Slider(25, 1));
+                            Menu.Item("dz191.vhr.misc.condemn.rev.accuracy").SetValue(new Slider(55, 1));
                             Menu.Item("dz191.vhr.misc.condemn.pushdistance").SetValue(new Slider(425, 350, 470));
                             Menu.Item("dz191.vhr.misc.general.antigp").SetValue(false);
                         }
                     };
+
+                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.enextauto", "E Next Auto").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Toggle)));
+                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.onlystuncurrent", "Only stun current target").SetValue(false));
+                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.autoe", "Auto E").SetValue(false));
+                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.eks", "Smart E Ks").SetValue(false));
+                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.noeaa", "Don't E if Target can be killed in X AA").SetValue(new Slider(1, 0, 4)));
+
+                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.trinketbush", "Trinket Bush on Condemn").SetValue(true));
+                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.ethird", "E 3rd proc in Harass").SetValue(false));
+                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.lowlifepeel", "Peel with E when low health").SetValue(false));
+
+                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.condemnturret", "Try to Condemn to turret").SetValue(false));
+                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.condemnflag", "Condemn to J4 flag").SetValue(true));
+                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.noeturret", "No E Under enemy turret").SetValue(false));
             }
 
             var miscGeneralSubMenu = new Menu("Misc - General", "dz191.vhr.misc.general");
