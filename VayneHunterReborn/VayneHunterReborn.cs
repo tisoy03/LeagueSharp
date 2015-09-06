@@ -230,6 +230,7 @@
         #region Delegate Methods.
         static void Game_OnWndProc(WndEventArgs args)
         {
+            /**
             if (args.Msg != (uint)WindowsMessages.WM_LBUTTONDOWN)
             {
                 return;
@@ -258,7 +259,7 @@
                     TumblePosition = Vector3.Zero;
                 });
             }
-            
+            */
         }
 
         #region Special AntiGP Methods
