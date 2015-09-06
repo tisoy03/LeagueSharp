@@ -135,7 +135,7 @@ namespace VayneHunter_Reborn
                             }, 0));
 
                             Menu.Item("dz191.vhr.misc.condemn.rev.predictionNumber").SetValue(new Slider(13, 2, 15));
-                            Menu.Item("dz191.vhr.misc.condemn.rev.accuracy").SetValue(new Slider(70, 1));
+                            Menu.Item("dz191.vhr.misc.condemn.rev.accuracy").SetValue(new Slider(40, 1));
                             Menu.Item("dz191.vhr.misc.condemn.pushdistance").SetValue(new Slider(395, 350, 470));
                             Menu.Item("dz191.vhr.misc.general.antigp").SetValue(false);
                             Menu.Item("dz191.vhr.misc.condemn.exory").SetValue(false);
@@ -197,6 +197,7 @@ namespace VayneHunter_Reborn
             Menu.Item("dz191.vhr.misc.condemn.enextauto").Permashow(Menu.Item("dz191.vhr.misc.condemn.enextauto").GetValue<KeyBind>().Active, "E Next Auto");
 
             Menu.AddToMainMenu();
+            Console.WriteLine(ObjectManager.Player.Spellbook.GetSpell(SpellSlot.E).SData.MissileSpeed);
         }
 
         /// <summary>
