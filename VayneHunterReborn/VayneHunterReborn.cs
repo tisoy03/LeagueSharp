@@ -1036,31 +1036,10 @@ namespace VayneHunter_Reborn
                             PredictionsList.Add(Hero.GetDashInfo().EndPos.To3D());
                         }
 
-                        /**
-                        for (var i = 0; i < NumberOfChecks; i++)
-                        {
-                            var Prediction = LeagueSharp.Common.Prediction.GetPrediction(Hero, currentInterval);
-                            var UnitPosition = Prediction.UnitPosition;
-                            if (UnitPosition.Distance(LastUnitPosition, true) >=
-                                (Hero.BoundingRadius / 2f) * (Hero.BoundingRadius / 2f))
-                            {
-                                PredictionsList.Add(UnitPosition);
-                                LastUnitPosition = UnitPosition;
-                                currentInterval += interval;
-                            }
-                        }
-                        */
-
                         var ExtendedList = new List<Vector3>();
                         var wallsFound = 0;
                         foreach (var position in PredictionsList)
                         {
-                            /**
-                            ExtendedList.Add(position.Extend(fromPosition, -PushDistance / 4f));
-                            ExtendedList.Add(position.Extend(fromPosition, -PushDistance / 2f));
-                            ExtendedList.Add(position.Extend(fromPosition, -(PushDistance * 0.75f)));
-                            ExtendedList.Add(position.Extend(fromPosition, -PushDistance));
-                             * */
                             for (var i = 0; i < PushDistance; i += (int)Hero.BoundingRadius)
                             {
                                 var cPos = position.Extend(fromPosition, -i);
@@ -1077,7 +1056,6 @@ namespace VayneHunter_Reborn
                         var WallListCount = ExtendedList.Count(h => (NavMesh.GetCollisionFlags(h) == CollisionFlags.Building || NavMesh.GetCollisionFlags(h) == CollisionFlags.Wall) || IsJ4Flag(h, Hero));
                         //Console.WriteLine("Actual Preds: {0} Walllist count: {1} TotalList: {2} Percent: {3}", PredictionsList.Count, WallListCount, ExtendedList.Count, ((float)WallListCount / (float)ExtendedList.Count));
 
-                        //if ((((float)WallListCount * 1.3f) / (float)ExtendedList.Count) >= MinChecksPercent / 100f)
                         if ((wallsFound / PredictionsList.Count) >= MinChecksPercent / 100f)
                         {
                             if (MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.trinketbush") &&
@@ -1088,9 +1066,6 @@ namespace VayneHunter_Reborn
                                     ObjectManager.Player.ServerPosition.Distance(finalPosition) - 25f);
                                 LeagueSharp.Common.Utility.DelayAction.Add(250, () => trinketSpell.Cast(wardPosition));
                             }
-                            //var finalPosition2 = Hero.ServerPosition.Extend(fromPosition, -PushDistance /4f);
-                            //var finalPosition3 = Hero.ServerPosition.Extend(fromPosition, -PushDistance /2f);
-                            //var finalPosition4 = Hero.ServerPosition.Extend(fromPosition, -PushDistance *0.75f);
                                 tg = Hero;
                                 return true;            
                         }
