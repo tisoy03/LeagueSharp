@@ -1031,6 +1031,10 @@ namespace VayneHunter_Reborn
                             prediction.UnitPosition
                         };
 
+                        if (Hero.IsDashing())
+                        {
+                            PredictionsList.Add(Hero.GetDashInfo().EndPos.To3D());
+                        }
 
                         /**
                         for (var i = 0; i < NumberOfChecks; i++)
@@ -1051,12 +1055,19 @@ namespace VayneHunter_Reborn
 
                         foreach (var position in PredictionsList)
                         {
+                            /**
                             ExtendedList.Add(position.Extend(fromPosition, -PushDistance / 4f));
                             ExtendedList.Add(position.Extend(fromPosition, -PushDistance / 2f));
                             ExtendedList.Add(position.Extend(fromPosition, -(PushDistance * 0.75f)));
                             ExtendedList.Add(position.Extend(fromPosition, -PushDistance));
+                             * */
+                            for (var i = 0; i < PushDistance; i += (int)Hero.BoundingRadius)
+                            {
+                                ExtendedList.Add(position.Extend(fromPosition, -i));
+                            }
                         }
 
+                        
                         var WallListCount = ExtendedList.Count(h => (NavMesh.GetCollisionFlags(h) == CollisionFlags.Building || NavMesh.GetCollisionFlags(h) == CollisionFlags.Wall) || IsJ4Flag(h, Hero));
                         //Console.WriteLine("Actual Preds: {0} Walllist count: {1} TotalList: {2} Percent: {3}", PredictionsList.Count, WallListCount, ExtendedList.Count, ((float)WallListCount / (float)ExtendedList.Count));
 
