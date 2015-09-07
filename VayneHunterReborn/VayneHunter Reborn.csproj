@@ -59,6 +59,7 @@
   <ItemGroup>
     <Compile Include="MapPosition\Geometry.cs" />
     <Compile Include="MapPosition\PositionalHelper.cs" />
+    <Compile Include="ProfileSelector\ProfileSelector.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utility\AntiGP.cs" />
