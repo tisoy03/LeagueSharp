@@ -998,7 +998,7 @@ namespace VayneHunter_Reborn
                     var interval = NextPrediction / NumberOfChecks;
                     var currentInterval = interval;
                     var LastUnitPosition = Vector3.Zero;
-
+                    
                     if (ObjectManager.Player.ServerPosition.UnderTurret(true))
                     {
                         tg = null;
@@ -1008,6 +1008,7 @@ namespace VayneHunter_Reborn
                     foreach (var Hero in HeroList)
                     {
                         var finalPosition = Hero.ServerPosition.Extend(fromPosition, -PushDistance);
+                        var prediction = _spells[SpellSlot.E].GetPrediction(Hero);
 
                         if (MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.onlystuncurrent") &&
                                    Hero.NetworkId != Orbwalker.GetTarget().NetworkId)
@@ -1022,10 +1023,16 @@ namespace VayneHunter_Reborn
                             continue;
                         }
 
-                        var PredictionsList = new List<Vector3>();
+                        var PredictionsList = new List<Vector3>
+                        {
+                            Hero.ServerPosition,
+                            Hero.Position,
+                            prediction.CastPosition,
+                            prediction.UnitPosition
+                        };
 
-                        PredictionsList.Add(Hero.ServerPosition);
 
+                        /**
                         for (var i = 0; i < NumberOfChecks; i++)
                         {
                             var Prediction = LeagueSharp.Common.Prediction.GetPrediction(Hero, currentInterval);
@@ -1038,6 +1045,7 @@ namespace VayneHunter_Reborn
                                 currentInterval += interval;
                             }
                         }
+                        */
 
                         var ExtendedList = new List<Vector3>();
 
