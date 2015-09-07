@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using LeagueSharp.Common;
 
 namespace VayneHunter_Reborn.ProfileSelector
 {
@@ -62,11 +63,10 @@ namespace VayneHunter_Reborn.ProfileSelector
             return ValueTypes.Slider;
         }
 
-        public override T GetValue<T>()
+        public override Slider GetValue()
         {
-            return null;
-            //return new Tuple<int, int, int>(0, 0, 0);
+            return new Slider(0, 0, 100);
         }
     }
-    */
+     * */
 }
