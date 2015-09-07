@@ -1052,7 +1052,7 @@ namespace VayneHunter_Reborn
                         */
 
                         var ExtendedList = new List<Vector3>();
-
+                        var wallsFound = 0;
                         foreach (var position in PredictionsList)
                         {
                             /**
@@ -1063,7 +1063,13 @@ namespace VayneHunter_Reborn
                              * */
                             for (var i = 0; i < PushDistance; i += (int)Hero.BoundingRadius)
                             {
-                                ExtendedList.Add(position.Extend(fromPosition, -i));
+                                var cPos = position.Extend(fromPosition, -i);
+                                ExtendedList.Add(cPos);
+                                if (cPos.IsWall())
+                                {
+                                    wallsFound++;
+                                    break;
+                                }
                             }
                         }
 
@@ -1071,7 +1077,8 @@ namespace VayneHunter_Reborn
                         var WallListCount = ExtendedList.Count(h => (NavMesh.GetCollisionFlags(h) == CollisionFlags.Building || NavMesh.GetCollisionFlags(h) == CollisionFlags.Wall) || IsJ4Flag(h, Hero));
                         //Console.WriteLine("Actual Preds: {0} Walllist count: {1} TotalList: {2} Percent: {3}", PredictionsList.Count, WallListCount, ExtendedList.Count, ((float)WallListCount / (float)ExtendedList.Count));
 
-                        if (((float)WallListCount * 1.2f / (float)ExtendedList.Count) >= MinChecksPercent / 100f)
+                        //if ((((float)WallListCount * 1.3f) / (float)ExtendedList.Count) >= MinChecksPercent / 100f)
+                        if (((float)wallsFound / PredictionsList.Count) >= MinChecksPercent / 100f)
                         {
                             if (MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.trinketbush") &&
                                     NavMesh.IsWallOfGrass(finalPosition, 25) && trinketSpell != null)
