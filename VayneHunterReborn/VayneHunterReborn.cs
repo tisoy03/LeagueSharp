@@ -1232,6 +1232,15 @@ namespace VayneHunter_Reborn
                                     return false;
                                 }
 
+                                if (MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.trinketbush") &&
+                                    NavMesh.IsWallOfGrass(finalPosition, 25) && trinketSpell != null)
+                                {
+                                    var wardPosition = ObjectManager.Player.ServerPosition.Extend(
+                                        finalPosition,
+                                        ObjectManager.Player.ServerPosition.Distance(finalPosition) - 25f);
+                                    LeagueSharp.Common.Utility.DelayAction.Add(250, () => trinketSpell.Cast(wardPosition));
+                                }
+
                                 tg = target;
                                 return true;
                             }
