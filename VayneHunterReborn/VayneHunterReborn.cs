@@ -209,7 +209,7 @@ namespace VayneHunter_Reborn
         /// </summary>
         private static void SetUpSkills()
         {
-            _spells[SpellSlot.E].SetTargetted(0.25f,1400f);
+            _spells[SpellSlot.E].SetTargetted(0.25f,1250f);
             trinketSpell = new Spell(SpellSlot.Trinket);
         }
 
@@ -1078,7 +1078,7 @@ namespace VayneHunter_Reborn
                         //Console.WriteLine("Actual Preds: {0} Walllist count: {1} TotalList: {2} Percent: {3}", PredictionsList.Count, WallListCount, ExtendedList.Count, ((float)WallListCount / (float)ExtendedList.Count));
 
                         //if ((((float)WallListCount * 1.3f) / (float)ExtendedList.Count) >= MinChecksPercent / 100f)
-                        if (((float)wallsFound / PredictionsList.Count) >= MinChecksPercent / 100f)
+                        if ((wallsFound / PredictionsList.Count) >= MinChecksPercent / 100f)
                         {
                             if (MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.trinketbush") &&
                                     NavMesh.IsWallOfGrass(finalPosition, 25) && trinketSpell != null)
@@ -1272,6 +1272,9 @@ namespace VayneHunter_Reborn
                             }
                         }
                     }
+                    break;
+                case 5:
+                    //Exory / Fastest
                     break;
             }
             tg = null;
