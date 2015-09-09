@@ -233,7 +233,7 @@ namespace VayneHunter_Reborn
             {
                 CustomTargetSelector.RegisterEvents();
             }
-            ProfileSelector.ProfileSelector.OnLoad(Menu);
+            //ProfileSelector.ProfileSelector.OnLoad(Menu);
         }
 
         #endregion
