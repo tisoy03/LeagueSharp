@@ -319,7 +319,7 @@ namespace VayneHunter_Reborn
         static void Obj_AI_Base_OnIssueOrder(Obj_AI_Base sender, GameObjectIssueOrderEventArgs args)
         {
             if (sender.IsMe
-                && args.Order == GameObjectOrder.AttackTo
+                && args.Order == GameObjectOrder.AttackUnit
                 && MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.noaastealth") && ObjectManager.Player.CountEnemiesInRange(1000f) > 1
                 && (Helpers.IsPlayerFaded() || ObjectManager.Player.HasBuffOfType(BuffType.Invisibility))
                 && Orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.None)
