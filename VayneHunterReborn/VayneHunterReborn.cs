@@ -42,7 +42,7 @@ namespace VayneHunter_Reborn
         };
 
         private static Spell trinketSpell;
-        private static readonly Notification CondemnNotification = new Notification("Condemned",5500);
+        private static readonly Notification CondemnNotification = new Notification("Condemned", 5500);
         #endregion
 
         /// <summary>
@@ -72,7 +72,7 @@ namespace VayneHunter_Reborn
             Orbwalker = new Orbwalking.Orbwalker(owMenu);
             Menu.AddSubMenu(owMenu);
 
-           // var tgMenu = new Menu("[VHR] Target Selector", "dz191.vhr.targetselector");
+            // var tgMenu = new Menu("[VHR] Target Selector", "dz191.vhr.targetselector");
             //TargetSelector.AddToMenu(tgMenu);
             //Menu.AddSubMenu(tgMenu);
             CustomTargetSelector.OnLoad(Menu);
@@ -115,10 +115,7 @@ namespace VayneHunter_Reborn
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.condemnmethod", "Condemn Method").SetValue(new StringList(new[] { "VH Revolution", "VH Reborn", "Marksman/Gosu", "VH Rework", "Shine#" })));
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.pushdistance", "E Push Distance").SetValue(new Slider(395, 350, 470)));
 
-                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.rev.predictionNumber", "Number of Predictions (Revolution Only)").SetValue(new Slider(13, 2, 15)));
-                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.rev.accuracy", "Accuracy (Revolution Only)").SetValue(new Slider(33, 1)));
-                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.rev.nextprediction", "Last Prediction (Rev. Only - Don't touch)").SetValue(new Slider(500, 1, 1000)));
-
+                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.accuracy", "Accuracy (Revolution Only)").SetValue(new Slider(33, 1)));
                 miscEMenu.AddItem(
                     new MenuItem("dz191.vhr.misc.condemn.asuna", ">>>        Asuna Condemn Settings™       <<<").SetFontStyle(FontStyle.Bold, SharpDX.Color.Yellow).SetValue(false))
                     .ValueChanged += (s, args) =>
@@ -135,13 +132,12 @@ namespace VayneHunter_Reborn
                                     "Shine#"
                             }, 0));
 
-                            Menu.Item("dz191.vhr.misc.condemn.rev.predictionNumber").SetValue(new Slider(13, 2, 15));
-                            Menu.Item("dz191.vhr.misc.condemn.rev.accuracy").SetValue(new Slider(33, 1));
+                            Menu.Item("dz191.vhr.misc.condemn.accuracy").SetValue(new Slider(33, 1));
                             Menu.Item("dz191.vhr.misc.condemn.pushdistance").SetValue(new Slider(395, 350, 470));
                             Menu.Item("dz191.vhr.misc.general.antigp").SetValue(false);
-                            LeagueSharp.Common.Utility.DelayAction.Add((int)(Game.Ping/2f + 250f), () =>
+                            LeagueSharp.Common.Utility.DelayAction.Add((int)(Game.Ping / 2f + 250f), () =>
                             {
-                                  Menu.Item("dz191.vhr.misc.condemn.asuna").SetValue(false);
+                                Menu.Item("dz191.vhr.misc.condemn.asuna").SetValue(false);
                             });
                         }
                     };
@@ -149,7 +145,7 @@ namespace VayneHunter_Reborn
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.enextauto", "E Next Auto").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Toggle)));
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.onlystuncurrent", "Only stun current target").SetValue(false));
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.autoe", "Auto E").SetValue(false));
-                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.eks", "Smart E Ks").SetValue(false));
+                miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.eks", "Smart E KS").SetValue(false));
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.noeaa", "Don't E if Target can be killed in X AA").SetValue(new Slider(1, 0, 4)));
 
                 miscEMenu.AddItem(new MenuItem("dz191.vhr.misc.condemn.trinketbush", "Trinket Bush on Condemn").SetValue(true));
@@ -165,7 +161,7 @@ namespace VayneHunter_Reborn
             {
                 miscGeneralSubMenu.AddItem(new MenuItem("dz191.vhr.misc.general.antigp", "Anti Gapcloser")).SetValue(false);
                 miscGeneralSubMenu.AddItem(new MenuItem("dz191.vhr.misc.general.interrupt", "Interrupter").SetValue(true));
-                miscGeneralSubMenu.AddItem(new MenuItem("dz191.vhr.misc.general.antigpdelay", "Anti Gapcloser Delay (ms)")).SetValue(new Slider(0,0,1000));
+                miscGeneralSubMenu.AddItem(new MenuItem("dz191.vhr.misc.general.antigpdelay", "Anti Gapcloser Delay (ms)")).SetValue(new Slider(0, 0, 1000));
                 miscGeneralSubMenu.AddItem(new MenuItem("dz191.vhr.misc.general.specialfocus", "Focus targets with 2 W marks").SetValue(false));
                 miscGeneralSubMenu.AddItem(new MenuItem("dz191.vhr.misc.general.reveal", "Stealth Reveal (Pink Ward)").SetValue(false));
                 miscGeneralSubMenu.AddItem(new MenuItem("dz191.vhr.misc.general.disablemovement", "Disable Orbwalker Movement").SetValue(false));
@@ -201,7 +197,7 @@ namespace VayneHunter_Reborn
             Menu.Item("dz191.vhr.misc.condemn.enextauto").Permashow(Menu.Item("dz191.vhr.misc.condemn.enextauto").GetValue<KeyBind>().Active, "E Next Auto");
 
             Menu.AddToMainMenu();
-            Console.WriteLine(ObjectManager.Player.Spellbook.GetSpell(SpellSlot.E).SData.MissileSpeed);
+
         }
 
         /// <summary>
@@ -209,7 +205,7 @@ namespace VayneHunter_Reborn
         /// </summary>
         private static void SetUpSkills()
         {
-            _spells[SpellSlot.E].SetTargetted(0.25f,1250f);
+            _spells[SpellSlot.E].SetTargetted(0.25f, 1250f);
             trinketSpell = new Spell(SpellSlot.Trinket);
         }
 
@@ -221,6 +217,7 @@ namespace VayneHunter_Reborn
             Cleanser.OnLoad();
             PotionManager.OnLoad(Menu);
             ItemManager.OnLoad(Menu);
+            ProfileSelector.ProfileSelector.OnLoad(Menu);
             Game.OnUpdate += Game_OnGameUpdate;
             Orbwalking.AfterAttack += OrbwalkingAfterAttack;
             AntiGP.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
@@ -305,7 +302,7 @@ namespace VayneHunter_Reborn
                         var collFlags = NavMesh.GetCollisionFlags(finalPosition);
                         var underTurret = MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.condemnturret") && (finalPosition.UnderTurret(false) || Helpers.IsFountain(finalPosition));
                         var j4Flag = MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.condemnflag") && (Helpers.IsJ4FlagThere(finalPosition, target) || Helpers.IsJ4FlagThere(finalPosition, target));
-                        if ((collFlags == CollisionFlags.Wall || collFlags == CollisionFlags.Building || underTurret || j4Flag) 
+                        if ((collFlags == CollisionFlags.Wall || collFlags == CollisionFlags.Building || underTurret || j4Flag)
                             && finalPosition.GetWallsInRange(target).Any()) //not sure about building, I think its turrets, nexus etc
                         {
                             return;
@@ -314,14 +311,14 @@ namespace VayneHunter_Reborn
                     args.Process = false;
                     Console.WriteLine("Blocked Condemn");
                 }
-                
+
             }
 
         }
 
         static void Obj_AI_Base_OnIssueOrder(Obj_AI_Base sender, GameObjectIssueOrderEventArgs args)
         {
-            if (sender.IsMe 
+            if (sender.IsMe
                 && args.Order == GameObjectOrder.AttackTo
                 && MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.noaastealth") && ObjectManager.Player.CountEnemiesInRange(1000f) > 1
                 && (Helpers.IsPlayerFaded() || ObjectManager.Player.HasBuffOfType(BuffType.Invisibility))
@@ -334,22 +331,22 @@ namespace VayneHunter_Reborn
         #region Special AntiGP Methods
         private static void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
-            
+
             if (sender is Obj_AI_Hero)
             {
-                var s2 = (Obj_AI_Hero) sender;
+                var s2 = (Obj_AI_Hero)sender;
                 if (s2.IsValidTarget() && s2.ChampionName == "Pantheon" && s2.GetSpellSlot(args.SData.Name) == SpellSlot.W)
                 {
                     if (MenuHelper.isMenuEnabled("dz191.vhr.misc.general.antigp") && args.Target.IsMe)
                     {
-                           if (s2.IsValidTarget(_spells[SpellSlot.E].Range))
-                           {
-                               _spells[SpellSlot.E].Cast(s2);
-                           }
+                        if (s2.IsValidTarget(_spells[SpellSlot.E].Range))
+                        {
+                            _spells[SpellSlot.E].Cast(s2);
+                        }
                     }
                 }
             }
-            
+
         }
 
 
@@ -373,7 +370,7 @@ namespace VayneHunter_Reborn
             }
         }
 
-        #endregion 
+        #endregion
 
         #region
         static void Obj_AI_Hero_OnPlayAnimation(Obj_AI_Base sender, GameObjectPlayAnimationEventArgs args)
@@ -450,7 +447,7 @@ namespace VayneHunter_Reborn
                         });
                     }
                 }
-                
+
             }
 
             if (CustomTargetSelector.IsActive())
@@ -569,11 +566,11 @@ namespace VayneHunter_Reborn
                 LeagueSharp.Common.Utility.DelayAction.Add(MenuHelper.getSliderValue("dz191.vhr.misc.general.antigpdelay"),
                     () =>
                     {
-                        if (gapcloser.Sender.IsValidTarget(_spells[SpellSlot.E].Range) 
-                            && gapcloser.End.Distance(ObjectManager.Player.ServerPosition) <= 400f 
+                        if (gapcloser.Sender.IsValidTarget(_spells[SpellSlot.E].Range)
+                            && gapcloser.End.Distance(ObjectManager.Player.ServerPosition) <= 400f
                             && (gapcloser.Sender is Obj_AI_Hero)
                             && MenuHelper.isMenuEnabled(
-                            string.Format("dz191.vhr.agplist.{0}.{1}",gapcloser.Sender.ChampionName.ToLowerInvariant(), gapcloser.SpellName)
+                            string.Format("dz191.vhr.agplist.{0}.{1}", gapcloser.Sender.ChampionName.ToLowerInvariant(), gapcloser.SpellName)
                             ))
                         {
                             _spells[SpellSlot.E].Cast(gapcloser.Sender);
@@ -668,7 +665,7 @@ namespace VayneHunter_Reborn
             }
 
             var minionsInRange = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, Player.AttackRange).FindAll(m => m.Health <= Player.GetAutoAttackDamage(m) + _spells[SpellSlot.Q].GetDamage(m)).ToList();
-            
+
             if (!minionsInRange.Any())
             {
                 return;
@@ -679,7 +676,7 @@ namespace VayneHunter_Reborn
                 var firstMinion = minionsInRange.OrderBy(m => m.HealthPercent).First();
                 CastTumble(firstMinion);
                 Orbwalker.ForceTarget(firstMinion);
-                
+
             }
         }
 
@@ -756,9 +753,9 @@ namespace VayneHunter_Reborn
             #region Disable Movement
             Orbwalker.SetMovement(!MenuHelper.isMenuEnabled("dz191.vhr.misc.general.disablemovement"));
             #endregion
-            
+
         }
-        
+
         #endregion
 
         #region Tumble Region
@@ -800,7 +797,7 @@ namespace VayneHunter_Reborn
         {
             var myPosition = Game.CursorPos;
             Obj_AI_Hero myTarget = null;
-            if (MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.smartq") && _spells[SpellSlot.E].IsReady()) 
+            if (MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.smartq") && _spells[SpellSlot.E].IsReady())
             {
                 const int currentStep = 30;
                 var direction = ObjectManager.Player.Direction.To2D().Perpendicular();
@@ -821,18 +818,18 @@ namespace VayneHunter_Reborn
                 _spells[SpellSlot.R].Cast();
             }
 
-            CastTumble(myPosition,target);
+            CastTumble(myPosition, target);
 
             if (myPosition != Game.CursorPos && myTarget != null && myTarget.IsValidTarget(300f + _spells[SpellSlot.E].Range) && _spells[SpellSlot.E].IsReady())
             {
-                    LeagueSharp.Common.Utility.DelayAction.Add((int)(Game.Ping / 2f + _spells[SpellSlot.Q].Delay * 1000 + 300f / 1500f + 50f),
-                        () =>
+                LeagueSharp.Common.Utility.DelayAction.Add((int)(Game.Ping / 2f + _spells[SpellSlot.Q].Delay * 1000 + 300f / 1500f + 50f),
+                    () =>
+                    {
+                        if (!_spells[SpellSlot.Q].IsReady())
                         {
-                            if (!_spells[SpellSlot.Q].IsReady())
-                            {
-                                _spells[SpellSlot.E].Cast(myTarget);
-                            }
-                        });
+                            _spells[SpellSlot.E].Cast(myTarget);
+                        }
+                    });
             }
         }
 
@@ -850,9 +847,9 @@ namespace VayneHunter_Reborn
             {
                 if (!posAfterTumble.OkToQ2() && MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.noqenemies"))
                 {
-                    if(!(MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.qspam")))
+                    if (!(MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.qspam")))
                     {
-                          return;
+                        return;
                     }
                 }
                 _spells[SpellSlot.Q].Cast(Game.CursorPos);
@@ -963,7 +960,7 @@ namespace VayneHunter_Reborn
 
             _lastCondemnCheck = Environment.TickCount;
 
-            if ((fromPosition.UnderTurret(true) && MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.noeturret"))|| !_spells[SpellSlot.E].IsReady())
+            if ((fromPosition.UnderTurret(true) && MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.noeturret")) || !_spells[SpellSlot.E].IsReady())
             {
                 tg = null;
                 return false;
@@ -989,16 +986,12 @@ namespace VayneHunter_Reborn
                                         h.IsValidTarget(_spells[SpellSlot.E].Range) &&
                                         !h.HasBuffOfType(BuffType.SpellShield) &&
                                         !h.HasBuffOfType(BuffType.SpellImmunity));
-                    var NumberOfChecks = MenuHelper.getSliderValue("dz191.vhr.misc.condemn.rev.predictionNumber");
                     //dz191.vhr.misc.condemn.rev.accuracy
                     //dz191.vhr.misc.condemn.rev.nextprediction
-                    var MinChecksPercent = MenuHelper.getSliderValue("dz191.vhr.misc.condemn.rev.accuracy");
+                    var MinChecksPercent = MenuHelper.getSliderValue("dz191.vhr.misc.condemn.accuracy");
                     var PushDistance = MenuHelper.getSliderValue("dz191.vhr.misc.condemn.pushdistance");
-                    var NextPrediction = (MenuHelper.getSliderValue("dz191.vhr.misc.condemn.rev.nextprediction"));
-                    var interval = NextPrediction / NumberOfChecks;
-                    var currentInterval = interval;
                     var LastUnitPosition = Vector3.Zero;
-                    
+
                     if (ObjectManager.Player.ServerPosition.UnderTurret(true))
                     {
                         tg = null;
@@ -1052,7 +1045,7 @@ namespace VayneHunter_Reborn
                             }
                         }
 
-                        
+
                         var WallListCount = ExtendedList.Count(h => (NavMesh.GetCollisionFlags(h) == CollisionFlags.Building || NavMesh.GetCollisionFlags(h) == CollisionFlags.Wall) || IsJ4Flag(h, Hero));
                         //Console.WriteLine("Actual Preds: {0} Walllist count: {1} TotalList: {2} Percent: {3}", PredictionsList.Count, WallListCount, ExtendedList.Count, ((float)WallListCount / (float)ExtendedList.Count));
 
@@ -1066,8 +1059,8 @@ namespace VayneHunter_Reborn
                                     ObjectManager.Player.ServerPosition.Distance(finalPosition) - 25f);
                                 LeagueSharp.Common.Utility.DelayAction.Add(250, () => trinketSpell.Cast(wardPosition));
                             }
-                                tg = Hero;
-                                return true;            
+                            tg = Hero;
+                            return true;
                         }
                     }
                     break;
@@ -1089,12 +1082,12 @@ namespace VayneHunter_Reborn
                         for (var i = 1; i <= 30; i++)
                         {
                             var v3 = (targetPosition - fromPosition).Normalized();
-                            var extendedPosition = targetPosition + v3 * (numberOfChecks * i); 
+                            var extendedPosition = targetPosition + v3 * (numberOfChecks * i);
                             //var underTurret = MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.condemnturret") && (Helpers.UnderAllyTurret(finalPosition) || Helpers.IsFountain(finalPosition));
                             var j4Flag = MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.condemnflag") && (Helpers.IsJ4FlagThere(extendedPosition, target));
                             if ((extendedPosition.IsWall() || j4Flag) && (target.Path.Count() < 2) && !target.IsDashing())
                             {
-                                
+
                                 if (target.Health + 10 <=
                                     ObjectManager.Player.GetAutoAttackDamage(target) *
                                     MenuHelper.getSliderValue("dz191.vhr.misc.condemn.noeaa"))
@@ -1110,18 +1103,18 @@ namespace VayneHunter_Reborn
                                 }
 
                                 if (MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.trinketbush") &&
-                                    NavMesh.IsWallOfGrass(extendedPosition,25) && trinketSpell != null)
+                                    NavMesh.IsWallOfGrass(extendedPosition, 25) && trinketSpell != null)
                                 {
                                     var wardPosition = ObjectManager.Player.ServerPosition.Extend(
                                         extendedPosition,
                                         ObjectManager.Player.ServerPosition.Distance(extendedPosition) - 25f);
-                                    LeagueSharp.Common.Utility.DelayAction.Add(250,() => trinketSpell.Cast(wardPosition));
+                                    LeagueSharp.Common.Utility.DelayAction.Add(250, () => trinketSpell.Cast(wardPosition));
                                 }
 
                                 CondemnNotification.Text = "Condemned " + target.ChampionName;
                                 _predictedEndPosition = extendedPosition;
                                 _predictedPosition = targetPosition;
-                                
+
                                 tg = target;
                                 return true;
                             }
@@ -1135,7 +1128,7 @@ namespace VayneHunter_Reborn
                         var pushDistance = MenuHelper.getSliderValue("dz191.vhr.misc.condemn.pushdistance");
                         var targetPosition = _spells[SpellSlot.E].GetPrediction(target).UnitPosition;
                         var finalPosition = targetPosition.Extend(fromPosition, -pushDistance);
-                        var finalPosition2 = targetPosition.Extend(fromPosition, -(pushDistance/2f));
+                        var finalPosition2 = targetPosition.Extend(fromPosition, -(pushDistance / 2f));
                         var underTurret = MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.condemnturret") && (finalPosition.UnderTurret(false) || Helpers.IsFountain(finalPosition));
                         var j4Flag = MenuHelper.isMenuEnabled("dz191.vhr.misc.condemn.condemnflag") && (Helpers.IsJ4FlagThere(finalPosition, target) || Helpers.IsJ4FlagThere(finalPosition2, target));
                         if (finalPosition.IsWall() || finalPosition2.IsWall() || underTurret || j4Flag)
@@ -1162,7 +1155,7 @@ namespace VayneHunter_Reborn
                     break;
                 case 3:
                     //Vayne Hunter Rework
-                    foreach (var en in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsEnemy && hero.IsValidTarget() && hero.Distance(Player.Position)<= _spells[SpellSlot.E].Range))
+                    foreach (var en in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsEnemy && hero.IsValidTarget() && hero.Distance(Player.Position) <= _spells[SpellSlot.E].Range))
                     {
                         var ePred = _spells[SpellSlot.E].GetPrediction(en);
                         int pushDist = Menu.Item("dz191.vhr.misc.condemn.pushdistance").GetValue<Slider>().Value;
@@ -1197,7 +1190,7 @@ namespace VayneHunter_Reborn
                                 }
 
                                 tg = en;
-                                return true; 
+                                return true;
                             }
                         }
                     }
@@ -1265,10 +1258,17 @@ namespace VayneHunter_Reborn
             foreach (var target in from target in HeroManager.Enemies.Where(
                 h =>
                     h.IsValidTarget(_spells[SpellSlot.E].Range) && !h.HasBuffOfType(BuffType.SpellShield) &&
-                    !h.HasBuffOfType(BuffType.SpellImmunity)) let pushDistance = MenuHelper.getSliderValue("dz191.vhr.misc.condemn.pushdistance") let targetPosition = _spells[SpellSlot.E].GetPrediction(target).UnitPosition let finalPosition = targetPosition.Extend(fromPosition, -pushDistance) let condemnRectangle = new Polygon(Polygon.Rectangle(targetPosition.To2D(), finalPosition.To2D(), target.BoundingRadius)) where condemnRectangle.Points.Any(point => point.IsWall()) select target) {
-                        tg = target;
-                        return true;
-                    }
+                    !h.HasBuffOfType(BuffType.SpellImmunity))
+                                   let pushDistance = MenuHelper.getSliderValue("dz191.vhr.misc.condemn.pushdistance")
+                                   let targetPosition = _spells[SpellSlot.E].GetPrediction(target).UnitPosition
+                                   let finalPosition = targetPosition.Extend(fromPosition, -pushDistance)
+                                   let condemnRectangle = new Polygon(Polygon.Rectangle(targetPosition.To2D(), finalPosition.To2D(), target.BoundingRadius))
+                                   where condemnRectangle.Points.Any(point => point.IsWall())
+                                   select target)
+            {
+                tg = target;
+                return true;
+            }
             tg = null;
             return false;
         }
@@ -1276,7 +1276,7 @@ namespace VayneHunter_Reborn
 
         #region WallTumble
         private static void WallTumble()
-        { 
+        {
             Vector2 drakeWallQPos = new Vector2(11514, 4462);
             Vector2 midWallQPos = new Vector2(6667, 8794);
 
@@ -1315,7 +1315,7 @@ namespace VayneHunter_Reborn
                     });
                 }
             }
-            
+
         }
 
         #endregion
