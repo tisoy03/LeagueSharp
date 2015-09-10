@@ -560,8 +560,8 @@ namespace VayneHunter_Reborn.ProfileSelector
 
         public static ProfileSettings GetCurrentProfile()
         {
-            CurrentlySelected = GetItemValue<StringList>("dz191.vhr.ps.profile").SelectedValue;
-            return GetProfileOnName(CurrentlySelected) ?? GetProfileOnName("Asuna");
+            //CurrentlySelected = GetItemValue<StringList>("dz191.vhr.ps.profile").SelectedValue;
+            return GetProfileOnName(GetItemValue<StringList>("dz191.vhr.ps.profile").SelectedValue) ?? GetProfileOnName("Asuna");
         }
 
         private static void ResetItem(String Item, String Message)
