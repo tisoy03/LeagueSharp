@@ -65,6 +65,7 @@ namespace VayneHunter_Reborn.ProfileSelector
             LoadMenu(VHRMenu);
             LoadAssociations();
             LoadCurrentlySelected();
+
         }
 
         #region Menu
@@ -207,7 +208,7 @@ namespace VayneHunter_Reborn.ProfileSelector
             }
             VHRMenu.AddSubMenu(profilerMenu);
 
-            Game.OnInput += Game_OnInput;
+            //Game.OnInput += Game_OnInput;
         }
 
         static void Game_OnInput(GameInputEventArgs args)
@@ -631,47 +632,25 @@ namespace VayneHunter_Reborn.ProfileSelector
         [SecurityPermission(SecurityAction.Assert, Unrestricted = true)]
         public static void LoadAssociations()
         {
-            var text = File.ReadAllText(Path.Combine(WorkingDir, "Index.txt"));
-
-            if (text == "")
-            {
-                SaveAssociations();
-                currentIndex = 0;
-                return;
-            }
-
-            try
-            {
-                currentIndex = Convert.ToInt32(text);
-            }
-            catch (Exception)
-            {
-                currentIndex = 0;
-                SaveAssociations();
-                throw;
-            }
         }
 
         [SecurityPermission(SecurityAction.Assert, Unrestricted = true)]
         public static void SaveAssociations()
         {
-            if (!Directory.Exists(@WorkingDir))
-            {
-                Directory.CreateDirectory(@WorkingDir);
-            }
-
-            using (StreamWriter sw = new StreamWriter(Path.Combine(WorkingDir, "Index.txt")))
-            {
-                sw.Write(currentIndex);
-            }
-
-            Console.WriteLine("[VHR] Saved Index!");
         }
 
         [SecurityPermission(SecurityAction.Assert, Unrestricted = true)]
         public static void LoadCurrentlySelected()
         {
+            if (!File.Exists(Path.Combine(WorkingDir, "CS.txt")))
+            {
+                CurrentlySelected = "Asuna";
+                SaveCurrentlySelected();
+                return;
+            }
+
             var text = File.ReadAllText(Path.Combine(WorkingDir, "CS.txt"));
+            
             CurrentlySelected = text;
         }
 
@@ -687,28 +666,25 @@ namespace VayneHunter_Reborn.ProfileSelector
             {
                 sw.Write(GetItemValue<StringList>("dz191.vhr.ps.profile").SelectedValue);
             }
-
-            Console.WriteLine("[VHR] Saved CS!");
         }
 
         //Le Epik fromBehind();
         [SecurityPermission(SecurityAction.Assert, Unrestricted = true)]
         public static void Load()
         {
-            var text = File.ReadAllText(@WorkingPath);
-            if (text == "")
+            if (!File.Exists(@WorkingPath))
             {
-                Save();
+                SaveDefaultProfiles();
+                Load();
                 return;
             }
 
+            var text = File.ReadAllText(@WorkingPath);
             var DSProfiles = JsonConvert.DeserializeObject<List<ProfileSettings>>(text);
-
-                foreach (var p in DSProfiles.Where(ps => Profiles.All(pd => pd.ProfileName != ps.ProfileName)))
-                {
-                    Profiles.Add(p);
-                }
-                 
+            foreach (var p in DSProfiles.Where(ps => Profiles.All(pd => pd.ProfileName != ps.ProfileName)))
+            {
+               Profiles.Add(p);
+            }     
         }
 
         //Very l33t such wow doge
@@ -727,7 +703,6 @@ namespace VayneHunter_Reborn.ProfileSelector
                 sw.Write(serializedObject);
             }
 
-            Console.WriteLine("[VHR] Saved!");
         }
         #endregion
 

@@ -217,6 +217,7 @@ namespace VayneHunter_Reborn
             Cleanser.OnLoad();
             PotionManager.OnLoad(Menu);
             ItemManager.OnLoad(Menu);
+            ProfileSelector.ProfileSelector.OnLoad(Menu);
             Game.OnUpdate += Game_OnGameUpdate;
             Orbwalking.AfterAttack += OrbwalkingAfterAttack;
             AntiGP.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
