@@ -65,7 +65,6 @@ namespace VayneHunter_Reborn.ProfileSelector
             LoadMenu(VHRMenu);
             LoadAssociations();
             LoadCurrentlySelected();
-
         }
 
         #region Menu
@@ -208,7 +207,7 @@ namespace VayneHunter_Reborn.ProfileSelector
             }
             VHRMenu.AddSubMenu(profilerMenu);
 
-            //Game.OnInput += Game_OnInput;
+            Game.OnInput += Game_OnInput;
         }
 
         static void Game_OnInput(GameInputEventArgs args)
