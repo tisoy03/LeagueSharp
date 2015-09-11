@@ -194,7 +194,7 @@ namespace VayneHunter_Reborn
 
             Menu.AddItem(new MenuItem("dz191.vhr.info", "VHR by Asuna v." + Assembly.GetExecutingAssembly().GetName().Version));
 
-            Menu.Item("dz191.vhr.misc.condemn.enextauto").Permashow(Menu.Item("dz191.vhr.misc.condemn.enextauto").GetValue<KeyBind>().Active, "E Next Auto");
+            Menu.Item("dz191.vhr.misc.condemn.enextauto").Permashow(Menu.Item("dz191.vhr.misc.general.permashow").GetValue<bool>(), "E Next Auto");
 
             Menu.AddToMainMenu();
 
