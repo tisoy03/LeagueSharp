@@ -274,6 +274,15 @@ namespace VayneHunter_Reborn
                 });
             }
             */
+            var drakePre = new Vector2(12050, 4827).To3D();
+            var midPre = new Vector2(6962, 8952).To3D();
+            if (args.Msg == (uint) WindowsMessages.WM_LBUTTONDOWN)
+            {
+                if ((Game.CursorPos.Distance(drakePre) <= 65 && ObjectManager.Player.Distance(drakePre) <= 1000f) || (Game.CursorPos.Distance(midPre) <= 65 && ObjectManager.Player.Distance(midPre) <= 1000f))
+                {
+                    WallTumble();
+                }
+            }
         }
 
         #endregion
