@@ -502,19 +502,6 @@ namespace VayneHunter_Reborn
 
 
             var tg = (Obj_AI_Base)target;
-            if (Orbwalker.GetTarget().IsValidTarget())
-            {
-                if (Orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.Mixed ||
-                    tg.NetworkId != Orbwalker.GetTarget().NetworkId)
-                {
-                    harassAACounter = 0;
-                }
-                else
-                {
-                    harassAACounter++;
-                }
-            }
-
             switch (Orbwalker.ActiveMode)
             {
                 case Orbwalking.OrbwalkingMode.Combo:
@@ -524,7 +511,7 @@ namespace VayneHunter_Reborn
                     }
                     break;
                 case Orbwalking.OrbwalkingMode.Mixed:
-                    if (_spells[SpellSlot.Q].IsEnabledAndReady(Mode.Harrass) && (tg is Obj_AI_Hero) && (harassAACounter == 2))
+                    if (_spells[SpellSlot.Q].IsEnabledAndReady(Mode.Harrass) && (tg is Obj_AI_Hero) && ((tg as Obj_AI_Hero).GetWBuff() != null && (tg as Obj_AI_Hero).GetWBuff().Count >= 1 && _spells[SpellSlot.W].Level > 0))
                     {
                         CastQ(tg);
                         harassAACounter = 0;
