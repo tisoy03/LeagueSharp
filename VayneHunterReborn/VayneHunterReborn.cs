@@ -43,6 +43,7 @@ namespace VayneHunter_Reborn
 
         private static Spell trinketSpell;
         private static readonly Notification CondemnNotification = new Notification("Condemned", 5500);
+        private static int harassAACounter = 0;
         #endregion
 
         /// <summary>
@@ -499,7 +500,20 @@ namespace VayneHunter_Reborn
                 return;
             }
 
+
             var tg = (Obj_AI_Base)target;
+            if (Orbwalker.GetTarget().IsValidTarget())
+            {
+                if (Orbwalker.ActiveMode != Orbwalking.OrbwalkingMode.Mixed ||
+                    tg.NetworkId != Orbwalker.GetTarget().NetworkId)
+                {
+                    harassAACounter = 0;
+                }
+                else
+                {
+                    harassAACounter++;
+                }
+            }
 
             switch (Orbwalker.ActiveMode)
             {
@@ -510,9 +524,10 @@ namespace VayneHunter_Reborn
                     }
                     break;
                 case Orbwalking.OrbwalkingMode.Mixed:
-                    if (_spells[SpellSlot.Q].IsEnabledAndReady(Mode.Harrass) && (tg is Obj_AI_Hero))
+                    if (_spells[SpellSlot.Q].IsEnabledAndReady(Mode.Harrass) && (tg is Obj_AI_Hero) && (harassAACounter == 2))
                     {
                         CastQ(tg);
+                        harassAACounter = 0;
                     }
                     break;
                 case Orbwalking.OrbwalkingMode.LastHit:
