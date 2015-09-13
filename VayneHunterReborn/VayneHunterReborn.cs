@@ -245,36 +245,6 @@ namespace VayneHunter_Reborn
         #region
         static void Game_OnWndProc(WndEventArgs args)
         {
-            /**
-            if (args.Msg != (uint)WindowsMessages.WM_LBUTTONDOWN)
-            {
-                return;
-            }
-            var drakeWallQPos = new Vector2(11514, 4462);
-            var midWallQPos = new Vector2(6962, 8952);
-            var selected = Vector2.Zero;
-
-            if (Game.CursorPos.Distance(new Vector2(12050, 4827).To3D()) <= 75)
-            {
-                selected = drakeWallQPos;
-            }
-
-            if (Game.CursorPos.Distance(midWallQPos.To3D()) <= 75)
-            {
-                selected = midWallQPos;
-            }
-
-            if (selected == drakeWallQPos)
-            {        
-                    goingToTumble = true;
-                    TumblePosition = drakeWallQPos.To3D();
-                LeagueSharp.Common.Utility.DelayAction.Add((int)(750 + Game.Ping/2f), () =>
-                {
-                    goingToTumble = false;
-                    TumblePosition = Vector3.Zero;
-                });
-            }
-            */
             var drakePre = new Vector2(12050, 4827).To3D();
             var midPre = new Vector2(6962, 8952).To3D();
             if (args.Msg == (uint) WindowsMessages.WM_LBUTTONDOWN)
@@ -329,6 +299,7 @@ namespace VayneHunter_Reborn
 
         static void Obj_AI_Base_OnIssueOrder(Obj_AI_Base sender, GameObjectIssueOrderEventArgs args)
         {
+            return;
             if (sender.IsMe
                 && (args.Order == GameObjectOrder.AttackUnit || args.Order == GameObjectOrder.AttackTo)
                 && MenuHelper.isMenuEnabled("dz191.vhr.misc.tumble.noaastealth") && ObjectManager.Player.CountEnemiesInRange(1000f) > 1
