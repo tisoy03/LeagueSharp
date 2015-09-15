@@ -19,6 +19,7 @@ namespace DZBraum
             }
             Braum.BraumMenu = new Menu("Braum - Something","dz191.braum", true);
             MenuGenerator.OnLoad(Braum.BraumMenu);
+            Braum.OnLoad();
         }
     }
 }
